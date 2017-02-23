@@ -80,7 +80,7 @@ Const
   CT_BlockChain_Protocol_Version: Word = $0001; // Version 1
   CT_BlockChain_Protocol_Available: Word = $0001; // Build 1.4 Protocol available changed 0->1
 
-  CT_MagicNetIdentification = $0A043580; // Unix timestamp 168048000 ... It's Albert birthdate!
+  CT_MagicNetIdentification = $711A0F05; // Network magic
 
   // Build 1.0.4 - introducing NetProtocol versioning:
   CT_NetProtocol_Version: Word = $0004;
@@ -90,7 +90,7 @@ Const
 
   CT_SafeBoxBankVersion : Word = 2;
 
-  CT_MagicIdentificator: AnsiString = 'PascalCoin'; //
+  CT_MagicIdentificator: AnsiString = 'BlaiseCoin'; // Safebox magic
 
   // Value of Operations type in Protocol 1
   CT_Op_Transaction = $01;
