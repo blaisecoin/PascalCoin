@@ -99,7 +99,7 @@ Const
 
   CT_ClientAppVersion : AnsiString = {$IFDEF PRODUCTION}'1.0.1'{$ELSE}{$IFDEF TESTNET}'TESTNET 1.0.1'{$ELSE}{$ENDIF}{$ENDIF};
 
-  CT_Discover_IPs =  'bpascal1.dynamic-dns.net;bpascal2.dynamic-dns.net;pascalcoin2.ddns.net;pascalcoin1.dynamic-dns.net;pascalcoin1.dns1.us';
+  CT_Discover_IPs =  'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net';
 
   CT_TRUE_FALSE : Array[Boolean] Of AnsiString = ('FALSE','TRUE');
 
