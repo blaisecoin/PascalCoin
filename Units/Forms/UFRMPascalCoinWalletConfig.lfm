@@ -14,7 +14,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
   Font.Name = 'Tahoma'
   OnCreate = FormCreate
   Position = poOwnerFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.6.2.0'
   object Label1: TLabel
     Left = 30
     Height = 13
@@ -139,7 +139,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Associate = ebInternetServerPort
     Max = 25000
     Min = 1
-    Position = 4004
+    Position = 9004
     TabOrder = 3
     Thousands = False
     Wrap = False
@@ -151,7 +151,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Width = 56
     Alignment = taRightJustify
     TabOrder = 2
-    Text = '4004'
+    Text = '9004'
   end
   object bbUpdatePassword: TBitBtn
     Left = 15
@@ -245,7 +245,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Associate = ebJSONRPCMinerServerPort
     Max = 25000
     Min = 1
-    Position = 4009
+    Position = 9009
     TabOrder = 8
     Thousands = False
     Wrap = False
@@ -257,7 +257,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Width = 56
     Alignment = taRightJustify
     TabOrder = 7
-    Text = '4009'
+    Text = '9009'
   end
   object gbMinerPrivateKey: TGroupBox
     Left = 8

@@ -6,6 +6,11 @@
 *.dproj.local
 *.exe
 __history/*
+Units/Forms/__history/*
+Units/PascalCoin/__history/*
+Units/Utils/__history/*
+PasOpenCL/__history/*
+Synapse/__history/*
 *.~?~
 *.~??~
 *.~???~
@@ -18,8 +23,13 @@ bin/dcu/*
 *.o
 *.compiled
 *.ppu
-*.lfm
 *.bak
 backup/*
+Units/Forms/backup/*
+Units/PascalCoin/backup/*
+Units/Utils/backup/*
+PasOpenCL/backup/*
+Synapse/lib/backup/*
 lib/*
 *.log
+*.dll
