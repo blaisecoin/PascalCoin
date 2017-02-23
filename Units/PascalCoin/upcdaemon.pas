@@ -1,19 +1,16 @@
-unit upcdaemon;
-
-{$mode objfpc}{$H+}
-
-{ Copyright (c) 2016 by Albert Molina
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
 
   Distributed under the MIT software license, see the accompanying file LICENSE
   or visit http://www.opensource.org/licenses/mit-license.php.
 
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
 
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
+unit upcdaemon;
 
-  }
+{$mode objfpc}{$H+}
 
 interface
 
@@ -107,7 +104,7 @@ var
     TLog.NewLog(ltInfo,ClassName,'RPC server is active on port '+IntToStr(port));
     If FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,true) then begin
       FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,true);
-      FRPC.LogFileName:= TFolderHelper.GetPascalCoinDataFolder+PathDelim+'pascalcoin_rpc.log';
+      FRPC.LogFileName:= TFolderHelper.GetPascalCoinDataFolder+PathDelim+'blaisecoin_rpc.log';
       TLog.NewLog(ltInfo,ClassName,'Activating RPC logs on file '+FRPC.LogFileName);
     end else begin
       FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,false);
@@ -177,7 +174,7 @@ var
 
 begin
   FMInerServer := Nil;
-  TLog.NewLog(ltinfo,Classname,'START PascalCoin Server');
+  TLog.NewLog(ltinfo,Classname,'START BlaiseCoin Server');
   try
     try
       FWalletKeys := TWalletKeysExt.Create(Nil);
@@ -225,17 +222,17 @@ begin
       end;
     end;
   finally
-    TLog.NewLog(ltinfo,Classname,'EXIT PascalCoin Server');
+    TLog.NewLog(ltinfo,Classname,'EXIT BlaiseCoin Server');
   end;
 end;
 
 constructor TPCDaemonThread.Create;
 begin
   inherited Create(True);
-  FIniFile := TIniFile.Create(ExtractFileDir(Application.ExeName)+PathDelim+'pascalcoin_daemon.ini');
+  FIniFile := TIniFile.Create(ExtractFileDir(Application.ExeName)+PathDelim+'blaisecoin_daemon.ini');
   If FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,true) then begin
     _FLog.SaveTypes:=CT_TLogTypes_ALL;
-    _FLog.FileName:=TFolderHelper.GetPascalCoinDataFolder+PathDelim+'pascalcoin_'+FormatDateTime('yyyymmddhhnn',Now)+'.log';
+    _FLog.FileName:=TFolderHelper.GetPascalCoinDataFolder+PathDelim+'blaisecoin_'+FormatDateTime('yyyymmddhhnn',Now)+'.log';
     FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,true);
   end else begin
     FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,false);
@@ -330,13 +327,13 @@ Var D : TDaemonDef;
 begin
   inherited DoOnCreate;
   WriteLn('');
-  WriteLn(formatDateTime('dd/mm/yyyy hh:nn:ss.zzz',now)+' Starting PascalCoin server');
+  WriteLn(formatDateTime('dd/mm/yyyy hh:nn:ss.zzz',now)+' Starting BlaiseCoin server');
   FLog := TLog.Create(Nil);
   FLog.OnInThreadNewLog:=@OnPascalCoinInThreadLog;
   _FLog := FLog;
   D:=DaemonDefs.Add as TDaemonDef;
-  D.DisplayName:='Pascal Coin Daemon';
-  D.Name:='PascalCoinDaemon';
+  D.DisplayName:='BlaiseCoin Daemon';
+  D.Name:='BlaiseCoinDaemon';
   D.DaemonClassName:='TPCDaemon';
   D.WinBindings.ServiceType:=stWin32;
 end;
