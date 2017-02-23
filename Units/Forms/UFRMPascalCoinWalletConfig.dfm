@@ -155,7 +155,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Associate = ebInternetServerPort
     Min = 1
     Max = 40000
-    Position = 4004
+    Position = 9004
     TabOrder = 3
     Thousands = False
   end
@@ -166,7 +166,7 @@ object FRMPascalCoinWalletConfig: TFRMPascalCoinWalletConfig
     Height = 21
     Alignment = taRightJustify
     TabOrder = 2
-    Text = '4004'
+    Text = '9004'
   end
   object bbUpdatePassword: TBitBtn
     Left = 15

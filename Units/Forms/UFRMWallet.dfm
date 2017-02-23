@@ -1330,7 +1330,7 @@ object FRMWallet: TFRMWallet
     object miAbout: TMenuItem
       Caption = 'About'
       object miAboutPascalCoin: TMenuItem
-        Caption = 'About Pascal Coin...'
+        Caption = 'About BlaiseCoin...'
         OnClick = miAboutPascalCoinClick
       end
     end
