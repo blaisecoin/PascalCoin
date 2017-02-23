@@ -1,4 +1,4 @@
-program PascalCoinMiner;
+program BlaiseCoinMiner;
 
 {$mode objfpc}{$H+}
 {$DEFINE UseCThreads}
@@ -350,7 +350,7 @@ var
         FWindow32X2:=WindMaxX;
         FWindow32Y1:=WindMinY;
         FWindow32Y2:=WindMaxY;
-        WriteLine(1,'** PascalCoin miner ** Version: '+CT_MINER_VERSION);
+        WriteLine(1,'** BlaiseCoin miner ** Version: '+CT_MINER_VERSION);
         WriteLine(CT_Line_MinerValues-1,'MINER VALUES:');
         WriteLine(CT_Line_MiningStatus-1,'MINING STATUS:');
         WriteLine(CT_Line_LastFound+FDeviceThreads.Count-1,'MY VALID BLOCKS FOUND: 0');
@@ -491,7 +491,7 @@ begin
   FAppStartTime := Now;
   FLog := TLog.Create(self);
   FLog.SaveTypes:=CT_TLogTypes_DEFAULT;
-  FLog.FileName:=ExtractFileDir(ExeName)+PathDelim+'PascalCoinMiner.log';
+  FLog.FileName:=ExtractFileDir(ExeName)+PathDelim+'BlaiseCoinMiner.log';
 end;
 
 destructor TPascalMinerApp.Destroy;
@@ -503,17 +503,17 @@ end;
 procedure TPascalMinerApp.WriteHelp;
 begin
   { add your help code here }
-  writeln('PascalCoin Miner - Version: ',CT_MINER_VERSION);
+  writeln('BlaiseCoin Miner - Version: ',CT_MINER_VERSION);
   writeln('Usage: ', ExtractFileName(ExeName), ' -h -s S -p X -d Y -c N -n MYNAME');
   writeln('  -h for help');
-  writeln('  -s S  (S is PascalCoin server:port where default value is localhost:',CT_JSONRPCMinerServer_Port,')');
+  writeln('  -s S  (S is BlaiseCoin server:port where default value is localhost:',CT_JSONRPCMinerServer_Port,')');
   writeln('  -p X  (X is GPU platform)');
   writeln('  -d Y  (Y is GPU device for platform)');
   writeln('    Y can be multiple devices. Example -d 0,2,3  Will use devices 0, 2 and 3');
   writeln('  -c N  (For CPU mining, where N is CPU''s to use. Activating this disable GPU mining)');
   writeln('  -n MYNAME  (Will add MYNAME value to miner name assigned by server)');
   writeln('  ** POOL IDENTIFICATION PROTOCOL **');
-  writeln('  (Not needed for PascalCoin core, only some third party pools)');
+  writeln('  (Not needed for BlaiseCoin core, only some third party pools)');
   writeln('  -u USERNAME');
   writeln('  -x PASSWORD');
   writeln('');
@@ -528,7 +528,7 @@ var
   Application: TPascalMinerApp;
 begin
   Application:=TPascalMinerApp.Create(nil);
-  Application.Title:='Pascal Miner';
+  Application.Title:='BlaiseCoin Miner';
   Application.Run;
   Application.Free;
 end.

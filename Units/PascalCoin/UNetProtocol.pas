@@ -1,21 +1,18 @@
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
+
+  Distributed under the MIT software license, see the accompanying file LICENSE
+  or visit http://www.opensource.org/licenses/mit-license.php.
+
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
+
 unit UNetProtocol;
 
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
-
-{ Copyright (c) 2016 by Albert Molina
-
-  Distributed under the MIT software license, see the accompanying file LICENSE
-  or visit http://www.opensource.org/licenses/mit-license.php.
-
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
-
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
-
-  }
 
 interface
 
@@ -2382,7 +2379,7 @@ begin
         if HeaderData.protocol.protocol_version>CT_NetProtocol_Available then begin
           TNode.Node.NotifyNetClientMessage(Nil,'Detected a higher Net protocol version at '+
             ClientRemoteAddr+' (v '+inttostr(HeaderData.protocol.protocol_version)+' '+inttostr(HeaderData.protocol.protocol_available)+') '+
-            '... check that your version is Ok! Visit official download website for possible updates: https://sourceforge.net/projects/pascalcoin/');
+            '... check that your version is Ok! Visit official download website for possible updates: https://github.com/blaisecoin/blaisecoin/releases');
           DisconnectInvalidClient(false,Format('Invalid Net protocol version found: %d available: %d',[HeaderData.protocol.protocol_version,HeaderData.protocol.protocol_available]));
           Result := false;
           exit;
@@ -2391,7 +2388,7 @@ begin
             FAlertedForNewProtocolAvailable := true;
             TNode.Node.NotifyNetClientMessage(Nil,'Detected a new Net protocol version at '+
               ClientRemoteAddr+' (v '+inttostr(HeaderData.protocol.protocol_version)+' '+inttostr(HeaderData.protocol.protocol_available)+') '+
-              '... Visit official download website for possible updates: https://sourceforge.net/projects/pascalcoin/');
+              '... Visit official download website for possible updates: https://github.com/blaisecoin/blaisecoin/releases');
           end;
           // Remove data from buffer and save only data not processed (higher than stream.position)
           auxstream := TMemoryStream.Create;

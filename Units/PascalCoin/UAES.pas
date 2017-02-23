@@ -1,21 +1,12 @@
-unit UAES;
-
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
-
-{ Copyright (c) 2016 by Albert Molina
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
 
   Distributed under the MIT software license, see the accompanying file LICENSE
   or visit http://www.opensource.org/licenses/mit-license.php.
 
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
-
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
-
-  }
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
 
 { This unit is used to encrypt/decrypt using AES256
   Basic source code found at internet:
@@ -25,6 +16,12 @@ unit UAES;
   http://stackoverflow.com/users/197962/shunty
 
   }
+
+unit UAES;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
 {$I config.inc}
 interface

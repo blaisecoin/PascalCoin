@@ -1,3 +1,13 @@
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
+
+  Distributed under the MIT software license, see the accompanying file LICENSE
+  or visit http://www.opensource.org/licenses/mit-license.php.
+
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
+
 unit UFRMNodesIp;
 
 {$IFDEF FPC}

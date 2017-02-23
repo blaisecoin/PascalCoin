@@ -1,4 +1,4 @@
-program PascalCoinWalletLazarus;
+program BlaiseCoinWalletLazarus;
 
 {$IFDEF FPC}
   {$MODE Delphi}
@@ -50,7 +50,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.Title := 'Pascal Coin Wallet, Miner & Explorer';
+  Application.Title := 'BlaiseCoin Wallet, Miner & Explorer';
   Application.CreateForm(TFRMWallet, FRMWallet);
   Application.Run;
 end.

@@ -1,16 +1,14 @@
-{ Copyright (c) 2016 by Albert Molina
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by the BlaiseCoin developers
 
   Distributed under the MIT software license, see the accompanying file LICENSE
   or visit http://www.opensource.org/licenses/mit-license.php.
 
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
-
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
 
   **************************************
-  PascalCoin configuration file to build
+  BlaiseCoin configuration file to build
   **************************************
 
   Choose ONLY ONE of directives:
@@ -21,7 +19,6 @@
     DelphiSockets_OpenSSLv10
     Synapse_OpenSSLv10
     Synapse_OpenSSLv11
-
 }
 
   {$DEFINE OPTIONS_BY_DEFAULT}

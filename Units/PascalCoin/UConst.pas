@@ -1,21 +1,18 @@
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
+
+  Distributed under the MIT software license, see the accompanying file LICENSE
+  or visit http://www.opensource.org/licenses/mit-license.php.
+
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
+
 unit UConst;
 
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
-
-{ Copyright (c) 2016 by Albert Molina
-
-  Distributed under the MIT software license, see the accompanying file LICENSE
-  or visit http://www.opensource.org/licenses/mit-license.php.
-
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
-
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
-
-  }
 
 interface
 
@@ -100,7 +97,7 @@ Const
   CT_Op_Changekey = $02;
   CT_Op_Recover = $03;
 
-  CT_ClientAppVersion : AnsiString = {$IFDEF PRODUCTION}'1.5.1'{$ELSE}{$IFDEF TESTNET}'TESTNET 1.5.1'{$ELSE}{$ENDIF}{$ENDIF};
+  CT_ClientAppVersion : AnsiString = {$IFDEF PRODUCTION}'1.0.1'{$ELSE}{$IFDEF TESTNET}'TESTNET 1.0.1'{$ELSE}{$ENDIF}{$ENDIF};
 
   CT_Discover_IPs =  'bpascal1.dynamic-dns.net;bpascal2.dynamic-dns.net;pascalcoin2.ddns.net;pascalcoin1.dynamic-dns.net;pascalcoin1.dns1.us';
 

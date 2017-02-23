@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="PascalCoinWalletLazarus"/>
+      <Title Value="BlaiseCoinWalletLazarus"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <Icon Value="0"/>
@@ -40,7 +40,7 @@
     </RequiredPackages>
     <Units Count="34">
       <Unit0>
-        <Filename Value="PascalCoinWalletLazarus.dpr"/>
+        <Filename Value="BlaiseCoinWalletLazarus.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
@@ -205,7 +205,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="PascalCoinWalletLazarus"/>
+      <Filename Value="BlaiseCoinWalletLazarus"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

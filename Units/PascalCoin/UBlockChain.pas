@@ -1,21 +1,18 @@
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
+
+  Distributed under the MIT software license, see the accompanying file LICENSE
+  or visit http://www.opensource.org/licenses/mit-license.php.
+
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
+
 unit UBlockChain;
 
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
-
-{ Copyright (c) 2016 by Albert Molina
-
-  Distributed under the MIT software license, see the accompanying file LICENSE
-  or visit http://www.opensource.org/licenses/mit-license.php.
-
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
-
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
-
-  }
 
 interface
 
@@ -487,7 +484,7 @@ begin
         exit;
       end;
       if (Operations.OperationBlock.protocol_version<>CT_BlockChain_Protocol_Version) then begin
-        errors := 'Invalid PascalCoin protocol version: '+IntToStr( Operations.OperationBlock.protocol_version );
+        errors := 'Invalid BlaiseCoin protocol version: '+IntToStr( Operations.OperationBlock.protocol_version );
       end;
 
       // Ok, include!
