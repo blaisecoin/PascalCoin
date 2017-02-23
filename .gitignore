@@ -7,7 +7,7 @@
 *.exe
 __history/*
 Units/Forms/__history/*
-Units/PascalCoin/__history/*
+Units/BlaiseCoin/__history/*
 Units/Utils/__history/*
 PasOpenCL/__history/*
 Synapse/__history/*
@@ -26,7 +26,7 @@ bin/dcu/*
 *.bak
 backup/*
 Units/Forms/backup/*
-Units/PascalCoin/backup/*
+Units/BlaiseCoin/backup/*
 Units/Utils/backup/*
 PasOpenCL/backup/*
 Synapse/lib/backup/*

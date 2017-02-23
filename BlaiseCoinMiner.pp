@@ -1,21 +1,18 @@
-program BlaiseCoinMiner;
-
-{$mode objfpc}{$H+}
-{$DEFINE UseCThreads}
-{$I ./Units/PascalCoin/config.inc}
-
-{ Copyright (c) 2017 by Albert Molina
+{
+  Copyright (c) 2016 by Albert Molina
+  Copyright (c) 2017 by BlaiseCoin developers
 
   Distributed under the MIT software license, see the accompanying file LICENSE
   or visit http://www.opensource.org/licenses/mit-license.php.
 
-  This unit is a part of Pascal Coin, a P2P crypto currency without need of
-  historical operations.
+  This unit is a part of BlaiseCoin, a P2P crypto-currency.
+}
 
-  If you like it, consider a donation using BitCoin:
-  16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
+program BlaiseCoinMiner;
 
-  }
+{$mode objfpc}{$H+}
+{$DEFINE UseCThreads}
+{$I ./Units/BlaiseCoin/config.inc}
 
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}

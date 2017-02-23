@@ -47,7 +47,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Units\PascalCoin;PasOpenCL;Units\Utils;Synapse\lib"/>
+      <OtherUnitFiles Value="Units\BlaiseCoin;PasOpenCL;Units\Utils;Synapse\lib"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>

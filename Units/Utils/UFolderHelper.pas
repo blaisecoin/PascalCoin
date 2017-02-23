@@ -62,7 +62,7 @@ uses
 {$ENDIF}
   SysUtils;
 
-{$I .\..\PascalCoin\config.inc}
+{$I .\..\BlaiseCoin\config.inc}
 
 {$IFnDEF FPC}
 function SHGetFolderPath(hwnd: HWND; csidl: Integer; hToken: THandle;
