@@ -28,13 +28,13 @@ type
 {$ENDIF}
 
 Const
-  CT_Genesis_Magic_String_For_Old_Block_Hash :
-    AnsiString =
-    '(c) Albert Molina - Genesis block at same time than BitCoin Block 424720 Hash 000000000000000001cc41ff7846264718ef0a15f97f532a98277bd5f6820b89';
+  CT_Genesis_Magic_String_For_Old_Block_Hash : AnsiString =
+    {$IFDEF PRODUCTION}'(c) Albert Molina - Genesis block at same time than BitCoin Block 424720 Hash 000000000000000001cc41ff7846264718ef0a15f97f532a98277bd5f6820b89';{$ELSE}
+    {$IFDEF TESTNET}'Test'{$ENDIF}{$ENDIF};
 
-  CT_Zero_Block_Proof_of_work_in_Hexa =
-    {$IFDEF PRODUCTION}'00000003A29C32E84A539ADE24397D41D30116A6FAFEC17B7D9CED68A4238C92'{$ELSE}{$IFDEF TESTNET}''{$ELSE}{$ENDIF}{$ENDIF};
-
+  CT_Zero_Block_Proof_of_work_in_Hexa : AnsiString =
+    {$IFDEF PRODUCTION}'00000003A29C32E84A539ADE24397D41D30116A6FAFEC17B7D9CED68A4238C92'{$ELSE}
+    {$IFDEF TESTNET}'000000584309B434EC187740C24202ABFE58D012EC4F6616BD3B32E8548EFA11'{$ENDIF}{$ENDIF};
 
   CT_NetServer_Port = {$IFDEF PRODUCTION}9004{$ELSE}{$IFDEF TESTNET}9104{$ELSE}{$ENDIF}{$ENDIF};
   CT_JSONRPCMinerServer_Port = {$IFDEF PRODUCTION}9009{$ELSE}{$IFDEF TESTNET}9109{$ELSE}{$ENDIF}{$ENDIF};
@@ -68,7 +68,7 @@ Const
   CT_MaxPayloadSize = 255; // Max payload size in bytes
   CT_MaxSecondsDifferenceOfNetworkNodes = 180; // 3 minutes. if a Node has a +- value difference, will be blacklisted
 
-  CT_MinServersConnected = 3;
+  CT_MinServersConnected = {$IFDEF PRODUCTION}3{$ELSE}{$IFDEF TESTNET}2{$ENDIF}{$ENDIF};
   CT_MaxServersConnected = 5;
 
   CT_MaxClientsConnected = 500;
@@ -99,7 +99,9 @@ Const
 
   CT_ClientAppVersion : AnsiString = {$IFDEF PRODUCTION}'1.0.1'{$ELSE}{$IFDEF TESTNET}'TESTNET 1.0.1'{$ELSE}{$ENDIF}{$ENDIF};
 
-  CT_Discover_IPs =  'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net';
+  CT_Discover_IPs =
+  {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net'{$ELSE}
+  {$IFDEF TESTNET}'192.168.0.213;192.168.0.195'{$ENDIF}{$ENDIF};
 
   CT_TRUE_FALSE : Array[Boolean] Of AnsiString = ('FALSE','TRUE');
 
