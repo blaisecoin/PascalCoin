@@ -54,8 +54,8 @@ Type
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); Override;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
     property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
     function LockAccountsList : TOrderedCardinalList;
     procedure UnlockAccountsList;
@@ -96,8 +96,8 @@ Type
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); Override;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
     property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
     property PendingOperations : Boolean read FPendingOperations write SetPendingOperations;
     property AccountNumber : Int64 read FAccountNumber write SetAccountNumber;
@@ -149,8 +149,8 @@ Type
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); Override;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
     property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
     property Node : TNode read GetNode write SetNode;
     procedure UpdateBlockChainGrid; virtual;

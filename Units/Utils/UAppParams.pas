@@ -39,7 +39,7 @@ Type
   protected
   published
   public
-    Constructor Create(AParamName : AnsiString);
+    constructor Create(AParamName : AnsiString);
     property ParamName : AnsiString read FParamName write SetParamName;
     property Value : Variant read FValue write SetValue;
     property ParamType : TAppParamType read FParamType write SetParamType;
@@ -71,8 +71,8 @@ Type
     procedure Save;
   protected
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
     class function AppParams : TAppParams;
     property FileName : AnsiString read FFileName write SetFileName;
     property ParamByName[ParamName : AnsiString] : TAppParam read GetParam;

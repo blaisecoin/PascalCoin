@@ -35,8 +35,8 @@ Type
   protected
     function ToJSONFormatted(pretty:Boolean;Const prefix : AnsiString) : AnsiString; virtual; abstract;
   public
-    Constructor Create; virtual;
-    Destructor Destroy; override;
+    constructor Create; virtual;
+    destructor Destroy; override;
     class function ParseJSONValue(Const JSONObject : String) : TPCJSONData; overload;
     class function ParseJSONValue(Const JSONObject : TBytes) : TPCJSONData; overload;
     class function _GetCount : Integer;
@@ -58,8 +58,8 @@ Type
   protected
     function ToJSONFormatted(pretty:Boolean;const prefix : AnsiString) : AnsiString; override;
   public
-    Constructor Create; override;
-    Constructor CreateFromJSONValue(JSONValue : TJSONValue);
+    constructor Create; override;
+    constructor CreateFromJSONValue(JSONValue : TJSONValue);
     property Value : Variant read FValue write SetValue;
     function AsString(DefValue : String) : String;
     function AsInteger(DefValue : Integer) : Integer;
@@ -81,8 +81,8 @@ Type
   protected
     function ToJSONFormatted(pretty:Boolean;const prefix : AnsiString) : AnsiString; override;
   public
-    Constructor Create(AName : String);
-    Destructor Destroy; override;
+    constructor Create(AName : String);
+    destructor Destroy; override;
     property Name : String read FName;
     property Value : TPCJSONData read FValue write SetValue;
   end;
@@ -101,8 +101,8 @@ Type
     function GetIndexAsObject(Index : Integer) : TPCJSONObject;
     procedure CheckCanInsert(Index:Integer; PCJSONData:TPCJSONData); virtual;
   public
-    Constructor Create; override;
-    Destructor Destroy; override;
+    constructor Create; override;
+    destructor Destroy; override;
     property Items[Index:Integer] : TPCJSONData read GetItems write SetItems;
     procedure Insert(Index:Integer; PCJSONData:TPCJSONData);
     procedure Delete(index : Integer);
@@ -117,9 +117,9 @@ Type
   protected
     function ToJSONFormatted(pretty:Boolean;const prefix : AnsiString) : AnsiString; override;
   public
-    Constructor Create; override;
-    Constructor CreateFromJSONArray(JSONArray : TJSONArray);
-    Destructor Destroy; override;
+    constructor Create; override;
+    constructor CreateFromJSONArray(JSONArray : TJSONArray);
+    destructor Destroy; override;
     function GetAsVariant(index : Integer) : TPCJSONVariantValue;
     function GetAsObject(index : Integer) : TPCJSONObject;
     function GetAsArray(index : Integer) : TPCJSONArray;
@@ -136,9 +136,9 @@ Type
     procedure CheckCanInsert(Index:Integer; PCJSONData:TPCJSONData); override;
     procedure CheckValidName(Name : String);
   public
-    Constructor Create; override;
-    Constructor CreateFromJSONObject(JSONObject : TJSONObject);
-    Destructor Destroy; override;
+    constructor Create; override;
+    constructor CreateFromJSONObject(JSONObject : TJSONObject);
+    destructor Destroy; override;
     function FindName(Name : String) : TPCJSONNameValue;
     function IndexOfName(Name : String) : Integer;
     procedure DeleteName(Name : String);
