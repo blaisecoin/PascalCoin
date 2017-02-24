@@ -99,9 +99,9 @@ class function TFolderHelper.GetPascalCoinDataFolder: string;
 begin
   {$IFDEF TESTNET}
   Result := GetAppDataFolder+PathDelim+'BlaiseCoin_TESTNET';
-  {$ELSE}
+  {$ELSE}{$IFDEF PRODUCTION}
   Result := GetAppDataFolder+PathDelim+'BlaiseCoin';
-  {$ENDIF}
+  {$ENDIF}{$ENDIF}
 end;
 
 class function TFolderHelper.GetTFileVersionInfo(Const FileName: String): TFileVersionInfo;

@@ -58,17 +58,20 @@ Const
   CT_MaxTransactionAmount = 1000000000000;
   CT_MaxTransactionFee = 100000000;
   CT_MaxWalletAmount = 10000000000000;
-  //
-  CT_MinCompactTarget: Cardinal = {$IFDEF PRODUCTION}$19000000{$ELSE}{$IFDEF TESTNET}$19000000{$ELSE}{$ENDIF}{$ENDIF}; // First compact target of block 0
+
+  CT_MinCompactTarget: Cardinal = // First compact target of block 0
+    {$IFDEF PRODUCTION}$19000000{$ELSE}
+    {$IFDEF TESTNET}   $19000000{$ENDIF}{$ENDIF};
 
   CT_CalcNewTargetBlocksAverage: Cardinal = 100;
+
   CT_MaxAccount : Cardinal = $FFFFFFFF;
   CT_MaxBlock : Cardinal = $FFFFFFFF;
 
   CT_MaxPayloadSize = 255; // Max payload size in bytes
   CT_MaxSecondsDifferenceOfNetworkNodes = 180; // 3 minutes. if a Node has a +- value difference, will be blacklisted
 
-  CT_MinServersConnected = {$IFDEF PRODUCTION}3{$ELSE}{$IFDEF TESTNET}2{$ENDIF}{$ENDIF};
+  CT_MinServersConnected = {$IFDEF PRODUCTION}3{$ELSE}{$IFDEF TESTNET}1{$ENDIF}{$ENDIF};
   CT_MaxServersConnected = 5;
 
   CT_MaxClientsConnected = 500;
@@ -80,7 +83,10 @@ Const
   CT_BlockChain_Protocol_Version: Word = $0001; // Version 1
   CT_BlockChain_Protocol_Available: Word = $0001; // Build 1.4 Protocol available changed 0->1
 
-  CT_MagicNetIdentification = $711A0F05; // Network magic
+  CT_MagicNetIdentification = // Network magic
+    {$IFDEF PRODUCTION}$711A0F05;{$ELSE}
+    {$IFDEF TESTNET}   $799A0F95;{$ENDIF}{$ENDIF}
+
 
   // Build 1.0.4 - introducing NetProtocol versioning:
   CT_NetProtocol_Version: Word = $0004;
@@ -97,13 +103,13 @@ Const
   CT_Op_Changekey = $02;
   CT_Op_Recover = $03;
 
-  CT_ClientAppVersion : AnsiString = {$IFDEF PRODUCTION}'1.0.1'{$ELSE}{$IFDEF TESTNET}'TESTNET 1.0.1'{$ELSE}{$ENDIF}{$ENDIF};
+  CT_ClientAppVersion : AnsiString = {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.1';
 
   CT_Discover_IPs =
-  {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net'{$ELSE}
-  {$IFDEF TESTNET}'192.168.0.213;192.168.0.195'{$ENDIF}{$ENDIF};
+    {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net'{$ELSE}
+    {$IFDEF TESTNET}   '192.168.0.213;192.168.0.195'{$ENDIF}{$ENDIF};
 
-  CT_TRUE_FALSE : Array[Boolean] Of AnsiString = ('FALSE','TRUE');
+  CT_TRUE_FALSE : array[Boolean] of AnsiString = ('FALSE','TRUE');
 
   // App Params
   CT_PARAM_GridAccountsStream = 'GridAccountsStream';
@@ -132,3 +138,4 @@ Const
 implementation
 
 end.
+

@@ -58,7 +58,7 @@ Type
 
   TBlockAccount = record
     blockaccount : Cardinal;  // FIXED. Number in the BlockChain
-    accounts : Array[0..CT_AccountsPerBlock-1] of TAccount;
+    accounts : array[0..CT_AccountsPerBlock-1] of TAccount;
     timestamp: Cardinal;      // FIXED: Same value that stored in BlockChain. Included here because I need it to calculate new target value
     block_hash: AnsiString;   // Calculated on every block change (on create and on accounts updated)
     // New Build 1.0.8 "target" stored in TBlockAccount to increase performance calculating network hash rate.
