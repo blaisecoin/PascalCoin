@@ -39,10 +39,10 @@ class function TStreamOp.ReadAnsiString(Stream: TStream; var Value: AnsiString):
 var
   l: Word;
 begin
-  Value := '';
   if Stream.Size - Stream.Position < 2 then
   begin
     // no size word
+    Value := '';
     Result := -1;
     exit;
   end;
@@ -50,6 +50,7 @@ begin
   if Stream.Size - Stream.Position < l then
   begin
     Stream.Position := Stream.Position - 2; // Go back!
+    Value := '';
     Result := -2;
     exit;
   end;
@@ -68,16 +69,14 @@ begin
   n := Length(Value);
   if n > $FFFF then
   begin
-    e := 'Invalid value length: ' + IntToStr(n);
+    e := 'String too long to stream, length=' + IntToStr(n);
     TLog.NewLog(lterror, ClassName, e);
     raise EStreamOp.Create(e);
   end;
-
   l := n;
   Stream.Write(l, 2);
   if l > 0 then
     Stream.WriteBuffer(Value[1], l);
-
   Result := l;
 end;
 
