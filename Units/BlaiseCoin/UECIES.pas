@@ -38,7 +38,7 @@ unit UECIES;
 
 interface
 
-Uses UOpenSSLdef, UOpenSSL, UCrypto, ULog, UConst;
+uses UOpenSSLdef, UOpenSSL, UCrypto, ULog, UConst;
 
 Const CT_Max_Bytes_To_Encrypt = 32000;
 
@@ -46,7 +46,7 @@ Type size_t = Word;
 
 function ECIESEncrypt(const ECDSAPubKey: TECDSA_Public; const MessageToEncrypt: AnsiString): TRawBytes; overload;
 function ECIESEncrypt(EC_OpenSSL_NID : Word; PubKey: EC_POINT; const MessageToEncrypt: AnsiString): TRawBytes; overload;
-function ECIESDecrypt(EC_OpenSSL_NID : Word; PrivateKey: PEC_KEY; logErrors : Boolean; const MessageToDecrypt: TRawBytes; Var Decrypted : AnsiString): Boolean;
+function ECIESDecrypt(EC_OpenSSL_NID : Word; privateKey: PEC_KEY; logErrors : Boolean; const MessageToDecrypt: TRawBytes; var Decrypted : AnsiString): Boolean;
 
 implementation
 
@@ -58,12 +58,12 @@ uses
 
 Type
   Psecure_t = Pointer;
-  secure_head_t = Record
+  secure_head_t = record
     key : byte;
     mac : byte;
     orig : word;
     body : word;
-  End;
+  end;
   Psecure_head_t = ^secure_head_t;
 
 function secure_key_length(cryptex : Psecure_t): UInt64;
@@ -108,7 +108,7 @@ begin
 end;
 
 function secure_alloc(key, mac, orig, body : UInt64) : Psecure_t;
-Var psh : Psecure_head_t;
+var psh : Psecure_head_t;
 begin
   Result := AllocMem(Sizeof(secure_head_t) + key + mac + body);
   psh := Result;
@@ -126,7 +126,7 @@ end;
 function ecies_key_derivation_512(const _in: Pointer; _inlen: TC_SIZE_T; _out: Pointer; var _outlen: TC_SIZE_T): pointer; cdecl;
 begin
   if ( _outlen < SHA512_DIGEST_LENGTH) then begin
-     Result := Nil;
+     Result := nil;
   end;
   _outlen := SHA512_DIGEST_LENGTH;
   Result := SHA512(_in,_inlen,_out);
@@ -140,7 +140,7 @@ begin
 end;
 
 function ECIESEncrypt(const ECDSAPubKey: TECDSA_Public; const MessageToEncrypt: AnsiString): TRawBytes;
-Var BNx,BNy : PBIGNUM;
+var BNx,BNy : PBIGNUM;
   ECG : PEC_GROUP;
   ctx : PBN_CTX;
   pub_key : PEC_POINT;
@@ -149,7 +149,7 @@ begin
   Result := '';
   BNx := BN_bin2bn(PAnsiChar(ECDSAPubKey.x),length(ECDSAPubKey.x),nil);
   BNy := BN_bin2bn(PAnsiChar(ECDSAPubKey.y),length(ECDSAPubKey.y),nil);
-  Try
+  try
 
     ECG := EC_GROUP_new_by_curve_name(ECDSAPubKey.EC_OpenSSL_NID);
     if ECG=Nil then begin
@@ -170,14 +170,14 @@ begin
     BN_CTX_free(ctx);
     EC_POINT_free(pub_key);
     EC_GROUP_free(ECG);
-  Finally
+  finally
     BN_free(BNx);
     BN_free(BNy);
-  End;
+  end;
 End;
 
 function ECIESEncrypt(EC_OpenSSL_NID : Word; PubKey: EC_POINT; const MessageToEncrypt: AnsiString): TRawBytes;
-Var PK,PEphemeral : PEC_KEY;
+var PK,PEphemeral : PEC_KEY;
   i,key_length,block_length,envelope_length,body_length : Integer;
   mac_length : Cardinal;
   envelope_key : Array[1..SHA512_DIGEST_LENGTH] of byte;
@@ -201,7 +201,7 @@ begin
   key_length := (EVP_CIPHER_key_length(EVP_aes_256_cbc));
   if (key_length*2)>SHA512_DIGEST_LENGTH then begin
     TLog.NewLog(lterror,'ECIES',Format('The key derivation method will not produce enough envelope key material for the chosen ciphers. {envelope = %i / required = %zu}',
-      [SHA512_DIGEST_LENGTH DIV 8,(key_length * 2) DIV 8]));
+      [SHA512_DIGEST_LENGTH div 8,(key_length * 2) div 8]));
     exit;
   end;
   // Convert the user's public key from hex into a full EC_KEY structure.
@@ -234,12 +234,12 @@ begin
       exit;
     end;
     // We use a conditional to pad the length if the input buffer is not evenly divisible by the block size.
-    if (Length(MessageToEncrypt) MOD block_length)=0 then i := 0
-    else i := block_length - (Length(MessageToEncrypt) MOD block_length);
+    if (Length(MessageToEncrypt) mod block_length)=0 then i := 0
+    else i := block_length - (Length(MessageToEncrypt) mod block_length);
     cryptex := secure_alloc(envelope_length,EVP_MD_size(ECIES_HASHER),Length(MessageToEncrypt), Length(MessageToEncrypt) + i);
     try
       // Store the public key portion of the ephemeral key.
-      If EC_POINT_point2oct(EC_KEY_get0_group(PEphemeral),EC_KEY_get0_public_key(PEphemeral),
+      if EC_POINT_point2oct(EC_KEY_get0_group(PEphemeral),EC_KEY_get0_public_key(PEphemeral),
            POINT_CONVERSION_COMPRESSED,secure_key_data(cryptex),envelope_length,Nil)<>envelope_length then begin
         TLog.NewLog(lterror,'ECIES',Format('An error occurred while trying to record the public portion of the envelope key {error = %s}',
           [ERR_error_string(ERR_get_error(),nil)]));
@@ -266,12 +266,12 @@ begin
         if (EVP_EncryptInit_ex(pcipher,EVP_aes_256_cbc,nil,@envelope_key,@iv)<>1) or
           (EVP_CIPHER_CTX_set_padding(pcipher,0)<>1) or
           (EVP_EncryptUpdate(pcipher,body,body_length,@MessageToEncrypt[1],
-            Length(MessageToEncrypt) - (Length(MessageToEncrypt) MOD block_length))<>1) then begin
+            Length(MessageToEncrypt) - (Length(MessageToEncrypt) mod block_length))<>1) then begin
               TLog.NewLog(lterror,'ECIES',Format('An error occurred while trying to secure the data using the chosen symmetric cipher. {error = %s}',
               [ERR_error_string(ERR_get_error(),nil)]));
               exit;
             end;
-        // Check whether all of the data was encrypted. If they don't match up, we either have a partial block remaining, or an error occurred.
+        // Check whether all of the data was encrypted. if they don't match up, we either have a partial block remaining, or an error occurred.
         if (body_length<>Length(MessageToEncrypt)) then begin
           // Make sure all that remains is a partial block, and their wasn't an error
           if (Length(MessageToEncrypt) - body_length >= block_length) then begin
@@ -329,24 +329,24 @@ begin
       {$ELSE}
       phmac := HMAC_CTX_new;
       {$ENDIF}
-      Try
+      try
         mac_length := secure_mac_length(cryptex);
         // At the moment we are generating the hash using encrypted data. At some point we may want to validate the original text instead.
         aux := Pointer(PtrInt(@envelope_key) + key_length);
         if (HMAC_Init_ex(phmac, aux, key_length, ECIES_HASHER, nil)<>1)
-          OR (HMAC_Update(phmac, secure_body_data(cryptex), secure_body_length(cryptex))<>1)
-          OR (HMAC_Final(phmac, secure_mac_data(cryptex),mac_length)<>1) then begin
+          or (HMAC_Update(phmac, secure_body_data(cryptex), secure_body_length(cryptex))<>1)
+          or (HMAC_Final(phmac, secure_mac_data(cryptex),mac_length)<>1) then begin
           TLog.NewLog(lterror,'ECIES',Format('Unable to generate a data authentication code. {error = %s}',
           [ERR_error_string(ERR_get_error(),nil)]));
           exit;
         end;
-      Finally
+      finally
         {$IFDEF OpenSSL10}
         HMAC_CTX_cleanup(phmac);
         {$ELSE}
         HMAC_CTX_free(phmac);
         {$ENDIF}
-      End;
+      end;
       SetLength(Result,secure_total_length(cryptex));
       CopyMemory(@Result[1],cryptex,length(Result));
     finally
@@ -359,17 +359,17 @@ begin
 end;
 
 function ecies_key_create_public_octets(EC_OpenSSL_NID : Word; octets : PAnsiChar; length : size_t) : PEC_KEY;
-Var group : PEC_GROUP;
+var group : PEC_GROUP;
   key : PEC_KEY;
   point : PEC_POINT;
 Begin
-  Result := Nil;
+  Result := nil;
   key := EC_KEY_new();
   group := EC_GROUP_new_by_curve_name(EC_OpenSSL_NID);
   try
     if (EC_KEY_set_group(key, group)<>1) then exit;
     point := EC_POINT_new(group);
-    if (point = Nil) then exit;
+    if (point = nil) then exit;
     try
       if (EC_POINT_oct2point(group, point, octets, length, nil) <> 1) then exit;
       if (EC_KEY_set_public_key(key, point)<>1) then exit;
@@ -385,7 +385,7 @@ Begin
 End;
 
 
-function ECIESDecrypt(EC_OpenSSL_NID : Word; PrivateKey: PEC_KEY; logErrors : Boolean; const MessageToDecrypt: TRawBytes; Var Decrypted : AnsiString): Boolean;
+function ECIESDecrypt(EC_OpenSSL_NID : Word; privateKey: PEC_KEY; logErrors : Boolean; const MessageToDecrypt: TRawBytes; var Decrypted : AnsiString): Boolean;
 var
   cryptex : Psecure_t;
   phmac : PHMAC_CTX;
@@ -411,7 +411,7 @@ Begin
   key_length := EVP_CIPHER_key_length(EVP_aes_256_cbc);
   if (key_length*2>SHA512_DIGEST_LENGTH) then begin
     if logErrors then TLog.NewLog(lterror,'ECIES',Format('The key derivation method will not produce enough envelope key material for the chosen ciphers. {envelope = %d / required = %d)',
-      [SHA512_DIGEST_LENGTH DIV 8,(key_length * 2) DIV 8]));
+      [SHA512_DIGEST_LENGTH div 8,(key_length * 2) div 8]));
     exit;
   end;
   // Create the ephemeral key used specifically for this block of data.
@@ -430,7 +430,7 @@ Begin
     FillMemory(@envelope_key,length(envelope_key),0);
     {$ENDIF}
     if (ECDH_compute_key(@envelope_key,SHA512_DIGEST_LENGTH,EC_KEY_get0_public_key(ephemeral),
-      PrivateKey, ecies_key_derivation_512)<>SHA512_DIGEST_LENGTH) then begin
+      privateKey, ecies_key_derivation_512)<>SHA512_DIGEST_LENGTH) then begin
       if logErrors then TLog.NewLog(lterror,'ECIES',Format('An error occurred while trying to compute the envelope key. {error = %s}',[ERR_error_string(ERR_get_error, nil)]));
       exit;
     end;
@@ -463,7 +463,7 @@ Begin
     {$ENDIF}
   end;
   // We can use the generated hash to ensure the encrypted data was not altered after being encrypted.
-  if (mac_length<>secure_mac_length(cryptex)) OR ( Not CompareMem(@md,secure_mac_data(cryptex), mac_length)) then begin
+  if (mac_length<>secure_mac_length(cryptex)) or ( not CompareMem(@md,secure_mac_data(cryptex), mac_length)) then begin
     if logErrors then TLog.NewLog(lterror,'ECIES','The authentication code was invalid! The ciphered data has been corrupted!');
     exit;
   end;

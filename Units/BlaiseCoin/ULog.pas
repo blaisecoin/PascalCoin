@@ -25,27 +25,27 @@ type
 
   TNewLogEvent = procedure(logtype : TLogType; Time : TDateTime; ThreadID : Cardinal; Const sender, logtext : AnsiString) of object;
 
-  TLog = Class;
+  TLog = class;
 
   { TThreadSafeLogEvent }
 
-  TThreadSafeLogEvent = Class(TPCThread)
+  TThreadSafeLogEvent = class(TPCThread)
     FLog : TLog;
-    Procedure SynchronizedProcess;
+    procedure SynchronizedProcess;
   protected
     procedure BCExecute; override;
   public
-    Constructor Create(Suspended : Boolean);
-  End;
+    constructor Create(Suspended : Boolean);
+  end;
 
-  TLogData = Record
+  TLogData = record
     Logtype : TLogType;
     Time : TDateTime;
     ThreadID : Cardinal;
     Sender, Logtext : AnsiString
-  End;
+  end;
 
-  TLog = Class(TComponent)
+  TLog = class(TComponent)
   private
     FLogDataList : TThreadList;
     FOnNewLog: TNewLogEvent;
@@ -58,18 +58,18 @@ type
     FLock : TCriticalSection;
     procedure SetFileName(const Value: AnsiString);
   protected
-    Procedure DoLog(logtype : TLogType; sender, logtext : AnsiString); virtual;
+    procedure DoLog(logtype : TLogType; sender, logtext : AnsiString); virtual;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
-    Class Procedure NewLog(logtype : TLogType; Const sender, logtext : String);
-    Property OnInThreadNewLog : TNewLogEvent read FOnInThreadNewLog write FOnInThreadNewLog;
-    Property OnNewLog : TNewLogEvent read FOnNewLog write FOnNewLog;
-    Property FileName : AnsiString read FFileName write SetFileName;
-    Property SaveTypes : TLogTypes read FSaveTypes write FSaveTypes;
-    Property ProcessGlobalLogs : Boolean read FProcessGlobalLogs write FProcessGlobalLogs;
-    Procedure NotifyNewLog(logtype : TLogType; Const sender, logtext : String);
-  End;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
+    class procedure NewLog(logtype : TLogType; Const sender, logtext : String);
+    property OnInThreadNewLog : TNewLogEvent read FOnInThreadNewLog write FOnInThreadNewLog;
+    property OnNewLog : TNewLogEvent read FOnNewLog write FOnNewLog;
+    property FileName : AnsiString read FFileName write SetFileName;
+    property SaveTypes : TLogTypes read FSaveTypes write FSaveTypes;
+    property ProcessGlobalLogs : Boolean read FProcessGlobalLogs write FProcessGlobalLogs;
+    procedure NotifyNewLog(logtype : TLogType; Const sender, logtext : String);
+  end;
 
 Const
   CT_LogType : Array[TLogType] of AnsiString = ('Info','Update','Error','Debug');
@@ -87,17 +87,17 @@ Type PLogData = ^TLogData;
 { TLog }
 
 constructor TLog.Create(AOwner: TComponent);
-Var l : TList;
+var l : TList;
 begin
   FLock := TCriticalSection.Create;
   FProcessGlobalLogs := true;
   FLogDataList := TThreadList.Create;
-  FFileStream := Nil;
+  FFileStream := nil;
   FFileName := '';
   FSaveTypes := CT_TLogTypes_DEFAULT;
-  FOnInThreadNewLog:=Nil;
-  FOnNewLog:=Nil;
-  if (Not assigned(_logs)) then _logs := TList.Create;
+  FOnInThreadNewLog:= nil;
+  FOnNewLog:= nil;
+  if (not assigned(_logs)) then _logs := TList.Create;
   _logs.Add(self);
   FThreadSafeLogEvent := TThreadSafeLogEvent.Create(true);
   FThreadSafeLogEvent.FLog := Self;
@@ -111,8 +111,8 @@ var
   i : Integer;
   P : PLogData;
 begin
-  FOnNewLog:=Nil;
-  FOnInThreadNewLog:=Nil;
+  FOnNewLog:= nil;
+  FOnInThreadNewLog:= nil;
   FThreadSafeLogEvent.Terminate;
   FThreadSafeLogEvent.WaitFor;
   FreeAndNil(FThreadSafeLogEvent);
@@ -141,7 +141,7 @@ end;
 class procedure TLog.NewLog(logtype: TLogType; Const sender, logtext: String);
 var i : Integer;
 begin
-  if (Not Assigned(_logs)) then exit;
+  if (not Assigned(_logs)) then exit;
   for i := 0 to _logs.Count - 1 do begin
     if (TLog(_logs[i]).FProcessGlobalLogs) then begin
       TLog(_logs[i]).NotifyNewLog(logtype,sender,logtext);
@@ -150,12 +150,12 @@ begin
 end;
 
 procedure TLog.NotifyNewLog(logtype: TLogType; Const sender, logtext: String);
-Var s,tid : AnsiString;
+var s,tid : AnsiString;
   P : PLogData;
 begin
   FLock.Acquire;
   try
-    if assigned(FFileStream) And (logType in FSaveTypes) then begin
+    if assigned(FFileStream) and (logType in FSaveTypes) then begin
       if TThread.CurrentThread.ThreadID=MainThreadID then tid := ' MAIN:' else tid:=' TID:';
       s := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',now)+tid+IntToHex(TThread.CurrentThread.ThreadID,8)+' ['+CT_LogType[logtype]+'] <'+sender+'> '+logtext+#13#10;
       FFileStream.Write(s[1],length(s));
@@ -185,10 +185,10 @@ begin
   if FFileName = Value then exit;
   if assigned(FFileStream) then Begin
     FreeAndNil(FFileStream);
-  End;
+  end;
   FFileName := Value;
   if (FFileName<>'') then begin
-    If Not ForceDirectories(ExtractFileDir(FFileName)) then exit;
+    if not ForceDirectories(ExtractFileDir(FFileName)) then exit;
     if FileExists(FFileName) then fm := fmOpenWrite + fmShareDenyWrite
     else fm := fmCreate + fmShareDenyWrite;
     FFileStream := TFileStream.Create(FFileName,fm);
@@ -203,7 +203,7 @@ procedure TThreadSafeLogEvent.BCExecute;
 begin
   while (not Terminated) do begin
     sleep(100);
-    If (Not Terminated) And (Assigned(FLog.OnNewLog)) then begin
+    if (not Terminated) and (Assigned(FLog.OnNewLog)) then begin
       Synchronize(SynchronizedProcess);
     end;
   end;
@@ -215,7 +215,7 @@ begin
 end;
 
 procedure TThreadSafeLogEvent.SynchronizedProcess;
-Var l : TList;
+var l : TList;
   i : Integer;
   P : PLogData;
 begin
@@ -240,7 +240,7 @@ begin
 end;
 
 initialization
-  _logs := Nil;
+  _logs := nil;
 finalization
   {$IFnDEF FPC}
   FreeAndNil(_logs);

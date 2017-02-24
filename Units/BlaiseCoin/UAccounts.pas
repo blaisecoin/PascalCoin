@@ -23,29 +23,29 @@ Type
   TAccountKey = TECDSA_Public;
   PAccountKey = ^TAccountKey;
 
-  TAccountComp = Class
+  TAccountComp = class
   private
   public
-    Class Function IsValidAccountKey(account: TAccountKey; var errors : AnsiString): Boolean;
-    Class Function GetECInfoTxt(Const EC_OpenSSL_NID: Word) : AnsiString;
-    Class Procedure ValidsEC_OpenSSL_NID(list : TList);
-    Class Function AccountKey2RawString(account: TAccountKey): AnsiString;
-    Class Function RawString2Accountkey(rawaccstr: AnsiString): TAccountKey;
-    Class Function PrivateToAccountkey(key: TECPrivateKey): TAccountKey;
-    Class Function IsAccountBlockedByProtocol(account_number, blocks_count : Cardinal) : Boolean;
-    Class Function Equal(account1,account2 : TAccountKey) : Boolean;
-    Class Function AccountNumberToAccountTxtNumber(account_number : Cardinal) : AnsiString;
-    Class Function AccountTxtNumberToAccountNumber(Const account_txt_number : AnsiString; var account_number : Cardinal) : Boolean;
-    Class Function FormatMoney(Money : Int64) : AnsiString;
-    Class Function TxtToMoney(Const moneytxt : AnsiString; var money : Int64) : Boolean;
-    Class Function AccountKeyToExport(Const account : TAccountKey) : AnsiString;
-    Class Function AccountKeyFromImport(Const HumanReadable : AnsiString; var account : TAccountKey; var errors : AnsiString) : Boolean;
-    Class Function AccountPublicKeyExport(Const account : TAccountKey) : AnsiString;
-    Class Function AccountPublicKeyImport(Const HumanReadable : AnsiString; var account : TAccountKey; var errors : AnsiString) : Boolean;
-    Class Function AccountBlock(Const account_number : Cardinal) : Cardinal;
-  End;
+    class function IsValidAccountKey(account: TAccountKey; var errors : AnsiString): Boolean;
+    class function GetECInfoTxt(Const EC_OpenSSL_NID: Word) : AnsiString;
+    class procedure ValidsEC_OpenSSL_NID(list : TList);
+    class function AccountKey2RawString(account: TAccountKey): AnsiString;
+    class function RawString2Accountkey(rawaccstr: AnsiString): TAccountKey;
+    class function privateToAccountkey(key: TECPrivateKey): TAccountKey;
+    class function IsAccountBlockedByProtocol(account_number, blocks_count : Cardinal) : Boolean;
+    class function Equal(account1,account2 : TAccountKey) : Boolean;
+    class function AccountNumberToAccountTxtNumber(account_number : Cardinal) : AnsiString;
+    class function AccountTxtNumberToAccountNumber(Const account_txt_number : AnsiString; var account_number : Cardinal) : Boolean;
+    class function FormatMoney(Money : Int64) : AnsiString;
+    class function TxtToMoney(Const moneytxt : AnsiString; var money : Int64) : Boolean;
+    class function AccountKeyToExport(Const account : TAccountKey) : AnsiString;
+    class function AccountKeyFromImport(Const HumanReadable : AnsiString; var account : TAccountKey; var errors : AnsiString) : Boolean;
+    class function AccountPublicKeyExport(Const account : TAccountKey) : AnsiString;
+    class function AccountPublicKeyImport(Const HumanReadable : AnsiString; var account : TAccountKey; var errors : AnsiString) : Boolean;
+    class function AccountBlock(Const account_number : Cardinal) : Cardinal;
+  end;
 
-  TAccount = Record
+  TAccount = record
     account: Cardinal;        // FIXED value. Account number
     accountkey: TAccountKey;  // Public EC
     balance: UInt64;          // Balance, always >= 0
@@ -53,10 +53,10 @@ Type
     n_operation: Cardinal;    // count number of owner operations (when receive, this is not updated)
     //
     previous_updated_block : Cardinal; // New Build 1.0.8 -> Only used to store this info to storage. It helps App to search when an account was updated. NOT USED FOR HASH CALCULATIONS!
-  End;
+  end;
   PAccount = ^TAccount;
 
-  TBlockAccount = Record
+  TBlockAccount = record
     blockaccount : Cardinal;  // FIXED. Number in the BlockChain
     accounts : Array[0..CT_AccountsPerBlock-1] of TAccount;
     timestamp: Cardinal;      // FIXED: Same value that stored in BlockChain. Included here because I need it to calculate new target value
@@ -64,7 +64,7 @@ Type
     // New Build 1.0.8 "target" stored in TBlockAccount to increase performance calculating network hash rate.
     target: Cardinal;         // FIXED: Same value that stored in BlockChain. ** NOT USED TO CALC BLOCK HASHING **
     // New Build 1.5
-    AccumulatedWork : UInt64; // FIXED: Accumulated work (previous + target) ** NOT USED TO CALC BLOCK HASHING AND NOT STORED **
+    AccumulatedWork : UInt64; // FIXED: Accumulated work (previous + target) ** NOT USED TO CALC BLOCK HASHING and NOT STORED **
   end;
   PBlockAccount = ^TBlockAccount;
 
@@ -74,55 +74,55 @@ Type
     4 + (5 * 220) + 4 + 32 = 1140 max aprox
   }
 
-  TOrderedCardinalList = Class
+  TOrderedCardinalList = class
   private
     FOrderedList : TList;
     FDisabledsCount : Integer;
     FModifiedWhileDisabled : Boolean;
     FOnListChanged: TNotifyEvent;
-    Procedure NotifyChanged;
+    procedure NotifyChanged;
   public
-    Constructor Create;
-    Destructor Destroy; override;
-    Function Add(Value : Cardinal) : Integer;
-    Procedure Remove(Value : Cardinal);
-    Procedure Clear;
-    Function Get(index : Integer) : Cardinal;
-    Function Count : Integer;
-    Function Find(const Value: Cardinal; var Index: Integer): Boolean;
-    Procedure Disable;
-    Procedure Enable;
-    Property OnListChanged : TNotifyEvent read FOnListChanged write FOnListChanged;
-    Procedure CopyFrom(Sender : TOrderedCardinalList);
-  End;
+    constructor Create;
+    destructor Destroy; override;
+    function Add(Value : Cardinal) : Integer;
+    procedure Remove(Value : Cardinal);
+    procedure Clear;
+    function Get(index : Integer) : Cardinal;
+    function Count : Integer;
+    function Find(const Value: Cardinal; var Index: Integer): Boolean;
+    procedure Disable;
+    procedure Enable;
+    property OnListChanged : TNotifyEvent read FOnListChanged write FOnListChanged;
+    procedure CopyFrom(Sender : TOrderedCardinalList);
+  end;
 
-  TPCSafeBox = Class;
+  TPCSafeBox = class;
 
   // This is a class to quickly find accountkeys and their respective account number/s
-  TOrderedAccountKeysList = Class
-  Private
+  TOrderedAccountKeysList = class
+  private
     FAutoAddAll : Boolean;
     FAccountList : TPCSafeBox;
     FOrderedAccountKeysList : TList; // An ordered list of pointers to quickly find account keys in account list
-    Function Find(Const AccountKey: TAccountKey; var Index: Integer): Boolean;
+    function Find(Const AccountKey: TAccountKey; var Index: Integer): Boolean;
     function GetAccountKeyList(index: Integer): TOrderedCardinalList;
     function GetAccountKey(index: Integer): TAccountKey;
   protected
-    Procedure ClearAccounts(RemoveAccountList : Boolean);
+    procedure ClearAccounts(RemoveAccountList : Boolean);
   public
-    Constructor Create(AccountList : TPCSafeBox; AutoAddAll : Boolean);
-    Destructor Destroy; override;
-    Procedure AddAccountKey(Const AccountKey : TAccountKey);
-    Procedure RemoveAccountKey(Const AccountKey : TAccountKey);
-    Procedure AddAccounts(Const AccountKey : TAccountKey; const accounts : Array of Cardinal);
-    Procedure RemoveAccounts(Const AccountKey : TAccountKey; const accounts : Array of Cardinal);
-    Function IndexOfAccountKey(Const AccountKey : TAccountKey) : Integer;
-    Property AccountKeyList[index : Integer] : TOrderedCardinalList read GetAccountKeyList;
-    Property AccountKey[index : Integer] : TAccountKey read GetAccountKey;
-    Function Count : Integer;
-    Property SafeBox : TPCSafeBox read FAccountList;
-    Procedure Clear;
-  End;
+    constructor Create(AccountList : TPCSafeBox; AutoAddAll : Boolean);
+    destructor Destroy; override;
+    procedure AddAccountKey(Const AccountKey : TAccountKey);
+    procedure RemoveAccountKey(Const AccountKey : TAccountKey);
+    procedure AddAccounts(Const AccountKey : TAccountKey; const accounts : array of Cardinal);
+    procedure RemoveAccounts(Const AccountKey : TAccountKey; const accounts : array of Cardinal);
+    function IndexOfAccountKey(Const AccountKey : TAccountKey) : Integer;
+    property AccountKeyList[index : Integer] : TOrderedCardinalList read GetAccountKeyList;
+    property AccountKey[index : Integer] : TAccountKey read GetAccountKey;
+    function Count : Integer;
+    property SafeBox : TPCSafeBox read FAccountList;
+    procedure Clear;
+  end;
 
 
   // SafeBox is a box that only can be updated using SafeBoxTransaction, and this
@@ -131,7 +131,7 @@ Type
 
   { TPCSafeBox }
 
-  TPCSafeBox = Class
+  TPCSafeBox = class
   private
     FBlockAccountsList : TList;
     FListOfOrderedAccountKeysList : TList;
@@ -142,82 +142,82 @@ Type
     FLock: TPCCriticalSection; // Thread safe
     FPreviousBlockSafeBoxHash : TRawBytes;
     FWorkSum : UInt64;
-    Procedure SetAccount(account_number : Cardinal; newAccountkey: TAccountKey; newBalance: UInt64; newN_operation: Cardinal);
-    Procedure AccountKeyListAddAccounts(Const AccountKey : TAccountKey; const accounts : Array of Cardinal);
-    Procedure AccountKeyListRemoveAccount(Const AccountKey : TAccountKey; const accounts : Array of Cardinal);
+    procedure SetAccount(account_number : Cardinal; newAccountkey: TAccountKey; newBalance: UInt64; newN_operation: Cardinal);
+    procedure AccountKeyListAddAccounts(Const AccountKey : TAccountKey; const accounts : array of Cardinal);
+    procedure AccountKeyListRemoveAccount(Const AccountKey : TAccountKey; const accounts : array of Cardinal);
   protected
-    Function AddNew(Const accountkey: TAccountKey; reward: UInt64; timestamp: Cardinal; compact_target: Cardinal; Const proof_of_work: AnsiString) : TBlockAccount;
+    function AddNew(Const accountkey: TAccountKey; reward: UInt64; timestamp: Cardinal; compact_target: Cardinal; Const proof_of_work: AnsiString) : TBlockAccount;
   public
-    Constructor Create;
-    Destructor Destroy; override;
+    constructor Create;
+    destructor Destroy; override;
     function AccountsCount: Integer;
-    Function BlocksCount : Integer;
-    Procedure CopyFrom(accounts : TPCSafeBox);
-    Class Function CalcBlockHash(const block : TBlockAccount):AnsiString;
-    Class Function BlockAccountToText(Const block : TBlockAccount):AnsiString;
-    Function LoadSafeBoxFromStream(Stream : TStream; var LastReadBlock : TBlockAccount; var errors : AnsiString) : Boolean;
-    Class Function LoadSafeBoxStreamHeader(Stream : TStream; var BlocksCount : Cardinal) : Boolean;
-    Procedure SaveSafeBoxToAStream(Stream : TStream);
-    Procedure Clear;
-    Function Account(account_number : Cardinal) : TAccount;
-    Function Block(block_number : Cardinal) : TBlockAccount;
-    Function CalcSafeBoxHash : TRawBytes;
-    Function CalcBlockHashRateInKhs(block_number : Cardinal; Previous_blocks_average : Cardinal) : Int64;
-    Property TotalBalance : Int64 read FTotalBalance;
-    Procedure StartThreadSafe;
-    Procedure EndThreadSave;
-    Property SafeBoxHash : TRawBytes read FSafeBoxHash;
-    Property PreviousBlockSafeBoxHash : TRawBytes read FPreviousBlockSafeBoxHash;
-    Property WorkSum : UInt64 read FWorkSum; // New Build 1.5
-  End;
+    function BlocksCount : Integer;
+    procedure CopyFrom(accounts : TPCSafeBox);
+    class function CalcBlockHash(const block : TBlockAccount):AnsiString;
+    class function BlockAccountToText(Const block : TBlockAccount):AnsiString;
+    function LoadSafeBoxFromStream(Stream : TStream; var LastReadBlock : TBlockAccount; var errors : AnsiString) : Boolean;
+    class function LoadSafeBoxStreamHeader(Stream : TStream; var BlocksCount : Cardinal) : Boolean;
+    procedure SaveSafeBoxToAStream(Stream : TStream);
+    procedure Clear;
+    function Account(account_number : Cardinal) : TAccount;
+    function Block(block_number : Cardinal) : TBlockAccount;
+    function CalcSafeBoxHash : TRawBytes;
+    function CalcBlockHashRateInKhs(block_number : Cardinal; Previous_blocks_average : Cardinal) : Int64;
+    property TotalBalance : Int64 read FTotalBalance;
+    procedure StartThreadSafe;
+    procedure EndThreadSave;
+    property SafeBoxHash : TRawBytes read FSafeBoxHash;
+    property PreviousBlockSafeBoxHash : TRawBytes read FPreviousBlockSafeBoxHash;
+    property WorkSum : UInt64 read FWorkSum; // New Build 1.5
+  end;
 
 
-  TOrderedAccountList = Class
+  TOrderedAccountList = class
   private
     FList : TList;
-    Function Find(const account_number: Cardinal; var Index: Integer): Boolean;
+    function Find(const account_number: Cardinal; var Index: Integer): Boolean;
   public
-    Constructor Create;
-    Destructor Destroy; Override;
-    Procedure Clear;
-    Function Add(Const account : TAccount) : Integer;
-    Function Count : Integer;
-    Function Get(index : Integer) : TAccount;
-  End;
+    constructor Create;
+    destructor Destroy; Override;
+    procedure Clear;
+    function Add(Const account : TAccount) : Integer;
+    function Count : Integer;
+    function Get(index : Integer) : TAccount;
+  end;
 
 
-  TPCSafeBoxTransaction = Class
+  TPCSafeBoxTransaction = class
   private
     FOrderedList : TOrderedAccountList;
     FFreezedAccounts : TPCSafeBox;
     FTotalBalance: Int64;
     FTotalFee: Int64;
     FOldSafeBoxHash : TRawBytes;
-    Function GetInternalAccount(account_number : Cardinal) : PAccount;
+    function GetInternalAccount(account_number : Cardinal) : PAccount;
   protected
   public
-    Constructor Create(SafeBox : TPCSafeBox);
-    Destructor Destroy; override;
-    Function TransferAmount(sender,target : Cardinal; n_operation : Cardinal; amount, fee : UInt64; var errors : AnsiString) : Boolean;
-    Function UpdateAccountkey(account_number, n_operation: Cardinal; accountkey: TAccountKey; fee: UInt64; var errors : AnsiString) : Boolean;
-    Function Commit(accountkey: TAccountKey; reward: UInt64; timestamp: Cardinal; compact_target: Cardinal; proof_of_work: AnsiString; var errors : AnsiString) : Boolean;
-    Function Account(account_number : Cardinal) : TAccount;
-    Procedure Rollback;
-    Function CheckIntegrity : Boolean;
-    Property FreezedSafeBox : TPCSafeBox read FFreezedAccounts;
-    Property TotalFee : Int64 read FTotalFee;
-    Property TotalBalance : Int64 read FTotalBalance;
-    Procedure CopyFrom(transaction : TPCSafeBoxTransaction);
-    Procedure CleanTransaction;
-    Function ModifiedCount : Integer;
-    Function Modified(index : Integer) : TAccount;
-  End;
+    constructor Create(SafeBox : TPCSafeBox);
+    destructor Destroy; override;
+    function TransferAmount(sender,target : Cardinal; n_operation : Cardinal; amount, fee : UInt64; var errors : AnsiString) : Boolean;
+    function UpdateAccountkey(account_number, n_operation: Cardinal; accountkey: TAccountKey; fee: UInt64; var errors : AnsiString) : Boolean;
+    function Commit(accountkey: TAccountKey; reward: UInt64; timestamp: Cardinal; compact_target: Cardinal; proof_of_work: AnsiString; var errors : AnsiString) : Boolean;
+    function Account(account_number : Cardinal) : TAccount;
+    procedure Rollback;
+    function CheckIntegrity : Boolean;
+    property FreezedSafeBox : TPCSafeBox read FFreezedAccounts;
+    property TotalFee : Int64 read FTotalFee;
+    property TotalBalance : Int64 read FTotalBalance;
+    procedure CopyFrom(transaction : TPCSafeBoxTransaction);
+    procedure CleanTransaction;
+    function ModifiedCount : Integer;
+    function Modified(index : Integer) : TAccount;
+  end;
 
-  TStreamOp = Class
+  TStreamOp = class
   public
-    class Function WriteAnsiString(Stream: TStream; value: AnsiString): Integer;
-    class Function ReadAnsiString(Stream: TStream; var value: AnsiString): Integer;
-  End;
+    class function WriteAnsiString(Stream: TStream; value: AnsiString): Integer;
+    class function ReadAnsiString(Stream: TStream; var value: AnsiString): Integer;
+  end;
 
 Const
   CT_Account_NUL : TAccount = (account:0;accountkey:(EC_OpenSSL_NID:0;x:'';y:'');balance:0;updated_block:0;n_operation:0);
@@ -280,7 +280,7 @@ end;
 Const CT_Base58 : AnsiString = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
 class function TAccountComp.AccountKeyToExport(const account: TAccountKey): AnsiString;
-Var raw : TRawBytes;
+var raw : TRawBytes;
   BN, BNMod, BNDiv : TBigNum;
   i : Integer;
 begin
@@ -291,9 +291,9 @@ begin
   BNDiv := TBigNum.Create(Length(CT_Base58));
   try
     BN.HexaValue := '01'+TCrypto.ToHexaString( raw )+TCrypto.ToHexaString(Copy(TCrypto.DoSha256(raw),1,4));
-    while (Not BN.IsZero) do begin
+    while (not BN.IsZero) do begin
       BN.Divide(BNDiv,BNMod);
-      If (BNMod.Value>=0) And (BNMod.Value<length(CT_Base58)) then Result := CT_Base58[Byte(BNMod.Value)+1] + Result
+      if (BNMod.Value>=0) and (BNMod.Value<length(CT_Base58)) then Result := CT_Base58[Byte(BNMod.Value)+1] + Result
       else raise Exception.Create('Error converting to Base 58');
     end;
   finally
@@ -306,11 +306,11 @@ end;
 
 class function TAccountComp.AccountBlock(const account_number: Cardinal): Cardinal;
 begin
-  Result := account_number DIV CT_AccountsPerBlock;
+  Result := account_number div CT_AccountsPerBlock;
 end;
 
 class function TAccountComp.AccountKey2RawString(account: TAccountKey): AnsiString;
-Var s : TMemoryStream;
+var s : TMemoryStream;
 begin
   s := TMemoryStream.Create;
   try
@@ -326,7 +326,7 @@ begin
 end;
 
 class function TAccountComp.AccountKeyFromImport(const HumanReadable: AnsiString; var account: TAccountKey; var errors : AnsiString): Boolean;
-Var raw : TRawBytes;
+var raw : TRawBytes;
   BN, BNAux, BNBase : TBigNum;
   i,j : Integer;
   s1,s2 : AnsiString;
@@ -373,7 +373,7 @@ begin
       // Nothing to do... invalid
       errors := 'Error on conversion from Raw to Account key';
     end;
-  Finally
+  finally
     BN.Free;
     BNBase.Free;
     BNAux.Free;
@@ -381,15 +381,15 @@ begin
 end;
 
 class function TAccountComp.AccountNumberToAccountTxtNumber(account_number: Cardinal): AnsiString;
-Var an : int64;
+var an : int64;
 begin
   an := account_number;
-  an := ((an * 101) MOD 89)+10;
+  an := ((an * 101) mod 89)+10;
   Result := IntToStr(account_number)+'-'+Inttostr(an);
 end;
 
 class function TAccountComp.AccountPublicKeyExport(const account: TAccountKey): AnsiString;
-Var raw : TRawBytes;
+var raw : TRawBytes;
   BN, BNMod, BNDiv : TBigNum;
   i : Integer;
 begin
@@ -400,9 +400,9 @@ begin
   BNDiv := TBigNum.Create(Length(CT_Base58));
   try
     BN.HexaValue := '01'+TCrypto.ToHexaString( raw )+TCrypto.ToHexaString(Copy(TCrypto.DoSha256(raw),1,4));
-    while (Not BN.IsZero) do begin
+    while (not BN.IsZero) do begin
       BN.Divide(BNDiv,BNMod);
-      If (BNMod.Value>=0) And (BNMod.Value<length(CT_Base58)) then Result := CT_Base58[Byte(BNMod.Value)+1] + Result
+      if (BNMod.Value>=0) and (BNMod.Value<length(CT_Base58)) then Result := CT_Base58[Byte(BNMod.Value)+1] + Result
       else raise Exception.Create('Error converting to Base 58');
     end;
   finally
@@ -415,7 +415,7 @@ end;
 class function TAccountComp.AccountPublicKeyImport(
   const HumanReadable: AnsiString; var account: TAccountKey;
   var errors: AnsiString): Boolean;
-Var raw : TRawBytes;
+var raw : TRawBytes;
   BN, BNAux, BNBase : TBigNum;
   i,j : Integer;
   s1,s2 : AnsiString;
@@ -460,7 +460,7 @@ begin
       // Nothing to do... invalid
       errors := 'Error on conversion from Raw to Account key';
     end;
-  Finally
+  finally
     BN.Free;
     BNBase.Free;
     BNAux.Free;
@@ -468,7 +468,7 @@ begin
 end;
 
 class function TAccountComp.AccountTxtNumberToAccountNumber(const account_txt_number: AnsiString; var account_number: Cardinal): Boolean;
-Var i : Integer;
+var i : Integer;
   char1 : AnsiChar;
   char2 : AnsiChar;
   an,rn,anaux : Int64;
@@ -493,14 +493,14 @@ begin
   if (account_txt_number[i] in ['-','.',' ']) then inc(i);
   if length(account_txt_number)-1<>i then exit;
   rn := StrToIntDef(copy(account_txt_number,i,length(account_txt_number)),0);
-  anaux := ((an * 101) MOD 89)+10;
+  anaux := ((an * 101) mod 89)+10;
   Result := rn = anaux;
 end;
 
 class function TAccountComp.Equal(account1, account2: TAccountKey): Boolean;
 begin
-  Result := (account1.EC_OpenSSL_NID=account2.EC_OpenSSL_NID) And
-    (account1.x=account2.x) And (account1.y=account2.y);
+  Result := (account1.EC_OpenSSL_NID=account2.EC_OpenSSL_NID) and
+    (account1.x=account2.x) and (account1.y=account2.y);
 end;
 
 class function TAccountComp.FormatMoney(Money: Int64): AnsiString;
@@ -517,9 +517,9 @@ begin
     NID_secp384r1 : begin
       Result := 'secp384r1';
     end;
-    NID_sect283k1 : Begin
+    NID_sect283k1 : begin
       Result := 'secp283k1';
-    End;
+    end;
     NID_secp521r1 : begin
       Result := 'secp521r1';
     end
@@ -536,13 +536,13 @@ begin
 end;
 
 class function TAccountComp.IsValidAccountKey(account: TAccountKey; var errors : AnsiString): Boolean;
-Var _a, _b: AnsiString;
+var _a, _b: AnsiString;
 begin
   errors := '';
   case account.EC_OpenSSL_NID of
     NID_secp256k1,NID_secp384r1,NID_sect283k1,NID_secp521r1 : begin
       Result := TECPrivateKey.IsValidPublicKey(account);
-      if Not Result then begin
+      if not Result then begin
         errors := Format('Invalid AccountKey type:%d - Length x:%d y:%d Error:%s',[account.EC_OpenSSL_NID,length(account.x),length(account.y),  ERR_error_string(ERR_get_error(),nil)]);
       end;
     end;
@@ -550,7 +550,7 @@ begin
     errors := Format('Invalid AccountKey type:%d (Unknown type) - Length x:%d y:%d',[account.EC_OpenSSL_NID,length(account.x),length(account.y)]);
     Result := False;
   end;
-  if (errors='') And (Not Result) then errors := ERR_error_string(ERR_get_error(),nil);
+  if (errors='') and (not Result) then errors := ERR_error_string(ERR_get_error(),nil);
 end;
 
 class function TAccountComp.PrivateToAccountkey(key: TECPrivateKey): TAccountKey;
@@ -559,7 +559,7 @@ begin
 end;
 
 class function TAccountComp.RawString2Accountkey(rawaccstr: AnsiString): TAccountKey;
-Var s : TMemoryStream;
+var s : TMemoryStream;
 begin
   Result := CT_TECDSA_Public_Nul;
   s := TMemoryStream.Create;
@@ -567,7 +567,7 @@ begin
     s.WriteBuffer(rawaccstr[1],length(rawaccstr));
     s.Position := 0;
     s.Read(Result.EC_OpenSSL_NID,SizeOf(Result.EC_OpenSSL_NID));
-    If (TStreamOp.ReadAnsiString(s,Result.x)<=0) then begin
+    if (TStreamOp.ReadAnsiString(s,Result.x)<=0) then begin
       Result := CT_TECDSA_Public_Nul;
       exit;
     end;
@@ -581,7 +581,7 @@ begin
 end;
 
 class function TAccountComp.TxtToMoney(Const moneytxt : AnsiString; var money : Int64) : Boolean;
-Var s : AnsiString;
+var s : AnsiString;
 begin
   money := 0;
   if Trim(moneytxt)='' then begin
@@ -592,7 +592,7 @@ begin
     s := StringReplace(moneytxt,ThousandSeparator,'',[rfReplaceAll]);
     money := Round( StrToFloat(s)*10000 );
     Result := true;
-  Except
+  except
     result := false;
   end;
 end;
@@ -611,9 +611,9 @@ end;
 function TPCSafeBox.Account(account_number: Cardinal): TAccount;
 var b : Cardinal;
 begin
-  b := account_number DIV CT_AccountsPerBlock;
-  if (b<0) Or (b>=FBlockAccountsList.Count) then raise Exception.Create('Invalid account: '+IntToStr(account_number));
-  Result := PBlockAccount(FBlockAccountsList.Items[b])^.accounts[account_number MOD CT_AccountsPerBlock];
+  b := account_number div CT_AccountsPerBlock;
+  if (b<0) or (b>=FBlockAccountsList.Count) then raise Exception.Create('Invalid account: '+IntToStr(account_number));
+  Result := PBlockAccount(FBlockAccountsList.Items[b])^.accounts[account_number mod CT_AccountsPerBlock];
 end;
 
 function TPCSafeBox.AddNew(const accountkey: TAccountKey; reward: UInt64;
@@ -621,7 +621,7 @@ function TPCSafeBox.AddNew(const accountkey: TAccountKey; reward: UInt64;
   ): TBlockAccount;
 var i, base_addr : Integer;
   P : PBlockAccount;
-  accs : Array of cardinal;
+  accs : array of cardinal;
 begin
   base_addr := BlocksCount * CT_AccountsPerBlock;
   Result := CT_BlockAccount_NUL;
@@ -659,7 +659,7 @@ begin
 end;
 
 procedure TPCSafeBox.AccountKeyListAddAccounts(const AccountKey: TAccountKey; const accounts: array of Cardinal);
-Var i : Integer;
+var i : Integer;
 begin
   for i := 0 to FListOfOrderedAccountKeysList.count-1 do begin
     TOrderedAccountKeysList( FListOfOrderedAccountKeysList[i] ).AddAccounts(AccountKey,accounts);
@@ -667,7 +667,7 @@ begin
 end;
 
 procedure TPCSafeBox.AccountKeyListRemoveAccount(const AccountKey: TAccountKey; const accounts: array of Cardinal);
-Var i : Integer;
+var i : Integer;
 begin
   for i := 0 to FListOfOrderedAccountKeysList.count-1 do begin
     TOrderedAccountKeysList( FListOfOrderedAccountKeysList[i] ).RemoveAccounts(AccountKey,accounts);
@@ -681,7 +681,7 @@ end;
 
 function TPCSafeBox.Block(block_number: Cardinal): TBlockAccount;
 begin
-  if (block_number<0) Or (block_number>=FBlockAccountsList.Count) then raise Exception.Create('Invalid block number: '+inttostr(block_number));
+  if (block_number<0) or (block_number>=FBlockAccountsList.Count) then raise Exception.Create('Invalid block number: '+inttostr(block_number));
   Result := PBlockAccount(FBlockAccountsList.Items[block_number])^;
 end;
 
@@ -698,7 +698,7 @@ begin
 end;
 
 class function TPCSafeBox.CalcBlockHash(const block : TBlockAccount): AnsiString;
-Var s: AnsiString;
+var s: AnsiString;
   ms : TMemoryStream;
   i : Integer;
 begin
@@ -722,19 +722,19 @@ end;
 
 function TPCSafeBox.CalcBlockHashRateInKhs(block_number: Cardinal;
   Previous_blocks_average: Cardinal): Int64;
-Var c,t : Cardinal;
+var c,t : Cardinal;
   t_sum : Extended;
   bn, bn_sum : TBigNum;
 begin
   FLock.Acquire;
-  Try
+  try
     bn_sum := TBigNum.Create;
     try
       if (block_number=0) then begin
         Result := 1;
         exit;
       end;
-      if (block_number<0) Or (block_number>=FBlockAccountsList.Count) then raise Exception.Create('Invalid block number: '+inttostr(block_number));
+      if (block_number<0) or (block_number>=FBlockAccountsList.Count) then raise Exception.Create('Invalid block number: '+inttostr(block_number));
       if (Previous_blocks_average<=0) then raise Exception.Create('Dev error 20161016-1');
       if (Previous_blocks_average>block_number) then Previous_blocks_average := block_number;
       //
@@ -757,27 +757,27 @@ begin
         bn_sum.Divide(t);
       end;
       Result := bn_sum.Divide(1024).Value; // Value in Kh/s
-    Finally
+    finally
       bn_sum.Free;
     end;
-  Finally
+  finally
     FLock.Release;
-  End;
+  end;
 end;
 
 function TPCSafeBox.CalcSafeBoxHash: TRawBytes;
 begin
-  // If No buffer to hash is because it's firts block... so use Genesis: CT_Genesis_Magic_String_For_Old_Block_Hash
+  // if No buffer to hash is because it's firts block... so use Genesis: CT_Genesis_Magic_String_For_Old_Block_Hash
   if (FBufferBlocksHash='') then Result := TCrypto.DoSha256(CT_Genesis_Magic_String_For_Old_Block_Hash)
   else Result := TCrypto.DoSha256(FBufferBlocksHash);
 end;
 
 procedure TPCSafeBox.Clear;
-Var i : Integer;
+var i : Integer;
   P : PBlockAccount;
 begin
   StartThreadSafe;
-  Try
+  try
     for i := 0 to FBlockAccountsList.Count - 1 do begin
       P := FBlockAccountsList.Items[i];
       Dispose(P);
@@ -792,18 +792,18 @@ begin
     FSafeBoxHash := CalcSafeBoxHash;
     FPreviousBlockSafeBoxHash := '';
     FWorkSum := 0;
-  Finally
+  finally
     EndThreadSave;
   end;
 end;
 
 procedure TPCSafeBox.CopyFrom(accounts: TPCSafeBox);
-Var i,j : Cardinal;
+var i,j : Cardinal;
   P : PBlockAccount;
   BA : TBlockAccount;
 begin
   StartThreadSafe;
-  Try
+  try
     accounts.StartThreadSafe;
     try
       if accounts=Self then exit;
@@ -842,11 +842,11 @@ begin
 end;
 
 destructor TPCSafeBox.Destroy;
-Var i : Integer;
+var i : Integer;
 begin
   Clear;
   for i := 0 to FListOfOrderedAccountKeysList.Count - 1 do begin
-    TOrderedAccountKeysList( FListOfOrderedAccountKeysList[i] ).FAccountList := Nil;
+    TOrderedAccountKeysList( FListOfOrderedAccountKeysList[i] ).FAccountList := nil;
   end;
   FreeAndNil(FBlockAccountsList);
   FreeAndNil(FListOfOrderedAccountKeysList);
@@ -860,7 +860,7 @@ begin
 end;
 
 function TPCSafeBox.LoadSafeBoxFromStream(Stream : TStream; var LastReadBlock : TBlockAccount; var errors : AnsiString) : Boolean;
-Var w : Word;
+var w : Word;
   blockscount,iblock,iacc : Cardinal;
   s : AnsiString;
   block : TBlockAccount;
@@ -872,7 +872,7 @@ begin
   try
     Clear;
     Result := false;
-    Try
+    try
       errors := 'Invalid stream';
       TStreamOp.ReadAnsiString(Stream,s);
       if (s<>CT_MagicIdentificator) then exit;
@@ -939,16 +939,16 @@ begin
       // Build 1.3.0 adding calculation
       FSafeBoxHash := CalcSafeBoxHash;
       Result := true;
-    Finally
-      if Not Result then Clear;
-    End;
-  Finally
+    finally
+      if not Result then Clear;
+    end;
+  finally
     EndThreadSave;
   end;
 end;
 
 class function TPCSafeBox.LoadSafeBoxStreamHeader(Stream: TStream; var BlocksCount: Cardinal): Boolean;
-Var w : Word;
+var w : Word;
   s : AnsiString;
   safeBoxBankVersion : Word;
 begin
@@ -971,7 +971,7 @@ Var
   b : TBlockAccount;
 begin
   StartThreadSafe;
-  Try
+  try
     TStreamOp.WriteAnsiString(Stream,CT_MagicIdentificator);
     Stream.Write(CT_BlockChain_Protocol_Version,SizeOf(CT_BlockChain_Protocol_Version));
     Stream.Write(CT_SafeBoxBankVersion,SizeOf(CT_SafeBoxBankVersion));
@@ -994,21 +994,21 @@ begin
     end;
     // New Build 1.3.0
     TStreamOp.WriteAnsiString(Stream,FPreviousBlockSafeBoxHash);
-  Finally
+  finally
     EndThreadSave;
   end;
 end;
 
 procedure TPCSafeBox.SetAccount(account_number : Cardinal; newAccountkey: TAccountKey; newBalance: UInt64; newN_operation: Cardinal);
-Var iBlock : Cardinal;
+var iBlock : Cardinal;
   i,j,iAccount : Integer;
   lastbalance : UInt64;
   P : PBlockAccount;
 begin
-  iBlock := account_number DIV CT_AccountsPerBlock;
-  iAccount := account_number MOD CT_AccountsPerBlock;
+  iBlock := account_number div CT_AccountsPerBlock;
+  iAccount := account_number mod CT_AccountsPerBlock;
   P := FBlockAccountsList.Items[iBlock];
-  if (NOT TAccountComp.Equal(P^.accounts[iAccount].accountkey,newAccountkey)) then begin
+  if (not TAccountComp.Equal(P^.accounts[iAccount].accountkey,newAccountkey)) then begin
     AccountKeyListRemoveAccount(P^.accounts[iAccount].accountkey,[account_number]);
     AccountKeyListAddAccounts(newAccountkey,[account_number]);
   end;
@@ -1037,7 +1037,7 @@ end;
 { TPCSafeBoxTransaction }
 
 function TPCSafeBoxTransaction.Account(account_number: Cardinal): TAccount;
-Var i :Integer;
+var i :Integer;
 begin
   if FOrderedList.Find(account_number,i) then Result := PAccount(FOrderedList.FList[i])^
   else begin
@@ -1059,7 +1059,7 @@ begin
 end;
 
 function TPCSafeBoxTransaction.Commit(accountkey: TAccountKey; reward: UInt64; timestamp: Cardinal; compact_target: Cardinal; proof_of_work: AnsiString; var errors : AnsiString) : Boolean;
-Var i,j : Integer;
+var i,j : Integer;
   B : TBlockAccount;
   Pa : PAccount;
 begin
@@ -1098,7 +1098,7 @@ begin
 end;
 
 procedure TPCSafeBoxTransaction.CopyFrom(transaction : TPCSafeBoxTransaction);
-Var i : Integer;
+var i : Integer;
   P : PAccount;
 begin
   if transaction=Self then exit;
@@ -1130,7 +1130,7 @@ begin
 end;
 
 function TPCSafeBoxTransaction.GetInternalAccount(account_number: Cardinal): PAccount;
-Var i :Integer;
+var i :Integer;
   P : PAccount;
 begin
   if FOrderedList.Find(account_number,i) then Result := PAccount(FOrderedList.FList[i])
@@ -1166,8 +1166,8 @@ begin
     errors := 'Invalid integrity in accounts transaction';
     exit;
   end;
-  if (sender<0) Or (sender>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) Or
-     (target<0) Or (target>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) then begin
+  if (sender<0) or (sender>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) Or
+     (target<0) or (target>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) then begin
      errors := 'Invalid sender or target on transfer';
      exit;
   end;
@@ -1211,12 +1211,12 @@ begin
 end;
 
 function TPCSafeBoxTransaction.UpdateAccountkey(account_number, n_operation: Cardinal; accountkey: TAccountKey; fee: UInt64; var errors: AnsiString): Boolean;
-Var intAccount : Integer;
+var intAccount : Integer;
   P : PAccount;
 begin
   Result := false;
   errors := '';
-  if (account_number<0) Or (account_number>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) Then begin
+  if (account_number<0) or (account_number>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) Then begin
      errors := 'Invalid account';
      exit;
   end;
@@ -1245,8 +1245,8 @@ end;
 
 { TOrderedAccountList }
 
-Function TOrderedAccountList.Add(const account: TAccount) : Integer;
-Var P : PAccount;
+function TOrderedAccountList.Add(const account: TAccount) : Integer;
+var P : PAccount;
 begin
   if Find(account.account,Result) then begin
     PAccount(FList[Result])^ := account;
@@ -1258,7 +1258,7 @@ begin
 end;
 
 procedure TOrderedAccountList.Clear;
-Var i : Integer;
+var i : Integer;
   P : PAccount;
 begin
   for I := 0 to FList.Count - 1 do begin
@@ -1316,7 +1316,7 @@ end;
 
 { TOrderedAccountKeysList }
 Type
-  TOrderedAccountKeyList = Record
+  TOrderedAccountKeyList = record
     rawaccountkey : TRawBytes;
     accounts_number : TOrderedCardinalList;
   end;
@@ -1328,10 +1328,10 @@ begin
 end;
 
 procedure TOrderedAccountKeysList.AddAccountKey(const AccountKey: TAccountKey);
-Var P : POrderedAccountKeyList;
+var P : POrderedAccountKeyList;
   i,j : Integer;
 begin
-  if Not Find(AccountKey,i) then begin
+  if not Find(AccountKey,i) then begin
     New(P);
     P^.rawaccountkey := TAccountComp.AccountKey2RawString(AccountKey);
     P^.accounts_number := TOrderedCardinalList.Create;
@@ -1340,7 +1340,7 @@ begin
     j := 0;
     if Assigned(FAccountList) then begin
       For i:=0 to FAccountList.AccountsCount-1 do begin
-        If TAccountComp.Equal(FAccountList.Account(i).accountkey,AccountKey) then begin
+        if TAccountComp.Equal(FAccountList.Account(i).accountkey,AccountKey) then begin
           // Note: P^.accounts will be ascending ordered due to "for i:=0 to ..."
           P^.accounts_number.Add(i);
         end;
@@ -1353,7 +1353,7 @@ begin
 end;
 
 procedure TOrderedAccountKeysList.AddAccounts(const AccountKey: TAccountKey; const accounts: array of Cardinal);
-Var P : POrderedAccountKeyList;
+var P : POrderedAccountKeyList;
   i,i2 : Integer;
 begin
   if Find(AccountKey,i) then begin
@@ -1375,7 +1375,7 @@ begin
 end;
 
 procedure TOrderedAccountKeysList.ClearAccounts(RemoveAccountList : Boolean);
-Var P : POrderedAccountKeyList;
+var P : POrderedAccountKeyList;
   i : Integer;
 begin
   for i := 0 to FOrderedAccountKeysList.Count - 1 do begin
@@ -1398,7 +1398,7 @@ begin
 end;
 
 constructor TOrderedAccountKeysList.Create(AccountList : TPCSafeBox; AutoAddAll : Boolean);
-Var i : Integer;
+var i : Integer;
 begin
   TLog.NewLog(ltdebug,Classname,'Creating an Ordered Account Keys List adding all:'+CT_TRUE_FALSE[AutoAddAll]);
   FAutoAddAll := AutoAddAll;
@@ -1451,7 +1451,7 @@ begin
 end;
 
 function TOrderedAccountKeysList.GetAccountKey(index: Integer): TAccountKey;
-Var raw : TRawBytes;
+var raw : TRawBytes;
 begin
   raw := POrderedAccountKeyList(FOrderedAccountKeysList[index]).rawaccountkey;
   Result := TAccountComp.RawString2Accountkey(raw);
@@ -1464,19 +1464,19 @@ end;
 
 function TOrderedAccountKeysList.IndexOfAccountKey(const AccountKey: TAccountKey): Integer;
 begin
-  If Not Find(AccountKey,Result) then Result := -1;
+  if not Find(AccountKey,Result) then Result := -1;
 end;
 
 procedure TOrderedAccountKeysList.RemoveAccounts(const AccountKey: TAccountKey; const accounts: array of Cardinal);
-Var P : POrderedAccountKeyList;
+var P : POrderedAccountKeyList;
   i,j : Integer;
 begin
-  if Not Find(AccountKey,i) then exit; // Nothing to do
+  if not Find(AccountKey,i) then exit; // Nothing to do
   P :=  POrderedAccountKeyList(FOrderedAccountKeysList[i]);
   for j := Low(accounts) to High(accounts) do begin
     P^.accounts_number.Remove(accounts[j]);
   end;
-  if (P^.accounts_number.Count=0) And (FAutoAddAll) then begin
+  if (P^.accounts_number.Count=0) and (FAutoAddAll) then begin
     // Remove from list
     FOrderedAccountKeysList.Delete(i);
     // Free it
@@ -1486,10 +1486,10 @@ begin
 end;
 
 procedure TOrderedAccountKeysList.RemoveAccountKey(const AccountKey: TAccountKey);
-Var P : POrderedAccountKeyList;
+var P : POrderedAccountKeyList;
   i,j : Integer;
 begin
-  if Not Find(AccountKey,i) then exit; // Nothing to do
+  if not Find(AccountKey,i) then exit; // Nothing to do
   P :=  POrderedAccountKeyList(FOrderedAccountKeysList[i]);
   // Remove from list
   FOrderedAccountKeysList.Delete(i);
@@ -1516,18 +1516,18 @@ begin
 end;
 
 procedure TOrderedCardinalList.CopyFrom(Sender: TOrderedCardinalList);
-Var i : Integer;
+var i : Integer;
 begin
   if Self=Sender then exit;
   Disable;
-  Try
+  try
     Clear;
     for I := 0 to Sender.Count - 1 do begin
       Add(Sender.Get(i));
     end;
-  Finally
+  finally
     Enable;
-  End;
+  end;
 end;
 
 function TOrderedCardinalList.Count: Integer;
@@ -1557,7 +1557,7 @@ procedure TOrderedCardinalList.Enable;
 begin
   if FDisabledsCount<=0 then raise Exception.Create('Dev error. Invalid disabled counter');
   dec(FDisabledsCount);
-  if (FDisabledsCount=0) And (FModifiedWhileDisabled) then NotifyChanged;
+  if (FDisabledsCount=0) and (FModifiedWhileDisabled) then NotifyChanged;
 end;
 
 function TOrderedCardinalList.Find(const Value: Cardinal; var Index: Integer): Boolean;
@@ -1600,7 +1600,7 @@ begin
 end;
 
 procedure TOrderedCardinalList.Remove(Value: Cardinal);
-Var i : Integer;
+var i : Integer;
 begin
   if Find(Value,i) then begin
     FOrderedList.Delete(i);

@@ -190,6 +190,10 @@ object FRMPayloadDecoder: TFRMPayloadDecoder
     OnChanging = PageControlChanging
     object tsDecoded: TTabSheet
       Caption = 'Payload'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label7: TLabel
         Left = 15
         Top = 94

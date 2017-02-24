@@ -22,7 +22,7 @@ uses
   Classes, SysUtils, UOpenSSL, UOpenSSLdef;
 
 Type
-  ECryptoException = Class(Exception);
+  ECryptoException = class(Exception);
 
   TRawBytes = AnsiString;
   PRawBytes = ^TRawBytes;
@@ -39,7 +39,7 @@ Type
   end;
   PECDSA_Public = ^TECDSA_Public;
 
-  TECPrivateKey = Class
+  TECPrivateKey = class
   private
     FPrivateKey: PEC_KEY;
     FEC_OpenSSL_NID : Word;
@@ -47,37 +47,37 @@ Type
     function GetPublicKey: TECDSA_Public;
     function GetPublicKeyPoint: PEC_POINT;
   public
-    Constructor Create;
-    Procedure GenerateRandomPrivateKey(EC_OpenSSL_NID : Word);
-    Destructor Destroy;
-    Property PrivateKey : PEC_KEY read FPrivateKey;
-    Property PublicKey : TECDSA_Public read GetPublicKey;
-    Property PublicKeyPoint : PEC_POINT read GetPublicKeyPoint;
-    Function SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString) : Boolean;
-    Property EC_OpenSSL_NID : Word Read FEC_OpenSSL_NID;
+    constructor Create;
+    procedure GenerateRandomPrivateKey(EC_OpenSSL_NID : Word);
+    destructor Destroy;
+    property privateKey : PEC_KEY read FPrivateKey;
+    property PublicKey : TECDSA_Public read GetPublicKey;
+    property PublicKeyPoint : PEC_POINT read GetPublicKeyPoint;
+    function SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString) : Boolean;
+    property EC_OpenSSL_NID : Word Read FEC_OpenSSL_NID;
     class function IsValidPublicKey(PubKey : TECDSA_Public) : Boolean;
-    Function ExportToRaw : TRawBytes;
-    class Function ImportFromRaw(Const raw : TRawBytes) : TECPrivateKey; static;
-  End;
+    function ExportToRaw : TRawBytes;
+    class function ImportFromRaw(Const raw : TRawBytes) : TECPrivateKey; static;
+  end;
 
-  TCrypto = Class
+  TCrypto = class
   private
   public
-    Class function ToHexaString(const raw : TRawBytes) : AnsiString;
-    Class function HexaToRaw(const HexaString : AnsiString) : TRawBytes;
-    Class function DoSha256(p : PAnsiChar; plength : Cardinal) : TRawBytes; overload;
-    Class function DoSha256(const TheMessage : AnsiString) : TRawBytes; overload;
-    Class procedure DoDoubleSha256(p : PAnsiChar; plength : Cardinal; Var ResultSha256 : TRawBytes); overload;
-    Class function DoRipeMD160(const TheMessage : AnsiString) : TRawBytes;
-    Class function PrivateKey2Hexa(Key : PEC_KEY) : AnsiString;
-    Class function ECDSASign(Key : PEC_KEY; const digest : AnsiString) : TECDSA_SIG;
-    Class function ECDSAVerify(EC_OpenSSL_NID : Word; PubKey : EC_POINT; const digest : AnsiString; Signature : TECDSA_SIG) : Boolean; overload;
-    Class function ECDSAVerify(PubKey : TECDSA_Public; const digest : AnsiString; Signature : TECDSA_SIG) : Boolean; overload;
+    class function ToHexaString(const raw : TRawBytes) : AnsiString;
+    class function HexaToRaw(const HexaString : AnsiString) : TRawBytes;
+    class function DoSha256(p : PAnsiChar; plength : Cardinal) : TRawBytes; overload;
+    class function DoSha256(const TheMessage : AnsiString) : TRawBytes; overload;
+    Class procedure DoDoubleSha256(p : PAnsiChar; plength : Cardinal; var ResultSha256 : TRawBytes); overload;
+    class function DoRipeMD160(const TheMessage : AnsiString) : TRawBytes;
+    class function privateKey2Hexa(Key : PEC_KEY) : AnsiString;
+    class function ECDSASign(Key : PEC_KEY; const digest : AnsiString) : TECDSA_SIG;
+    class function ECDSAVerify(EC_OpenSSL_NID : Word; PubKey : EC_POINT; const digest : AnsiString; Signature : TECDSA_SIG) : Boolean; overload;
+    class function ECDSAVerify(PubKey : TECDSA_Public; const digest : AnsiString; Signature : TECDSA_SIG) : Boolean; overload;
     Class procedure InitCrypto;
-    Class function IsHumanReadable(Const ReadableText : TRawBytes) : Boolean;
-  End;
+    class function IsHumanReadable(Const ReadableText : TRawBytes) : Boolean;
+  end;
 
-  TBigNum = Class
+  TBigNum = class
   private
     FBN : PBIGNUM;
     procedure SetHexaValue(const Value: AnsiString);
@@ -89,33 +89,33 @@ Type
     function GetRawValue: TRawBytes;
     procedure SetRawValue(const Value: TRawBytes);
   public
-    Constructor Create; overload;
-    Constructor Create(initialValue : Int64); overload;
-    Constructor Create(hexaValue : AnsiString); overload;
-    Destructor Destroy; override;
-    Function Copy : TBigNum;
-    Function Add(BN : TBigNum) : TBigNum; overload;
-    Function Add(int : Int64) : TBigNum; overload;
-    Function Sub(BN : TBigNum) : TBigNum; overload;
-    Function Sub(int : Int64) : TBigNum; overload;
-    Function Multiply(BN : TBigNum) : TBigNum; overload;
-    Function Multiply(int : Int64) : TBigNum; overload;
-    Function LShift(nbits : Integer) : TBigNum;
-    Function RShift(nbits : Integer) : TBigNum;
-    Function CompareTo(BN : TBigNum) : Integer;
-    Function Divide(BN : TBigNum) : TBigNum; overload;
-    Function Divide(int : Int64) : TBigNum; overload;
-    Procedure Divide(dividend, remainder : TBigNum); overload;
-    Function ToInt64(var int : Int64) : TBigNum;
-    Function ToDecimal : AnsiString;
-    Property HexaValue : AnsiString read GetHexaValue write SetHexaValue;
-    Property RawValue : TRawBytes read GetRawValue write SetRawValue;
-    Property DecimalValue : AnsiString read GetDecimalValue write SetDecimalValue;
-    Property Value : Int64 read GetValue write SetValue;
-    Function IsZero : Boolean;
-    Class Function HexaToDecimal(hexa : AnsiString) : AnsiString;
-    Class Function TargetToHashRate(EncodedTarget : Cardinal) : TBigNum;
-  End;
+    constructor Create; overload;
+    constructor Create(initialValue : Int64); overload;
+    constructor Create(hexaValue : AnsiString); overload;
+    destructor Destroy; override;
+    function Copy : TBigNum;
+    function Add(BN : TBigNum) : TBigNum; overload;
+    function Add(int : Int64) : TBigNum; overload;
+    function Sub(BN : TBigNum) : TBigNum; overload;
+    function Sub(int : Int64) : TBigNum; overload;
+    function Multiply(BN : TBigNum) : TBigNum; overload;
+    function Multiply(int : Int64) : TBigNum; overload;
+    function LShift(nbits : Integer) : TBigNum;
+    function RShift(nbits : Integer) : TBigNum;
+    function CompareTo(BN : TBigNum) : Integer;
+    function Divide(BN : TBigNum) : TBigNum; overload;
+    function Divide(int : Int64) : TBigNum; overload;
+    procedure Divide(dividend, remainder : TBigNum); overload;
+    function ToInt64(var int : Int64) : TBigNum;
+    function ToDecimal : AnsiString;
+    property HexaValue : AnsiString read GetHexaValue write SetHexaValue;
+    property RawValue : TRawBytes read GetRawValue write SetRawValue;
+    property DecimalValue : AnsiString read GetDecimalValue write SetDecimalValue;
+    property Value : Int64 read GetValue write SetValue;
+    function IsZero : Boolean;
+    class function HexaToDecimal(hexa : AnsiString) : AnsiString;
+    class function TargetToHashRate(EncodedTarget : Cardinal) : TBigNum;
+  end;
 
 Const
   CT_TECDSA_Public_Nul : TECDSA_Public = (EC_OpenSSL_NID:0;x:'';y:'');
@@ -125,11 +125,11 @@ implementation
 uses
   ULog, UConst, UAccounts;
 
-Var _initialized : Boolean = false;
+var _initialized : Boolean = false;
 
 Procedure _DoInit;
 Begin
-  if Not (_initialized) then begin
+  if not (_initialized) then begin
     _initialized := true;
     InitSSLFunctions;
   end;
@@ -139,7 +139,7 @@ End;
 
 constructor TECPrivateKey.Create;
 begin
-  FPrivateKey := Nil;
+  FPrivateKey := nil;
   FEC_OpenSSL_NID := CT_Default_EC_OpenSSL_NID;
 end;
 
@@ -149,11 +149,11 @@ begin
 end;
 
 function TECPrivateKey.ExportToRaw: TRawBytes;
-Var ms : TStream;
+var ms : TStream;
   aux : TRawBytes;
 begin
   ms := TMemoryStream.Create;
-  Try
+  try
     ms.Write(FEC_OpenSSL_NID,sizeof(FEC_OpenSSL_NID));
     SetLength(aux,BN_num_bytes(EC_KEY_get0_private_key(FPrivateKey)));
     BN_bn2bin(EC_KEY_get0_private_key(FPrivateKey),@aux[1]);
@@ -161,19 +161,19 @@ begin
     SetLength(Result,ms.Size);
     ms.Position := 0;
     ms.Read(Result[1],ms.Size);
-  Finally
+  finally
     ms.Free;
-  End;
+  end;
 end;
 
 procedure TECPrivateKey.GenerateRandomPrivateKey(EC_OpenSSL_NID : Word);
-Var i : Integer;
+var i : Integer;
 begin
   if Assigned(FPrivateKey) then EC_KEY_free(FPrivateKey);
   FEC_OpenSSL_NID := EC_OpenSSL_NID;
   FPrivateKey := EC_KEY_new_by_curve_name(EC_OpenSSL_NID);
   i := EC_KEY_generate_key(FPrivateKey);
-  if i<>1 then Raise ECryptoException.Create('Error generating new Random Private Key');
+  if i<>1 then Raise ECryptoException.Create('Error generating new Random private Key');
 end;
 
 function TECPrivateKey.GetPublicKey: TECDSA_Public;
@@ -185,17 +185,17 @@ begin
   ctx := BN_CTX_new;
   BNx := BN_new;
   BNy := BN_new;
-  Try
+  try
     EC_POINT_get_affine_coordinates_GFp(EC_KEY_get0_group(FPrivateKey),EC_KEY_get0_public_key(FPrivateKey),BNx,BNy,ctx);
     SetLength(Result.x,BN_num_bytes(BNx));
     BN_bn2bin(BNx,@Result.x[1]);
     SetLength(Result.y,BN_num_bytes(BNy));
     BN_bn2bin(BNy,@Result.y[1]);
-  Finally
+  finally
     BN_CTX_free(ctx);
     BN_free(BNx);
     BN_free(BNy);
-  End;
+  end;
 end;
 
 function TECPrivateKey.GetPublicKeyPoint: PEC_POINT;
@@ -204,19 +204,19 @@ begin
 end;
 
 class function TECPrivateKey.ImportFromRaw(const raw: TRawBytes): TECPrivateKey;
-Var ms : TStream;
+var ms : TStream;
   aux : TRawBytes;
   BNx : PBIGNUM;
   ECID : Word;
   PAC : PAnsiChar;
 begin
-  Result := Nil;
+  Result := nil;
   ms := TMemoryStream.Create;
-  Try
+  try
     ms.WriteBuffer(raw[1],length(raw));
     ms.Position := 0;
     if ms.Read(ECID,sizeof(ECID))<>sizeof(ECID) then exit;
-    If TStreamOp.ReadAnsiString(ms,aux)<0 then exit;
+    if TStreamOp.ReadAnsiString(ms,aux)<0 then exit;
     BNx := BN_bin2bn(PAnsiChar(aux),length(aux),nil);
     if assigned(BNx) then begin
       try
@@ -231,13 +231,13 @@ begin
         BN_free(BNx);
       end;
     end;
-  Finally
+  finally
     ms.Free;
-  End;
+  end;
 end;
 
 class function TECPrivateKey.IsValidPublicKey(PubKey: TECDSA_Public): Boolean;
-Var BNx,BNy : PBIGNUM;
+var BNx,BNy : PBIGNUM;
   ECG : PEC_GROUP;
   ctx : PBN_CTX;
   pub_key : PEC_POINT;
@@ -312,17 +312,17 @@ end;
   increase speed we use a String as a pointer, and only increase speed if
   needed. Also the same with functions "GetMem" and "FreeMem" }
 class procedure TCrypto.DoDoubleSha256(p: PAnsiChar; plength: Cardinal; var ResultSha256: TRawBytes);
-Var PS : PAnsiChar;
+var PS : PAnsiChar;
   PC : PAnsiChar;
 begin
-  If length(ResultSha256)<>32 then SetLength(ResultSha256,32);
+  if length(ResultSha256)<>32 then SetLength(ResultSha256,32);
   PS := @ResultSha256[1];
   SHA256(p,plength,PS);
   SHA256(PS,32,PS);
 end;
 
 class function TCrypto.DoRipeMD160(const TheMessage: AnsiString): TRawBytes;
-Var PS : PAnsiChar;
+var PS : PAnsiChar;
   PC : PAnsiChar;
   i : Integer;
 begin
@@ -338,7 +338,7 @@ begin
 end;
 
 class function TCrypto.DoSha256(p: PAnsiChar; plength: Cardinal): TRawBytes;
-Var PS : PAnsiChar;
+var PS : PAnsiChar;
 begin
   SetLength(Result,32);
   PS := @Result[1];
@@ -346,7 +346,7 @@ begin
 end;
 
 class function TCrypto.DoSha256(const TheMessage: AnsiString): TRawBytes;
-Var PS : PAnsiChar;
+var PS : PAnsiChar;
 begin
   SetLength(Result,32);
   PS := @Result[1];
@@ -354,7 +354,7 @@ begin
 end;
 
 class function TCrypto.ECDSASign(Key: PEC_KEY; const digest: AnsiString): TECDSA_SIG;
-Var PECS : PECDSA_SIG;
+var PECS : PECDSA_SIG;
   p, pr,ps : PAnsiChar;
   i : Integer;
   {$IFDEF OpenSSL10}
@@ -363,8 +363,8 @@ Var PECS : PECDSA_SIG;
   {$ENDIF}
 begin
   PECS := ECDSA_do_sign(PAnsiChar(digest),length(digest),Key);
-  Try
-    if PECS = Nil then raise ECryptoException.Create('Error signing');
+  try
+    if PECS = nil then raise ECryptoException.Create('Error signing');
 
     {$IFDEF OpenSSL10}
     i := BN_num_bytes(PECS^._r);
@@ -387,13 +387,13 @@ begin
     p := @Result.s[1];
     i := BN_bn2bin(bns,p);
     {$ENDIF}
-  Finally
+  finally
     ECDSA_SIG_free(PECS);
-  End;
+  end;
 end;
 
 class function TCrypto.ECDSAVerify(EC_OpenSSL_NID : Word; PubKey: EC_POINT; const digest: AnsiString; Signature: TECDSA_SIG): Boolean;
-Var PECS : PECDSA_SIG;
+var PECS : PECDSA_SIG;
   PK : PEC_KEY;
   {$IFDEF OpenSSL10}
   {$ELSE}
@@ -401,7 +401,7 @@ Var PECS : PECDSA_SIG;
   {$ENDIF}
 begin
   PECS := ECDSA_SIG_new;
-  Try
+  try
     {$IFDEF OpenSSL10}
     BN_bin2bn(PAnsiChar(Signature.r),length(Signature.r),PECS^._r);
     BN_bin2bn(PAnsiChar(Signature.s),length(Signature.s),PECS^._s);
@@ -421,15 +421,15 @@ begin
       0 : Result := false;
     Else
       raise ECryptoException.Create('Error on Verify');
-    End;
+    end;
     EC_KEY_free(PK);
-  Finally
+  finally
     ECDSA_SIG_free(PECS);
-  End;
+  end;
 end;
 
 class function TCrypto.ECDSAVerify(PubKey: TECDSA_Public; const digest: AnsiString; Signature: TECDSA_SIG): Boolean;
-Var BNx,BNy : PBIGNUM;
+var BNx,BNy : PBIGNUM;
   ECG : PEC_GROUP;
   ctx : PBN_CTX;
   pub_key : PEC_POINT;
@@ -453,18 +453,18 @@ begin
 end;
 
 class function TCrypto.HexaToRaw(const HexaString: AnsiString): TRawBytes;
-Var P : PAnsiChar;
+var P : PAnsiChar;
  lc : AnsiString;
  i : Integer;
 begin
   Result := '';
-  if ((length(HexaString) MOD 2)<>0) Or (length(HexaString)=0) then exit;
-  SetLength(result,length(HexaString) DIV 2);
+  if ((length(HexaString) mod 2)<>0) or (length(HexaString)=0) then exit;
+  SetLength(result,length(HexaString) div 2);
   P := @Result[1];
   lc := LowerCase(HexaString);
   i := HexToBin(PAnsiChar(@lc[1]),P,length(Result));
-  if (i<>(length(HexaString) DIV 2)) then begin
-    TLog.NewLog(lterror,Classname,'Invalid HEXADECIMAL string result '+inttostr(i)+'<>'+inttostr(length(HexaString) DIV 2)+': '+HexaString);
+  if (i<>(length(HexaString) div 2)) then begin
+    TLog.NewLog(lterror,Classname,'Invalid HEXADECIMAL string result '+inttostr(i)+'<>'+inttostr(length(HexaString) div 2)+': '+HexaString);
     Result := '';
   end;
 end;
@@ -475,11 +475,11 @@ begin
 end;
 
 class function TCrypto.IsHumanReadable(const ReadableText: TRawBytes): Boolean;
-Var i : Integer;
+var i : Integer;
 Begin
   Result := true;
   for i := 1 to length(ReadableText) do begin
-    if (ord(ReadableText[i])<32) Or (ord(ReadableText[i])>=255) then begin
+    if (ord(ReadableText[i])<32) or (ord(ReadableText[i])>=255) then begin
       Result := false;
       Exit;
     end;
@@ -487,7 +487,7 @@ Begin
 end;
 
 class function TCrypto.PrivateKey2Hexa(Key: PEC_KEY): AnsiString;
-Var p : PAnsiChar;
+var p : PAnsiChar;
 begin
   p := BN_bn2hex(EC_KEY_get0_private_key(Key));
 //  p := BN_bn2hex(Key^.priv_key);
@@ -496,7 +496,7 @@ begin
 end;
 
 class function TCrypto.ToHexaString(const raw: TRawBytes): AnsiString;
-Var i : Integer;
+var i : Integer;
   s : AnsiString;
   b : Byte;
 begin
@@ -518,7 +518,7 @@ begin
 end;
 
 function TBigNum.Add(int: Int64): TBigNum;
-Var bn : TBigNum;
+var bn : TBigNum;
 begin
   bn := TBigNum.Create(int);
   Result := Add(bn);
@@ -560,7 +560,7 @@ begin
 end;
 
 procedure TBigNum.Divide(dividend, remainder: TBigNum);
-Var ctx : PBN_CTX;
+var ctx : PBN_CTX;
 begin
   ctx := BN_CTX_new;
   BN_div(FBN,remainder.FBN,FBN,dividend.FBN,ctx);
@@ -568,7 +568,7 @@ begin
 end;
 
 function TBigNum.Divide(int: Int64): TBigNum;
-Var bn : TBigNum;
+var bn : TBigNum;
 begin
   bn := TBigNum.Create(int);
   Result := Divide(bn);
@@ -576,7 +576,7 @@ begin
 end;
 
 function TBigNum.Divide(BN: TBigNum): TBigNum;
-Var _div,_rem : PBIGNUM;
+var _div,_rem : PBIGNUM;
   ctx : PBN_CTX;
 begin
   _div := BN_new;
@@ -598,7 +598,7 @@ begin
 end;
 
 function TBigNum.GetHexaValue: AnsiString;
-Var p : PAnsiChar;
+var p : PAnsiChar;
 begin
   p := BN_bn2hex(FBN);
   Result := strpas( p );
@@ -606,7 +606,7 @@ begin
 end;
 
 function TBigNum.GetRawValue: TRawBytes;
-Var p : PAnsiChar;
+var p : PAnsiChar;
   i : Integer;
 begin
   i := BN_num_bytes(FBN);
@@ -616,7 +616,7 @@ begin
 end;
 
 function TBigNum.GetValue: Int64;
-Var p : PAnsiChar;
+var p : PAnsiChar;
   a : AnsiString;
   err : Integer;
 begin
@@ -627,7 +627,7 @@ begin
 end;
 
 class function TBigNum.HexaToDecimal(hexa: AnsiString): AnsiString;
-Var bn : TBigNum;
+var bn : TBigNum;
 begin
   bn := TBigNum.Create(hexa);
   result := bn.ToDecimal;
@@ -635,7 +635,7 @@ begin
 end;
 
 function TBigNum.IsZero: Boolean;
-Var dv : AnsiString;
+var dv : AnsiString;
 begin
   dv := DecimalValue;
   Result := dv='0';
@@ -648,18 +648,18 @@ begin
 end;
 
 function TBigNum.Multiply(int: Int64): TBigNum;
-Var n : TBigNum;
+var n : TBigNum;
   ctx : PBN_CTX;
 begin
   n := TBigNum.Create(int);
-  Try
+  try
     ctx := BN_CTX_new;
     if BN_mul(FBN,FBN,n.FBN,ctx)<>1 then raise ECryptoException.Create('Error on multiply');
     Result := Self;
-  Finally
+  finally
     BN_CTX_free(ctx);
     n.Free;
-  End;
+  end;
 end;
 
 function TBigNum.RShift(nbits: Integer): TBigNum;
@@ -669,7 +669,7 @@ begin
 end;
 
 function TBigNum.Multiply(BN: TBigNum): TBigNum;
-Var ctx : PBN_CTX;
+var ctx : PBN_CTX;
 begin
   ctx := BN_CTX_new;
   if BN_mul(FBN,FBN,BN.FBN,ctx)<>1 then raise ECryptoException.Create('Error on multiply');
@@ -679,17 +679,17 @@ begin
 end;
 
 procedure TBigNum.SetDecimalValue(const Value: AnsiString);
-Var i : Integer;
+var i : Integer;
 begin
   if BN_dec2bn(@FBN,PAnsiChar(Value))=0 then raise ECryptoException.Create('Error on dec2bn');
 end;
 
 procedure TBigNum.SetHexaValue(const Value: AnsiString);
-Var i : Integer;
+var i : Integer;
 begin
   i := BN_hex2bn(@FBN,PAnsiChar(Value));
   if i=0 then begin
-      Raise ECryptoException.Create('Invalid Hexadecimal value:'+Value);
+      raise ECryptoException.Create('Invalid Hexadecimal value:'+Value);
   end;
 end;
 
@@ -697,7 +697,7 @@ procedure TBigNum.SetRawValue(const Value: TRawBytes);
 var p : PBIGNUM;
 begin
   p := BN_bin2bn(PAnsiChar(Value),length(Value),FBN);
-  if (p<>FBN) Or (p=Nil) then Raise ECryptoException.Create('Error decoding Raw value to BigNum "'+TCrypto.ToHexaString(Value)+'" ('+inttostr(length(value))+')'+#10+
+  if (p<>FBN) or (p=Nil) then Raise ECryptoException.Create('Error decoding Raw value to BigNum "'+TCrypto.ToHexaString(Value)+'" ('+inttostr(length(value))+')'+#10+
     ERR_error_string(ERR_get_error(),nil));
 end;
 
@@ -718,7 +718,7 @@ begin
 end;
 
 function TBigNum.Sub(int: Int64): TBigNum;
-Var bn : TBigNum;
+var bn : TBigNum;
 begin
   bn := TBigNum.Create(int);
   Result := Sub(bn);
@@ -726,7 +726,7 @@ begin
 end;
 
 class function TBigNum.TargetToHashRate(EncodedTarget: Cardinal): TBigNum;
-Var bn1,bn2 : TBigNum;
+var bn1,bn2 : TBigNum;
   part_A, part_B : Cardinal;
   ctx : PBN_CTX;
 begin
@@ -752,20 +752,20 @@ begin
   //
   part_B := (EncodedTarget shl 8) shr 8;
   bn2 := TBigNum.Create(2);
-  Try
+  try
     bn1 := TBigNum.Create(part_A - 24);
     ctx := BN_CTX_new;
     try
-      If BN_exp(bn2.FBN,bn2.FBN,bn1.FBN,ctx)<>1 then raise Exception.Create('Error 20161017-4');
+      if BN_exp(bn2.FBN,bn2.FBN,bn1.FBN,ctx)<>1 then raise Exception.Create('Error 20161017-4');
     finally
       BN_CTX_free(ctx);
       bn1.Free;
     end;
     bn2.Multiply(part_B);
     Result.Add(bn2);
-  Finally
+  finally
     bn2.Free;
-  End;
+  end;
 end;
 
 function TBigNum.ToDecimal: AnsiString;
@@ -777,7 +777,7 @@ begin
 end;
 
 function TBigNum.ToInt64(var int: Int64): TBigNum;
-Var s : AnsiString;
+var s : AnsiString;
  err : Integer;
  p : PAnsiChar;
 begin

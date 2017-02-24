@@ -32,9 +32,9 @@ Type
   TAccountColumn = Record
     ColumnType : TAccountColumnType;
     width : Integer;
-  End;
+  end;
 
-  TAccountsGrid = Class(TComponent)
+  TAccountsGrid = class(TComponent)
   private
     FAccountsBalance : Int64;
     FAccountsList : TOrderedCardinalList;
@@ -45,8 +45,8 @@ Type
     FOnUpdated: TNotifyEvent;
     FAccountsCount: Integer;
     procedure SetDrawGrid(const Value: TDrawGrid);
-    Procedure InitGrid;
-    Procedure OnNodeNewOperation(Sender : TObject);
+    procedure InitGrid;
+    procedure OnNodeNewOperation(Sender : TObject);
     procedure OnGridDrawCell(Sender: TObject; ACol, ARow: Longint; Rect: TRect; State: TGridDrawState);
     procedure SetNode(const Value: TNode);
     function GetNode: TNode;
@@ -56,21 +56,21 @@ Type
   public
     Constructor Create(AOwner : TComponent); override;
     Destructor Destroy; override;
-    Property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
-    Function LockAccountsList : TOrderedCardinalList;
-    Procedure UnlockAccountsList;
-    Property Node : TNode read GetNode write SetNode;
-    Function AccountNumber(GridRow : Integer) : Int64;
-    Procedure SaveToStream(Stream : TStream);
-    Procedure LoadFromStream(Stream : TStream);
-    Property ShowAllAccounts : Boolean read FShowAllAccounts write SetShowAllAccounts;
-    Property AccountsBalance : Int64 read FAccountsBalance;
-    Property AccountsCount : Integer read FAccountsCount;
-    Function MoveRowToAccount(nAccount : Cardinal) : Boolean;
-    Property OnUpdated : TNotifyEvent read FOnUpdated write FOnUpdated;
-  End;
+    property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
+    function LockAccountsList : TOrderedCardinalList;
+    procedure UnlockAccountsList;
+    property Node : TNode read GetNode write SetNode;
+    function AccountNumber(GridRow : Integer) : Int64;
+    procedure SaveToStream(Stream : TStream);
+    procedure LoadFromStream(Stream : TStream);
+    property ShowAllAccounts : Boolean read FShowAllAccounts write SetShowAllAccounts;
+    property AccountsBalance : Int64 read FAccountsBalance;
+    property AccountsCount : Integer read FAccountsCount;
+    function MoveRowToAccount(nAccount : Cardinal) : Boolean;
+    property OnUpdated : TNotifyEvent read FOnUpdated write FOnUpdated;
+  end;
 
-  TOperationsGrid = Class(TComponent)
+  TOperationsGrid = class(TComponent)
   private
     FDrawGrid: TDrawGrid;
     FAccountNumber: Int64;
@@ -80,9 +80,9 @@ Type
     FBlockStart: Int64;
     FBlockEnd: Int64;
     FMustShowAlwaysAnAccount: Boolean;
-    Procedure OnNodeNewOperation(Sender : TObject);
-    Procedure OnNodeNewAccount(Sender : TObject);
-    Procedure InitGrid;
+    procedure OnNodeNewOperation(Sender : TObject);
+    procedure OnNodeNewAccount(Sender : TObject);
+    procedure InitGrid;
     procedure OnGridDrawCell(Sender: TObject; ACol, ARow: Longint; Rect: TRect; State: TGridDrawState);
     procedure SetDrawGrid(const Value: TDrawGrid);
     procedure SetAccountNumber(const Value: Int64);
@@ -98,17 +98,17 @@ Type
   public
     Constructor Create(AOwner : TComponent); override;
     Destructor Destroy; override;
-    Property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
-    Property PendingOperations : Boolean read FPendingOperations write SetPendingOperations;
-    Property AccountNumber : Int64 read FAccountNumber write SetAccountNumber;
-    Property MustShowAlwaysAnAccount : Boolean read FMustShowAlwaysAnAccount write SetMustShowAlwaysAnAccount;
-    Property Node : TNode read GetNode write SetNode;
-    Procedure UpdateAccountOperations; virtual;
-    Procedure ShowModalDecoder(WalletKeys: TWalletKeys; AppParams : TAppParams);
-    Property BlockStart : Int64 read FBlockStart write SetBlockStart;
-    Property BlockEnd : Int64 read FBlockEnd write SetBlockEnd;
-    Procedure SetBlocks(bstart,bend : Int64);
-  End;
+    property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
+    property PendingOperations : Boolean read FPendingOperations write SetPendingOperations;
+    property AccountNumber : Int64 read FAccountNumber write SetAccountNumber;
+    property MustShowAlwaysAnAccount : Boolean read FMustShowAlwaysAnAccount write SetMustShowAlwaysAnAccount;
+    property Node : TNode read GetNode write SetNode;
+    procedure UpdateAccountOperations; virtual;
+    procedure ShowModalDecoder(WalletKeys: TWalletKeys; AppParams : TAppParams);
+    property BlockStart : Int64 read FBlockStart write SetBlockStart;
+    property BlockEnd : Int64 read FBlockEnd write SetBlockEnd;
+    procedure SetBlocks(bstart,bend : Int64);
+  end;
 
   TBlockChainData = Record
     Block : Cardinal;
@@ -124,10 +124,10 @@ Type
     PoW : TRawBytes;
     SafeBoxHash : TRawBytes;
     AccumulatedWork : UInt64;
-  End;
+  end;
   TBlockChainDataArray = Array of TBlockChainData;
 
-  TBlockChainGrid = Class(TComponent)
+  TBlockChainGrid = class(TComponent)
   private
     FBlockChainDataArray : TBlockChainDataArray;
     FBlockStart: Int64;
@@ -136,8 +136,8 @@ Type
     FDrawGrid: TDrawGrid;
     FNodeNotifyEvents : TNodeNotifyEvents;
     FHashRateAverageBlocksCount: Integer;
-    Procedure OnNodeNewAccount(Sender : TObject);
-    Procedure InitGrid;
+    procedure OnNodeNewAccount(Sender : TObject);
+    procedure InitGrid;
     procedure OnGridDrawCell(Sender: TObject; ACol, ARow: Longint; Rect: TRect; State: TGridDrawState);
     function GetNode: TNode;
     procedure SetBlockEnd(const Value: Int64);
@@ -151,15 +151,15 @@ Type
   public
     Constructor Create(AOwner : TComponent); override;
     Destructor Destroy; override;
-    Property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
-    Property Node : TNode read GetNode write SetNode;
-    Procedure UpdateBlockChainGrid; virtual;
-    Property BlockStart : Int64 read FBlockStart write SetBlockStart;
-    Property BlockEnd : Int64 read FBlockEnd write SetBlockEnd;
-    Procedure SetBlocks(bstart,bend : Int64);
-    Property MaxBlocks : Integer read FMaxBlocks write SetMaxBlocks;
-    Property HashRateAverageBlocksCount : Integer read FHashRateAverageBlocksCount write SetHashRateAverageBlocksCount;
-  End;
+    property DrawGrid : TDrawGrid read FDrawGrid write SetDrawGrid;
+    property Node : TNode read GetNode write SetNode;
+    procedure UpdateBlockChainGrid; virtual;
+    property BlockStart : Int64 read FBlockStart write SetBlockStart;
+    property BlockEnd : Int64 read FBlockEnd write SetBlockEnd;
+    procedure SetBlocks(bstart,bend : Int64);
+    property MaxBlocks : Integer read FMaxBlocks write SetMaxBlocks;
+    property HashRateAverageBlocksCount : Integer read FHashRateAverageBlocksCount write SetHashRateAverageBlocksCount;
+  end;
 
 Const
   CT_TBlockChainData_NUL : TBlockChainData = (Block:0;Timestamp:0;BlockProtocolVersion:0;BlockProtocolAvailable:0;OperationsCount:0;Volume:0;Reward:0;Fee:0;Target:0;HashRateKhs:0;MinerPayload:'';PoW:'';SafeBoxHash:'';AccumulatedWork:0);
@@ -189,15 +189,15 @@ begin
 end;
 
 constructor TAccountsGrid.Create(AOwner: TComponent);
-Var i : Integer;
+var i : Integer;
 begin
   inherited;
-  FOnUpdated := Nil;
+  FOnUpdated := nil;
   FAccountsBalance := 0;
   FAccountsCount := 0;
   FShowAllAccounts := false;
   FAccountsList := TOrderedCardinalList.Create;
-  FDrawGrid := Nil;
+  FDrawGrid := nil;
   SetLength(FColumns,4);
   FColumns[0].ColumnType := act_account_number;
   FColumns[0].width := 80;
@@ -224,12 +224,12 @@ begin
 end;
 
 procedure TAccountsGrid.InitGrid;
-Var i : Integer;
+var i : Integer;
   acc : TAccount;
 begin
   FAccountsBalance := 0;
   FAccountsCount := FAccountsList.Count;
-  if Not assigned(DrawGrid) then exit;
+  if not assigned(DrawGrid) then exit;
   if FShowAllAccounts then begin
     if Assigned(Node) then begin
       if Node.Bank.AccountsCount<1 then DrawGrid.RowCount := 2
@@ -263,7 +263,7 @@ begin
 end;
 
 procedure TAccountsGrid.LoadFromStream(Stream: TStream);
-Var c,i,j : Integer;
+var c,i,j : Integer;
 begin
   if Stream.Read(c,sizeof(c))<sizeof(c) then exit;
   if c<=0 then exit;
@@ -276,9 +276,9 @@ begin
     Stream.Read(FColumns[i].width,sizeof(FColumns[i].width));
   end;
   Stream.Read(j,sizeof(j));
-  If Assigned(FDrawGrid) then FDrawGrid.Width := j;
+  if Assigned(FDrawGrid) then FDrawGrid.Width := j;
   Stream.Read(j,sizeof(j));
-  If Assigned(FDrawGrid) then FDrawGrid.Height := j;
+  if Assigned(FDrawGrid) then FDrawGrid.Height := j;
 end;
 
 function TAccountsGrid.LockAccountsList: TOrderedCardinalList;
@@ -287,15 +287,15 @@ begin
 end;
 
 function TAccountsGrid.MoveRowToAccount(nAccount: Cardinal): Boolean;
-Var oal : TOrderedCardinalList;
+var oal : TOrderedCardinalList;
   idx : Integer;
 begin
   Result := false;
-  if Not Assigned(FDrawGrid) then exit;
-  if Not Assigned(Node) then exit;
+  if not Assigned(FDrawGrid) then exit;
+  if not Assigned(Node) then exit;
   if FDrawGrid.RowCount<=1 then exit;
   if FShowAllAccounts then begin
-    If (FDrawGrid.RowCount>nAccount+1) And (nAccount>=0) And (nAccount<Node.Bank.AccountsCount) then begin
+    if (FDrawGrid.RowCount>nAccount+1) And (nAccount>=0) And (nAccount<Node.Bank.AccountsCount) then begin
       FDrawGrid.Row := nAccount+1;
       Result := true;
     end else begin
@@ -304,15 +304,15 @@ begin
   end else begin
     oal := LockAccountsList;
     try
-      If oal.Find(nAccount,idx) then begin
-        If FDrawGrid.RowCount>idx+1 then begin
+      if oal.Find(nAccount,idx) then begin
+        if FDrawGrid.RowCount>idx+1 then begin
           FDrawGrid.Row := idx+1;
           Result := true;
         end else begin
           FDrawGrid.Row := FDrawGrid.RowCount-1;
         end;
       end else begin
-        If FDrawGrid.RowCount>idx+1 then begin
+        if FDrawGrid.RowCount>idx+1 then begin
           FDrawGrid.Row := idx+1;
         end else begin
           FDrawGrid.Row := FDrawGrid.RowCount-1;
@@ -330,7 +330,7 @@ begin
   inherited;
   if Operation=opRemove then begin
     if (AComponent=FDrawGrid) then begin
-      SetDrawGrid(Nil);
+      SetDrawGrid(nil);
     end;
   end;
 end;
@@ -343,8 +343,8 @@ TTextFormats = (tfBottom, tfCalcRect, tfCenter, tfEditControl, tfEndEllipsis,
   tfVerticalCenter, tfWordBreak);
 TTextFormat = set of TTextFormats;
 
-Procedure Canvas_TextRect(Canvas : TCanvas; var Rect: TRect; var Text: string; State: TGridDrawState; TextFormat: TTextFormat = []);
-Var ts : TTextStyle;
+procedure Canvas_TextRect(Canvas : TCanvas; var Rect: TRect; var Text: string; State: TGridDrawState; TextFormat: TTextFormat = []);
+var ts : TTextStyle;
 Begin
   if (tfRight in TextFormat) then ts.Alignment:=taRightJustify
   else if (tfCenter in TextFormat) then ts.Alignment:=taCenter
@@ -365,14 +365,14 @@ Begin
   Canvas.TextRect(Rect,Rect.Left,Rect.Top,Text,ts);
 end;
 {$ELSE}
-Procedure Canvas_TextRect(Canvas : TCanvas; var Rect: TRect; var Text: string; State: TGridDrawState; TextFormat: TTextFormat = []);
+procedure Canvas_TextRect(Canvas : TCanvas; var Rect: TRect; var Text: string; State: TGridDrawState; TextFormat: TTextFormat = []);
 Begin
   Canvas.TextRect(Rect,Text,TextFormat);
 end;
 {$ENDIF}
 
 procedure TAccountsGrid.OnGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
-  Function FromColorToColor(colorstart,colordest : Integer; step,totalsteps : Integer) : Integer;
+  function FromColorToColor(colorstart,colordest : Integer; step,totalsteps : Integer) : Integer;
   var sr,sg,sb,dr,dg,db : Byte;
     i : Integer;
   begin
@@ -389,15 +389,15 @@ procedure TAccountsGrid.OnGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rec
     sb := sb + (((db-sb) DIV totalsteps)*step);
     Result :=RGB(sr,sg,sb);
   end;
-Var C : TAccountColumn;
+var C : TAccountColumn;
   s : String;
   n_acc : Int64;
   account : TAccount;
   ndiff : Cardinal;
 begin
-  if Not Assigned(Node) then exit;
+  if not Assigned(Node) then exit;
 
-  if (ACol>=0) AND (ACol<length(FColumns)) then begin
+  if (ACol>=0) and (ACol<length(FColumns)) then begin
     C := FColumns[ACol];
   end else begin
     C.ColumnType := act_account_number;
@@ -417,21 +417,21 @@ begin
       else account := Node.Operations.SafeBoxTransaction.Account(n_acc);
       ndiff := Node.Bank.BlocksCount - account.updated_block;
       if (gdSelected in State) then
-        If (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
+        if (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
         else DrawGrid.Canvas.Brush.Color := clGradientInactiveCaption
       else DrawGrid.Canvas.Brush.Color := clWindow;
       DrawGrid.Canvas.FillRect(Rect);
       InflateRect(Rect,-2,-1);
       case C.ColumnType of
-        act_account_number : Begin
+        act_account_number : begin
           s := TAccountComp.AccountNumberToAccountTxtNumber(n_acc);
           Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfRight,tfVerticalCenter,tfSingleLine]);
-        End;
-        act_account_key : Begin
+        end;
+        act_account_key : begin
           s := Tcrypto.ToHexaString(TAccountComp.AccountKey2RawString(account.accountkey));
           Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfLeft,tfVerticalCenter,tfSingleLine]);
-        End;
-        act_balance : Begin
+        end;
+        act_balance : begin
           if ndiff=0 then begin
             // Pending operation... showing final balance
             DrawGrid.Canvas.Font.Color := clBlue;
@@ -443,16 +443,16 @@ begin
             else DrawGrid.Canvas.Font.Color := clRed;
           end;
           Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfRight,tfVerticalCenter,tfSingleLine]);
-        End;
-        act_updated : Begin
+        end;
+        act_updated : begin
           s := Inttostr(account.updated_block);
           Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfRight,tfVerticalCenter,tfSingleLine]);
-        End;
-        act_n_operation : Begin
+        end;
+        act_n_operation : begin
           s := InttoStr(account.n_operation);
           Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfRight,tfVerticalCenter,tfSingleLine]);
-        End;
-        act_updated_state : Begin
+        end;
+        act_updated_state : begin
           if TAccountComp.IsAccountBlockedByProtocol(account.account,Node.Bank.BlocksCount) then begin
             DrawGrid.Canvas.Brush.Color := clRed;
             DrawGrid.Canvas.Ellipse(Rect.Left+1,Rect.Top+1,Rect.Right-1,Rect.Bottom-1);
@@ -466,7 +466,7 @@ begin
             DrawGrid.Canvas.Brush.Color := clGreen;
             DrawGrid.Canvas.Ellipse(Rect.Left+1,Rect.Top+1,Rect.Right-1,Rect.Bottom-1);
           end;
-        End;
+        end;
       else
         s := '(???)';
         Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfCenter,tfVerticalCenter,tfSingleLine]);
@@ -477,11 +477,11 @@ end;
 
 procedure TAccountsGrid.OnNodeNewOperation(Sender: TObject);
 begin
-  If Assigned(FDrawGrid) then FDrawGrid.Invalidate;
+  if Assigned(FDrawGrid) then FDrawGrid.Invalidate;
 end;
 
 procedure TAccountsGrid.SaveToStream(Stream: TStream);
-Var c,i,j : Integer;
+var c,i,j : Integer;
 begin
   c := Length(FColumns);
   Stream.Write(c,sizeof(c));
@@ -534,7 +534,7 @@ end;
 constructor TOperationsGrid.Create(AOwner: TComponent);
 begin
   FAccountNumber := 0;
-  FDrawGrid := Nil;
+  FDrawGrid := nil;
   MustShowAlwaysAnAccount := false;
   FOperationsResume := TOperationsResumeList.Create;
   FNodeNotifyEvents := TNodeNotifyEvents.Create(Self);
@@ -560,7 +560,7 @@ end;
 
 procedure TOperationsGrid.InitGrid;
 begin
-  if Not Assigned(FDrawGrid) then exit;
+  if not Assigned(FDrawGrid) then exit;
   if FOperationsResume.Count>0 then FDrawGrid.RowCount := FOperationsResume.Count+1
   else FDrawGrid.RowCount := 2;
   DrawGrid.FixedRows := 1;
@@ -588,20 +588,20 @@ begin
   inherited;
   if Operation=opRemove then begin
     if (AComponent=FDrawGrid) then begin
-      SetDrawGrid(Nil);
+      SetDrawGrid(nil);
     end;
   end;
 end;
 
 procedure TOperationsGrid.OnGridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
-Var s : String;
+var s : String;
   opr : TOperationResume;
 begin
   {.$IFDEF FPC}
   DrawGrid.Canvas.Font.Color:=clBlack;
   {.$ENDIF}
   opr := CT_TOperationResume_NUL;
-  Try
+  try
   if (ARow=0) then begin
     // Header
     case ACol of
@@ -618,7 +618,7 @@ begin
     Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfCenter,tfVerticalCenter]);
   end else begin
     if (gdSelected in State) then
-      If (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
+      if (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
       else DrawGrid.Canvas.Brush.Color := clGradientInactiveCaption
     else DrawGrid.Canvas.Brush.Color := clWindow;
     DrawGrid.Canvas.FillRect(Rect);
@@ -672,39 +672,39 @@ begin
       end;
     end;
   end;
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       TLog.NewLog(lterror,Classname,Format('Error at OnGridDrawCell row %d col %d Block %d - %s',[ARow,ACol,opr.Block,E.Message]));
     end;
-  End;
+  end;
 end;
 
 procedure TOperationsGrid.OnNodeNewAccount(Sender: TObject);
 begin
-  If (AccountNumber<0) And (FBlockEnd<0) And (Not FPendingOperations) then UpdateAccountOperations;
+  if (AccountNumber<0) And (FBlockEnd<0) And (not FPendingOperations) then UpdateAccountOperations;
 end;
 
 procedure TOperationsGrid.OnNodeNewOperation(Sender: TObject);
-Var //Op : TPCOperation;
+var //Op : TPCOperation;
   l : TList;
 begin
-  Try
+  try
     if (AccountNumber<0) then begin
-      If (FPendingOperations) then UpdateAccountOperations;
+      if (FPendingOperations) then UpdateAccountOperations;
     end else begin
       l := TList.Create;
-      Try
-        If Node.Operations.OperationsHashTree.GetOperationsAffectingAccount(AccountNumber,l)>0 then begin
+      try
+        if Node.Operations.OperationsHashTree.GetOperationsAffectingAccount(AccountNumber,l)>0 then begin
           if l.IndexOf(TObject(PtrInt(AccountNumber)))>=0 then UpdateAccountOperations;
         end;
-      Finally
+      finally
         l.Free;
-      End;
+      end;
     end;
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       E.message := 'Exception on updating OperationsGrid '+inttostr(AccountNumber)+': '+E.Message;
-      Raise;
+      raise;
     end;
   end;
 end;
@@ -771,11 +771,11 @@ begin
 end;
 
 procedure TOperationsGrid.ShowModalDecoder(WalletKeys: TWalletKeys; AppParams : TAppParams);
-Var i : Integer;
+var i : Integer;
   opr : TOperationResume;
   FRM : TFRMPayloadDecoder;
 begin
-  if Not Assigned(FDrawGrid) then exit;
+  if not Assigned(FDrawGrid) then exit;
   if (FDrawGrid.Row<=0) Or (FDrawGrid.Row>FOperationsResume.Count) then exit;
   opr := FOperationsResume.OperationResume[FDrawGrid.Row-1];
   FRM := TFRMPayloadDecoder.Create(FDrawGrid.Owner);
@@ -788,7 +788,7 @@ begin
 end;
 
 procedure TOperationsGrid.UpdateAccountOperations;
-Var list : TList;
+var list : TList;
   i,j : Integer;
   OPR : TOperationResume;
   Op : TPCOperation;
@@ -796,14 +796,14 @@ Var list : TList;
   bstart,bend : int64;
 begin
   FOperationsResume.Clear;
-  Try
-    if Not Assigned(Node) then exit;
+  try
+    if not Assigned(Node) then exit;
     if (MustShowAlwaysAnAccount) And (AccountNumber<0) then exit;
 
     if FPendingOperations then begin
       for i := Node.Operations.Count - 1 downto 0 do begin
         Op := Node.Operations.OperationsHashTree.GetOperation(i);
-        If TPCOperation.OperationToOperationResume(0,Op,Op.SenderAccount,OPR) then begin
+        if TPCOperation.OperationToOperationResume(0,Op,Op.SenderAccount,OPR) then begin
           OPR.NOpInsideBlock := i;
           OPR.Block := Node.Operations.OperationBlock.block;
           OPR.Balance := Node.Operations.SafeBoxTransaction.Account(Op.SenderAccount).balance;
@@ -812,18 +812,18 @@ begin
       end;
     end else begin
       if AccountNumber<0 then begin
-        opc := TPCOperationsComp.Create(Nil);
+        opc := TPCOperationsComp.Create(nil);
         try
           opc.bank := Node.Bank;
-          If FBlockEnd<0 then begin
-            If Node.Bank.BlocksCount>0 then bend := Node.Bank.BlocksCount-1
+          if FBlockEnd<0 then begin
+            if Node.Bank.BlocksCount>0 then bend := Node.Bank.BlocksCount-1
             else bend := 0;
           end else bend := FBlockEnd;
           if FBlockStart<0 then begin
             if (bend > 300) then bstart := bend - 300
             else bstart := 0;
           end else bstart:= FBlockStart;
-          If bstart<0 then bstart := 0;
+          if bstart<0 then bstart := 0;
           if bend>=Node.Bank.BlocksCount then bend:=Node.Bank.BlocksCount;
           while (bstart<=bend) do begin
             opr := CT_TOperationResume_NUL;
@@ -857,26 +857,26 @@ begin
 
       end else begin
         list := TList.Create;
-        Try
+        try
           Node.Operations.OperationsHashTree.GetOperationsAffectingAccount(AccountNumber,list);
           for i := list.Count - 1 downto 0 do begin
             Op := Node.Operations.OperationsHashTree.GetOperation(PtrInt(list[i]));
-            If TPCOperation.OperationToOperationResume(0,Op,AccountNumber,OPR) then begin
+            if TPCOperation.OperationToOperationResume(0,Op,AccountNumber,OPR) then begin
               OPR.NOpInsideBlock := i;
               OPR.Block := Node.Operations.OperationBlock.block;
               OPR.Balance := Node.Operations.SafeBoxTransaction.Account(AccountNumber).balance;
               FOperationsResume.Add(OPR);
             end;
           end;
-        Finally
+        finally
           list.Free;
-        End;
+        end;
         Node.GetStoredOperationsFromAccount(FOperationsResume,AccountNumber,100,5000);
       end;
     end;
-  Finally
+  finally
     InitGrid;
-  End;
+  end;
 end;
 
 { TBlockChainGrid }
@@ -887,7 +887,7 @@ begin
   FBlockStart:=-1;
   FBlockEnd:=-1;
   FMaxBlocks := 300;
-  FDrawGrid := Nil;
+  FDrawGrid := nil;
   FNodeNotifyEvents := TNodeNotifyEvents.Create(Self);
   FNodeNotifyEvents.OnBlocksChanged := OnNodeNewAccount;
   FHashRateAverageBlocksCount := 50;
@@ -896,9 +896,9 @@ end;
 
 destructor TBlockChainGrid.Destroy;
 begin
-  FNodeNotifyEvents.OnBlocksChanged := Nil;
-  FNodeNotifyEvents.Node := Nil;
-  FreeAndNil(FNodeNotifyEvents);
+  FNodeNotifyEvents.OnBlocksChanged := nil;
+  FNodeNotifyEvents.Node := nil;
+  FreeAndnil(FNodeNotifyEvents);
   inherited;
 end;
 
@@ -910,7 +910,7 @@ end;
 
 procedure TBlockChainGrid.InitGrid;
 begin
-  if Not Assigned(FDrawGrid) then exit;
+  if not Assigned(FDrawGrid) then exit;
   FDrawGrid.RowCount := 2;
   DrawGrid.FixedRows := 1;
   DrawGrid.DefaultDrawing := true;
@@ -945,14 +945,14 @@ begin
   inherited;
   if Operation=opRemove then begin
     if (AComponent=FDrawGrid) then begin
-      SetDrawGrid(Nil);
+      SetDrawGrid(nil);
     end;
   end;
 end;
 
 procedure TBlockChainGrid.OnGridDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
-Var s : String;
+var s : String;
   bcd : TBlockChainData;
 begin
   {.$IFDEF FPC}
@@ -979,7 +979,7 @@ begin
     Canvas_TextRect(DrawGrid.Canvas,Rect,s,State,[tfCenter,tfVerticalCenter]);
   end else begin
     if (gdSelected in State) then
-      If (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
+      if (gdFocused in State) then DrawGrid.Canvas.Brush.Color := clGradientActiveCaption
       else DrawGrid.Canvas.Brush.Color := clGradientInactiveCaption
     else DrawGrid.Canvas.Brush.Color := clWindow;
     DrawGrid.Canvas.FillRect(Rect);
@@ -1070,7 +1070,7 @@ end;
 
 procedure TBlockChainGrid.SetBlockStart(const Value: Int64);
 begin
-  If FBlockStart=Value then exit;
+  if FBlockStart=Value then exit;
   FBlockStart := Value;
   UpdateBlockChainGrid;
 end;
@@ -1114,7 +1114,7 @@ end;
 
 
 procedure TBlockChainGrid.UpdateBlockChainGrid;
-Var nstart,nend : Cardinal;
+var nstart,nend : Cardinal;
   opc : TPCOperationsComp;
   bcd : TBlockChainData;
   i : Integer;
@@ -1122,7 +1122,7 @@ begin
   if (FBlockStart>FBlockEnd) And (FBlockStart>=0) then FBlockEnd := -1;
   if (FBlockEnd>=0) And (FBlockEnd<FBlockStart) then FBlockStart:=-1;
 
-  if Not Assigned(FNodeNotifyEvents.Node) then exit;
+  if not Assigned(FNodeNotifyEvents.Node) then exit;
 
   if FBlockStart>(FNodeNotifyEvents.Node.Bank.BlocksCount-1) then FBlockStart := -1;
 
@@ -1144,7 +1144,7 @@ begin
       else nstart := 0;
     end;
     SetLength(FBlockChainDataArray,nend - nstart +1);
-    opc := TPCOperationsComp.Create(Nil);
+    opc := TPCOperationsComp.Create(nil);
     try
       opc.bank := Node.Bank;
       while (nstart<=nend) do begin

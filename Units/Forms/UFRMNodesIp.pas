@@ -41,8 +41,8 @@ type
     { Private declarations }
   public
     { Public declarations }
-    Procedure PrepareData;
-    Property AppParams : TAppParams read FAppParams write SetAppParams;
+    procedure PrepareData;
+    property AppParams : TAppParams read FAppParams write SetAppParams;
   end;
 
 implementation
@@ -59,7 +59,7 @@ uses
 { TFRMNodesIp }
 
 procedure TFRMNodesIp.bbOkClick(Sender: TObject);
-Var nsarr : TNodeServerAddressArray;
+var nsarr : TNodeServerAddressArray;
   ips : AnsiString;
 begin
   TNode.DecodeIpStringToNodeServerAddressArray(memoNodesIp.Lines.Text,nsarr);
@@ -114,7 +114,7 @@ Var
   aux : AnsiString;
 begin
   memoNodesIp.Clear;
-  if Not Assigned(FAppParams) then exit;
+  if not Assigned(FAppParams) then exit;
   setlength(nsarr,0);
   ips := FAppParams.ParamByName[CT_PARAM_TryToConnectOnlyWithThisFixedServers].GetAsString('');
   if trim(ips)<>'' then begin

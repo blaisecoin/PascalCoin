@@ -82,14 +82,14 @@ type
     FAppParams : TAppParams;
     FSemaphor : Boolean;
     { Private declarations }
-    Procedure TryToDecode;
-    Procedure SaveMethods;
+    procedure TryToDecode;
+    procedure SaveMethods;
     procedure SetOpResume(const Value: TOperationResume);
   public
     { Public declarations }
-    Procedure Init(Const AOperationResume : TOperationResume; WalletKeys : TWalletKeys; AppParams : TAppParams);
-    Property OpResume : TOperationResume read FOpResume write SetOpResume;
-    Procedure DoFind(Const OpHash : String);
+    procedure Init(Const AOperationResume : TOperationResume; WalletKeys : TWalletKeys; AppParams : TAppParams);
+    property OpResume : TOperationResume read FOpResume write SetOpResume;
+    procedure DoFind(Const OpHash : String);
   end;
 
 implementation
@@ -100,7 +100,7 @@ implementation
   {$R *.lfm}
 {$ENDIF}
 
-Uses UNode, UTime, UECIES, UAES, UAccounts;
+uses UNode, UTime, UECIES, UAES, UAccounts;
 
 { TFRMPayloadDecoder }
 
@@ -108,14 +108,14 @@ procedure TFRMPayloadDecoder.bbSaveMethodsClick(Sender: TObject);
 begin
   SaveMethods;
   PageControl.ActivePage := tsDecoded;
-  TryToDecode;
+  tryToDecode;
 end;
 
 procedure TFRMPayloadDecoder.bbFindClick(Sender: TObject);
-Var oph : String;
+var oph : String;
 begin
   oph := TCrypto.ToHexaString( FOpResume.OperationHash );
-  if Not InputQuery('Search operation by OpHash','Insert Operation Hash value (OpHash)',oph) then exit;
+  if not InputQuery('Search operation by OpHash','Insert Operation Hash value (OpHash)',oph) then exit;
   DoFind(oph);
 end;
 
@@ -127,7 +127,7 @@ end;
 
 procedure TFRMPayloadDecoder.cbShowAsHexadecimalClick(Sender: TObject);
 begin
-  TryToDecode;
+  tryToDecode;
 end;
 
 procedure TFRMPayloadDecoder.DoFind(Const OpHash : String);
@@ -148,12 +148,12 @@ begin
     if (r='') then begin
       raise Exception.Create('Value is not an hexadecimal string');
     end;
-    pcops := TPCOperationsComp.Create(Nil);
+    pcops := TPCOperationsComp.Create(nil);
     try
-      If not TNode.Node.FindOperation(pcops,r,b,opbi) then begin
+      if not TNode.Node.FindOperation(pcops,r,b,opbi) then begin
         raise Exception.Create('Value is not a valid OpHash');
       end;
-      If not TPCOperation.OperationToOperationResume(b,pcops.Operation[opbi],pcops.Operation[opbi].SenderAccount,opr) then begin
+      if not TPCOperation.OperationToOperationResume(b,pcops.Operation[opbi],pcops.Operation[opbi].SenderAccount,opr) then begin
         raise Exception.Create('Internal error 20161114-1');
       end;
       opr.NOpInsideBlock:=opbi;
@@ -162,7 +162,7 @@ begin
     finally
       pcops.Free;
     end;
-  Except
+  except
     OpResume := CT_TOperationResume_NUL;
     try
       FSemaphor := true;
@@ -170,7 +170,7 @@ begin
     finally
       FSemaphor := false;
     end;
-    Raise;
+    raise;
   end;
 end;
 
@@ -206,7 +206,7 @@ begin
   OpResume := AOperationResume;
   FSavedDecodeMethods := true;
   PageControl.ActivePage := tsDecoded;
-  TryToDecode;
+  tryToDecode;
 end;
 
 procedure TFRMPayloadDecoder.memoDecodedKeyDown(Sender: TObject; var Key: Word;
@@ -220,7 +220,7 @@ procedure TFRMPayloadDecoder.PageControlChanging(Sender: TObject; var AllowChang
 begin
   //
   if PageControl.ActivePage=tsDecodeMethods then begin
-    If not FSavedDecodeMethods then begin
+    if not FSavedDecodeMethods then begin
       case Application.MessageBox(PChar('Save new decode methods?'),PChar(Application.Title),MB_YESNOCANCEL+MB_ICONQUESTION) of
         IDYES : Begin
           SaveMethods;
@@ -247,13 +247,13 @@ begin
 end;
 
 procedure TFRMPayloadDecoder.SetOpResume(const Value: TOperationResume);
-Var sem : Boolean;
+var sem : Boolean;
 begin
   sem := FSemaphor;
-  Try
+  try
     FSemaphor := false;
     FOpResume := Value;
-    if Not Value.valid then begin
+    if not Value.valid then begin
       lblBlock.Caption := '';
       lblDateTime.Caption := '';
       lblOperationTxt.Caption := '';
@@ -266,7 +266,7 @@ begin
       lblReceiverInfo.Visible := false;
       exit;
     end;
-    If (Value.NOpInsideBlock>=0) then
+    if (Value.NOpInsideBlock>=0) then
       lblBlock.Caption := inttostr(Value.Block)+'/'+inttostr(Value.NOpInsideBlock+1)
     else lblBlock.Caption := inttostr(Value.Block);
     if Value.time>10000 then begin
@@ -281,7 +281,7 @@ begin
     if Value.Amount>0 then lblAmount.Font.Color := clGreen
     else if Value.Amount=0 then lblAmount.Font.Color := clGray
     else lblAmount.Font.Color := clRed;
-    If (Value.SenderAccount>=0) And (Value.DestAccount>=0) then begin
+    if (Value.SenderAccount>=0) And (Value.DestAccount>=0) then begin
       lblSenderCaption.Caption := 'Sender:';
       lblSender.Caption := TAccountComp.AccountNumberToAccountTxtNumber(Value.SenderAccount);
       lblReceiverCaption.Visible := true;
@@ -289,7 +289,7 @@ begin
       lblReceiver.Visible := true;
       lblFeeCaption.Visible := Value.AffectedAccount=Value.SenderAccount;
       lblFee.Visible := lblFeeCaption.Visible;
-      lblReceiverInfo.Visible := Not lblFee.Visible;
+      lblReceiverInfo.Visible := not lblFee.Visible;
     end else begin
       lblSenderCaption.Caption := 'Account:';
       lblSender.caption := TAccountComp.AccountNumberToAccountTxtNumber(Value.AffectedAccount);
@@ -319,23 +319,23 @@ begin
     end;
     FSavedDecodeMethods := true;
     PageControl.ActivePage := tsDecoded;
-    TryToDecode;
-  Finally
+    tryToDecode;
+  finally
     FSemaphor := sem;
   End;
 end;
 
 procedure TFRMPayloadDecoder.TryToDecode;
-  Function UseWallet(Const raw : TRawBytes; var Decrypted : AnsiString; var WalletKey : TWalletKey) : Boolean;
-  Var i : Integer;
+  function UseWallet(Const raw : TRawBytes; var Decrypted : AnsiString; var WalletKey : TWalletKey) : Boolean;
+  var i : Integer;
   begin
     Result := false;
-    if Not assigned(FWalletKeys) then exit;
+    if not assigned(FWalletKeys) then exit;
 
     for i := 0 to FWalletKeys.Count - 1 do begin
       WalletKey := FWalletKeys.Key[i];
-      If Assigned(WalletKey.PrivateKey) then begin
-        If ECIESDecrypt(WalletKey.PrivateKey.EC_OpenSSL_NID,WalletKey.PrivateKey.PrivateKey,false,raw,Decrypted) then begin
+      if Assigned(WalletKey.PrivateKey) then begin
+        if ECIESDecrypt(WalletKey.PrivateKey.EC_OpenSSL_NID,WalletKey.PrivateKey.PrivateKey,false,raw,Decrypted) then begin
           Result := true;
           exit;
         end;
@@ -344,8 +344,8 @@ procedure TFRMPayloadDecoder.TryToDecode;
 
   end;
 
-  Function  UsePassword(const raw : TRawBytes; var Decrypted,PasswordUsed : AnsiString) : Boolean;
-  Var i : Integer;
+  function  UsePassword(const raw : TRawBytes; var Decrypted,PasswordUsed : AnsiString) : Boolean;
+  var i : Integer;
   Begin
     Result := false;
     for i := 0 to memoPasswords.Lines.Count - 1 do begin
@@ -360,7 +360,7 @@ procedure TFRMPayloadDecoder.TryToDecode;
   End;
 
 
-Var raw : TRawBytes;
+var raw : TRawBytes;
   WalletKey : TWalletKey;
   Decrypted,PasswordUsed : AnsiString;
   ok : boolean;

@@ -34,7 +34,7 @@ Const
   CT_PoolMining_Method_STRATUM_MINING_SUBSCRIBE = 'mining-subscribe';
 
 Type
-  TMinerValuesForWork = Record
+  TMinerValuesForWork = record
      block : Cardinal;
      version : Word;
      part1 : TRawBytes;
@@ -45,13 +45,13 @@ Type
      target_pow : TRawBytes;
      // Stratum jobid
      jobid : String;
-  End;
+  end;
 
-  TProcessJSONObjectEvent = Procedure (json : TPCJSONObject; method : String) of object;
+  TProcessJSONObjectEvent = procedure (json : TPCJSONObject; method : String) of object;
 
   { TJSONRPCTcpIpClient }
 
-  TJSONRPCTcpIpClient = Class(TBufferedNetTcpIpClient)
+  TJSONRPCTcpIpClient = class(TBufferedNetTcpIpClient)
   private
     FLastId : Cardinal;
     FLockProcessBuffer : TPCCriticalSection;
@@ -60,21 +60,21 @@ Type
     FPendingResponseMessages : TPCThreadList;
   protected
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
-    Procedure SendJSONRPCErrorResponse(const id : Variant; const error : String);
-    Procedure SendJSONRPCResponse(result : TPCJSONObject; const id : Variant);
-    Procedure SendJSONRPCMethod(const method : String; params : TPCJSONList; const id : Variant);
-    Function SendJSONRPCMethodAndWait(const method : String; params : TPCJSONList; MaxWaitMiliseconds : Cardinal; resultObject : TPCJSONObject; processEventOnInvalid : TProcessJSONObjectEvent = Nil) : Boolean;
-    Function DoProcessBuffer(SenderThread : TPCThread; MaxWaitMiliseconds : Cardinal; DeleteBufferOnExit : Boolean; var ResponseMethod : String; var jsonObject : TPCJSONObject) : Boolean;
-    Function GetNewId : Cardinal;
-  End;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
+    procedure SendJSONRPCErrorResponse(const id : Variant; const error : String);
+    procedure SendJSONRPCResponse(result : TPCJSONObject; const id : Variant);
+    procedure SendJSONRPCMethod(const method : String; params : TPCJSONList; const id : Variant);
+    function SendJSONRPCMethodAndWait(const method : String; params : TPCJSONList; MaxWaitMiliseconds : Cardinal; resultObject : TPCJSONObject; processEventOnInvalid : TProcessJSONObjectEvent = nil) : Boolean;
+    function DoProcessBuffer(SenderThread : TPCThread; MaxWaitMiliseconds : Cardinal; DeleteBufferOnExit : Boolean; var ResponseMethod : String; var jsonObject : TPCJSONObject) : Boolean;
+    function GetNewId : Cardinal;
+  end;
 
   TPoolType = (ptNone,ptIdentify);
 
   { TPoolMinerClient }
 
-  TPoolMinerClient = Class(TJSONRPCTcpIpClient)
+  TPoolMinerClient = class(TJSONRPCTcpIpClient)
   private
     FMinerValuesForWork: TMinerValuesForWork;
     FOnMinerMustChangeValues: TNotifyEvent;
@@ -85,21 +85,21 @@ Type
     FUserName: String;
     procedure SetMinerValuesForWork(const Value: TMinerValuesForWork);
   protected
-    Procedure DoOnConnect; Override;
+    procedure DoOnConnect; Override;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Property OnMinerMustChangeValues : TNotifyEvent read FOnMinerMustChangeValues write FOnMinerMustChangeValues;
-    Property MinerValuesForWork : TMinerValuesForWork read FMinerValuesForWork write SetMinerValuesForWork;
-    Procedure SubmitBlockFound(Const MinerValuesToGenerateBlock : TMinerValuesForWork; const Payload: TRawBytes; Timestamp, NOnce: Cardinal);
-    Procedure DoProcessJSONObject(json : TPCJSONObject; ResponseMethod : String);
-    Property PoolType : TPoolType read FPoolType write FPoolType;
-    Property UserName : String read FUserName write FUserName;
-    Property Password : String read FPassword write FPassword;
-    Property PoolFinalMinerName : String read FPoolFinalMinerName;
-    Property Stratum_Target_PoW : TRawBytes read FStratum_Target_PoW;
-  End;
+    constructor Create(AOwner : TComponent); override;
+    property OnMinerMustChangeValues : TNotifyEvent read FOnMinerMustChangeValues write FOnMinerMustChangeValues;
+    property MinerValuesForWork : TMinerValuesForWork read FMinerValuesForWork write SetMinerValuesForWork;
+    procedure SubmitBlockFound(Const MinerValuesToGenerateBlock : TMinerValuesForWork; const Payload: TRawBytes; Timestamp, NOnce: Cardinal);
+    procedure DoProcessJSONObject(json : TPCJSONObject; ResponseMethod : String);
+    property PoolType : TPoolType read FPoolType write FPoolType;
+    property UserName : String read FUserName write FUserName;
+    property Password : String read FPassword write FPassword;
+    property PoolFinalMinerName : String read FPoolFinalMinerName;
+    property Stratum_Target_PoW : TRawBytes read FStratum_Target_PoW;
+  end;
 
-  TPoolMiningServer = Class(TNetTcpIpServer)
+  TPoolMiningServer = class(TNetTcpIpServer)
   private
     FIncomingsCounter : Integer;
     FNodeNotifyEvents : TNodeNotifyEvents;
@@ -108,38 +108,38 @@ Type
     FClientsWins: Integer;
     FClientsCount: Integer;
     FOnMiningServerNewBlockFound: TNotifyEvent;
-    Procedure DoProcessJSON(json : TPCJSONObject; ResponseMethod : String; Client : TJSONRPCTcpIpClient);
-    Procedure OnNodeNewBlock(Sender : TObject);
-    Procedure OnNodeOperationsChanged(Sender : TObject);
-    Procedure Send_mine_values_to_all;
-    Procedure FillMineValue(mine_values : TPCJSONObject; Client : TJSONRPCTcpIpClient);
-    Function MinerSubmit(Client : TJSONRPCTcpIpClient; params : TPCJSONObject; const id : Variant) : Boolean;
+    procedure DoProcessJSON(json : TPCJSONObject; ResponseMethod : String; Client : TJSONRPCTcpIpClient);
+    procedure OnNodeNewBlock(Sender : TObject);
+    procedure OnNodeOperationsChanged(Sender : TObject);
+    procedure Send_mine_values_to_all;
+    procedure FillMineValue(mine_values : TPCJSONObject; Client : TJSONRPCTcpIpClient);
+    function MinerSubmit(Client : TJSONRPCTcpIpClient; params : TPCJSONObject; const id : Variant) : Boolean;
     procedure SetMinerAccountKey(const Value: TAccountKey);
     procedure SetMinerPayload(const Value: TRawBytes);
   protected
-    Procedure OnNewIncommingConnection(Sender : TObject; Client : TNetTcpIpClient); override;
+    procedure OnNewIncommingConnection(Sender : TObject; Client : TNetTcpIpClient); override;
     procedure SetActive(const Value: Boolean); override;
   public
-    Constructor Create; override;
-    Destructor Destroy; override;
-    Property MinerAccountKey : TAccountKey read FMinerAccountKey write SetMinerAccountKey;
-    Property MinerPayload : TRawBytes read FMinerPayload write SetMinerPayload;
-    Procedure UpdateAccountAndPayload(AMinerAccountKey : TAccountKey; AMinerPayload : TRawBytes);
-    Property ClientsCount : Integer read FClientsCount;
-    Property ClientsWins : Integer read FClientsWins;
-    Property OnMiningServerNewBlockFound : TNotifyEvent read FOnMiningServerNewBlockFound write FOnMiningServerNewBlockFound;
-  End;
+    constructor Create; override;
+    destructor Destroy; override;
+    property MinerAccountKey : TAccountKey read FMinerAccountKey write SetMinerAccountKey;
+    property MinerPayload : TRawBytes read FMinerPayload write SetMinerPayload;
+    procedure UpdateAccountAndPayload(AMinerAccountKey : TAccountKey; AMinerPayload : TRawBytes);
+    property ClientsCount : Integer read FClientsCount;
+    property ClientsWins : Integer read FClientsWins;
+    property OnMiningServerNewBlockFound : TNotifyEvent read FOnMiningServerNewBlockFound write FOnMiningServerNewBlockFound;
+  end;
 
-Function TBytesToString(Const bytes : TBytes):AnsiString;
+function TBytesToString(Const bytes : TBytes):AnsiString;
 
 Const
   CT_TMinerValuesForWork_NULL : TMinerValuesForWork = (block:0;version:0;part1:'';payload_start:'';part3:'';target:0;timestamp:0;target_pow:'';jobid:'');
 
 implementation
 
-Uses ULog, Variants, UTime, UBlockChain;
+uses ULog, Variants, UTime, UBlockChain;
 
-Type TPendingResponseMessage = Record
+Type TPendingResponseMessage = record
        sendDateTime : TDateTime;
        maxDateTime : TDateTime;
        id : Integer;
@@ -147,8 +147,8 @@ Type TPendingResponseMessage = Record
      end;
   PPendingResponseMessage = ^TPendingResponseMessage;
 
-Function TBytesToString(Const bytes : TBytes):AnsiString;
-Var i : Integer;
+function TBytesToString(Const bytes : TBytes):AnsiString;
+var i : Integer;
 Begin
   Result := '';
   for i := 0 to high(bytes) do begin
@@ -205,10 +205,10 @@ var last_bytes_read : Integer;
     P : PPendingResponseMessage;
   Begin
     l := FPendingResponseMessages.LockList;
-    Try
+    try
       for i := l.count-1 downto 0 do begin
         P := l[i];
-        if (doSearchId) And (idValue=P^.id) then begin
+        if (doSearchId) and (idValue=P^.id) then begin
           ResponseMethod:=P^.method;
           Dispose(P);
           l.Delete(i);
@@ -223,8 +223,8 @@ var last_bytes_read : Integer;
     end;
   end;
 var PartialBuffer : TBytes;
-  Function ProcessPartialBuffer : Boolean;
-  Var i,istart : Integer;
+  function ProcessPartialBuffer : Boolean;
+  var i,istart : Integer;
     aux : TBytes;
   begin
     result := false;
@@ -237,11 +237,11 @@ var PartialBuffer : TBytes;
       end;
       inc(i);
     end;
-    if (i>0) And (i>istart) And (i<=High(FReceivedBuffer)) then begin
+    if (i>0) and (i>istart) and (i<=High(FReceivedBuffer)) then begin
       SetLength(PartialBuffer,i-istart);
       move(FReceivedBuffer[istart],PartialBuffer[0],i-istart);
       // Inc i until valid char
-      while (i<=High(FReceivedBuffer)) And (FReceivedBuffer[i]<32) do inc(i);
+      while (i<=High(FReceivedBuffer)) and (FReceivedBuffer[i]<32) do inc(i);
       // i is the first valid pos for next buffer
       if i<=High(FReceivedBuffer) then begin
         setlength(aux,length(FReceivedBuffer)-i);
@@ -262,12 +262,12 @@ begin
   tc := GetTickCount;
   Repeat
     islocked := FLockProcessBuffer.TryEnter;
-  until (islocked) Or ((GetTickCount>(tc+MaxWaitMiliseconds)) And (MaxWaitMiliseconds<>0));
-  If Not islocked then exit;
+  until (islocked) or ((GetTickCount>(tc+MaxWaitMiliseconds)) and (MaxWaitMiliseconds<>0));
+  if not islocked then exit;
   try
-    if Assigned(SenderThread) then continue := Not SenderThread.Terminated
+    if Assigned(SenderThread) then continue := not SenderThread.Terminated
     else continue := true;
-    while (Connected) And ((GetTickCount<=(tc+MaxWaitMiliseconds)) Or (MaxWaitMiliseconds=0)) And (continue) do begin
+    while (Connected) and ((GetTickCount<=(tc+MaxWaitMiliseconds)) or (MaxWaitMiliseconds=0)) and (continue) do begin
       last_bytes_read := 0;
       ms := ReadBufferLock;
       try
@@ -281,14 +281,14 @@ begin
       finally
         ReadBufferUnlock;
       end;
-      If ProcessPartialBuffer then begin
+      if ProcessPartialBuffer then begin
         // Decode
         jsonData := TPCJSONData.ParseJSONValue(PartialBuffer);
         if Assigned(jsonData) then begin
-          Try
+          try
             if jsonData is TPCJSONObject then begin
               jsonObject.Assign(jsonData);
-              If (Not jsonObject.IsNull('id')) And (jsonObject.IndexOfName('method')<0) then begin
+              if (not jsonObject.IsNull('id')) and (jsonObject.IndexOfName('method')<0) then begin
                 // Is a Response!
                 FlushBufferPendingMessages(true,jsonObject.AsInteger('id',0));
               end;
@@ -296,8 +296,8 @@ begin
               exit;
             end else begin
               TLog.NewLog(lterror,ClassName,'Invalid JSON class: '+jsonData.ClassName+' json: '+TBytesToString(PartialBuffer));
-            End;
-          Finally
+            end;
+          finally
             jsonData.Free; // Memory leak on 1.5.0
           end;
         end else begin
@@ -305,10 +305,10 @@ begin
         end;
       end;
       sleep(1);
-      if Assigned(SenderThread) then continue := Not SenderThread.Terminated
+      if Assigned(SenderThread) then continue := not SenderThread.Terminated
       else continue := true;
     end;
-    if (length(FReceivedBuffer)>0) And (DeleteBufferOnExit) then begin
+    if (length(FReceivedBuffer)>0) and (DeleteBufferOnExit) then begin
       TLog.NewLog(lterror,ClassName,AnsiString( Format('Deleting %d bytes from buffer after waiting %d milis: %s',[length(FReceivedBuffer),MaxWaitMiliseconds,TBytesToString(FReceivedBuffer)])));
       SetLength(FReceivedBuffer,0);
     end;
@@ -330,13 +330,13 @@ begin
 end;
 
 procedure TJSONRPCTcpIpClient.SendJSONRPCErrorResponse(const id: Variant; const error: String);
-Var response : TPCJSONObject;
+var response : TPCJSONObject;
   stream : TMemoryStream;
   b : Byte;
 begin
   TLog.NewLog(lterror,ClassName,'Sending Error JSON RPC id ('+VarToStr(id)+') : '+error);
   response := TPCJSONObject.Create;
-  Try
+  try
     response.GetAsVariant('result').Value := Null;
     response.GetAsVariant('error').Value := error;
     response.GetAsVariant('id').Value := id;
@@ -354,30 +354,30 @@ begin
     finally
       stream.Free;
     end;
-  Finally
+  finally
     response.Free;
-  End;
+  end;
 end;
 
 procedure TJSONRPCTcpIpClient.SendJSONRPCMethod(const method: String; params: TPCJSONList; const id: Variant);
-Var json : TPCJSONObject;
+var json : TPCJSONObject;
   stream : TMemoryStream;
   b : Byte;
   P : PPendingResponseMessage;
   l : TList;
 begin
   json := TPCJSONObject.Create;
-  Try
+  try
     json.GetAsVariant('id').Value := id;
     json.GetAsVariant('method').Value := method;
     if Assigned(params) then begin
-      If params is TPCJSONObject then begin
+      if params is TPCJSONObject then begin
         json.GetAsArray('params').GetAsObject(0).Assign(params);
       end else if params is TPCJSONArray then begin
         json.GetAsArray('params').Assign(params);
       end;
     end;
-    if (Not VarIsNull(id)) then begin
+    if (not VarIsNull(id)) then begin
       new(P);
       P^.id:=id;
       P^.sendDateTime:=Now;
@@ -398,13 +398,13 @@ begin
     finally
       stream.Free;
     end;
-  Finally
+  finally
     json.Free;
-  End;
+  end;
 end;
 
-function TJSONRPCTcpIpClient.SendJSONRPCMethodAndWait(const method: String; params: TPCJSONList; MaxWaitMiliseconds: Cardinal; resultObject : TPCJSONObject; processEventOnInvalid : TProcessJSONObjectEvent = Nil) : Boolean;
-Var nId : Cardinal;
+function TJSONRPCTcpIpClient.SendJSONRPCMethodAndWait(const method: String; params: TPCJSONList; MaxWaitMiliseconds: Cardinal; resultObject : TPCJSONObject; processEventOnInvalid : TProcessJSONObjectEvent = nil) : Boolean;
+var nId : Cardinal;
   tc,maxw : Cardinal;
   json : TPCJSONObject;
   rm : String;
@@ -416,28 +416,28 @@ begin
     SendJSONRPCMethod(method,params,nId);
     tc := GetTickCount;
     json := TPCJSONObject.Create;
-    Try
+    try
       repeat
         maxw := MaxWaitMiliseconds - (GetTickCount - tc);
         if maxw<1 then maxw := 1
         else if maxw>10000 then maxw := 10000;
-        If DoProcessBuffer(nil,maxw,true,rm,json) then begin
-          If json.AsCardinal('id',0)=nId then begin
+        if DoProcessBuffer(nil,maxw,true,rm,json) then begin
+          if json.AsCardinal('id',0)=nId then begin
             resultObject.Assign(json);
             Result := true;
           end else begin
             TLog.NewLog(ltdebug,classname,'Received a unexpected JSON while waiting for response Id:'+inttostr(nId)+' Received:'+json.ToJSON(false));
-            If Assigned(processEventOnInvalid) then begin
+            if Assigned(processEventOnInvalid) then begin
               TLog.NewLog(ltdebug,classname,'Sending to process unexpected JSON:'+json.ToJSON(false));
               processEventOnInvalid(json,rm);
             end else TLog.NewLog(lterror,Classname,'Lost JSON message! '+json.ToJSON(false));
           end;
         end;
-      until (Result) Or (GetTickCount > (tc+MaxWaitMiliseconds));
+      until (Result) or (GetTickCount > (tc+MaxWaitMiliseconds));
     finally
       json.free;
     end;
-    if (Not Result) then begin
+    if (not Result) then begin
       TLog.NewLog(lterror,classname,'Not received a JSON response Id:'+inttostr(nId)+' for method:'+method);
     end;
   finally
@@ -446,13 +446,13 @@ begin
 end;
 
 procedure TJSONRPCTcpIpClient.SendJSONRPCResponse(result: TPCJSONObject; const id: Variant);
-Var response : TPCJSONObject;
+var response : TPCJSONObject;
   stream : TMemoryStream;
   b : Byte;
 begin
   response := TPCJSONObject.Create;
-  Try
-    If Assigned(Result) then response.GetAsObject('result').Assign(result)
+  try
+    if Assigned(Result) then response.GetAsObject('result').Assign(result)
     else response.GetAsVariant('result').Value:=null;
     response.GetAsVariant('error').Value := Null;
     response.GetAsVariant('id').Value := id;
@@ -468,9 +468,9 @@ begin
     finally
       stream.Free;
     end;
-  Finally
+  finally
     response.Free;
-  End;
+  end;
 end;
 
 { TPoolMiningServer }
@@ -478,7 +478,7 @@ end;
 constructor TPoolMiningServer.Create;
 begin
   inherited;
-  FOnMiningServerNewBlockFound := Nil;
+  FOnMiningServerNewBlockFound := nil;
   FIncomingsCounter := 0;
   FClientsWins := 0;
   FClientsCount := 0;
@@ -493,21 +493,21 @@ end;
 
 destructor TPoolMiningServer.Destroy;
 begin
-  FNodeNotifyEvents.Node := Nil;
-  FNodeNotifyEvents.OnBlocksChanged := Nil;
-  FNodeNotifyEvents.OnOperationsChanged := Nil;
+  FNodeNotifyEvents.Node := nil;
+  FNodeNotifyEvents.OnBlocksChanged := nil;
+  FNodeNotifyEvents.OnOperationsChanged := nil;
   FreeAndNil(FNodeNotifyEvents);
   inherited;
 end;
 
 procedure TPoolMiningServer.DoProcessJSON(json: TPCJSONObject; ResponseMethod : String; Client : TJSONRPCTcpIpClient);
-Var method : String;
+var method : String;
     params : TPCJSONArray;
     id_value : Variant;
     i : Integer;
   response_result : TPCJSONObject;
 begin
-  If ResponseMethod<>'' then begin
+  if ResponseMethod<>'' then begin
     method := ResponseMethod;
     params := json.GetAsArray('result');
   end else begin
@@ -522,7 +522,7 @@ begin
   end;
   if method=CT_PoolMining_Method_STATUS then begin
     response_result := TPCJSONObject.Create;
-    Try
+    try
       response_result.GetAsVariant('block').Value := FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.block;
       response_result.GetAsVariant('account_key').Value := TCrypto.ToHexaString( TAccountComp.AccountKey2RawString(FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.account_key) );
       response_result.GetAsVariant('reward').Value := FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.reward;
@@ -537,17 +537,17 @@ begin
       response_result.GetAsVariant('operations_hash').Value := TCrypto.ToHexaString( FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.operations_hash );
       response_result.GetAsVariant('pow').Value := TCrypto.ToHexaString( FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.proof_of_work );
       Client.SendJSONRPCResponse(response_result,id_value);
-    Finally
+    finally
       response_result.Free;
-    End;
+    end;
   end else if method=CT_PoolMining_Method_MINER_NOTIFY then begin
     response_result := TPCJSONObject.Create;
-    Try
+    try
       FillMineValue(response_result,Client);
       Client.SendJSONRPCResponse(response_result,id_value);
-    Finally
+    finally
       response_result.Free;
-    End;
+    end;
   end else if method=CT_PoolMining_Method_MINER_SUBMIT then begin
     // Try to submit a PoW
     if params.Count=1 then MinerSubmit(Client,params.GetAsObject(0),id_value)
@@ -561,7 +561,7 @@ begin
 end;
 
 procedure TPoolMiningServer.FillMineValue(mine_values: TPCJSONObject; Client : TJSONRPCTcpIpClient);
-Var Op : TPCOperationsComp;
+var Op : TPCOperationsComp;
   ts : Cardinal;
 begin
   mine_values.GetAsVariant('block').Value := FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.block+1;
@@ -588,7 +588,7 @@ begin
 end;
 
 function TPoolMiningServer.MinerSubmit(Client: TJSONRPCTcpIpClient; params: TPCJSONObject; const id : Variant): Boolean;
-Var s : String;
+var s : String;
   nbOperations : TPCOperationsComp;
   errors : AnsiString;
   nba : TBlockAccount;
@@ -600,11 +600,11 @@ begin
     - "payload" as an Hexadecimal
     - "timestamp" as an unsigned integer 32 bits
     - "nonce" as an unsigned integer 32 bits
-    If payload length is < Node payload then error
-    If Node payload is not included in first bytes of payload then error
-    If timestamp is not valid then error
-    If calculated PoW does not match valid PoW then error
-    If all ok... congrats!!! }
+    if payload length is < Node payload then error
+    if Node payload is not included in first bytes of payload then error
+    if timestamp is not valid then error
+    if calculated PoW does not match valid PoW then error
+    if all ok... congrats!!! }
   Result := false;
   nbOperations := TPCOperationsComp.Create(Nil);
   try
@@ -625,7 +625,7 @@ begin
     p1 := nbOperations.PoW_Digest_Part1;
     p2 := nbOperations.PoW_Digest_Part2_Payload;
     p3 := nbOperations.PoW_Digest_Part3;
-    If FNodeNotifyEvents.Node.AddNewBlockChain(nil,nbOperations,nba,errors) then begin
+    if FNodeNotifyEvents.Node.AddNewBlockChain(nil,nbOperations,nba,errors) then begin
       // CONGRATS !!!
       json := TPCJSONObject.Create;
       try
@@ -657,18 +657,18 @@ var bClient : TJSONRPCTcpIpClient;
 begin
   inherited;
   inc(FClientsCount);
-  Try
+  try
     TLog.NewLog(ltinfo,ClassName,'New Mining Pool Connection: '+Client.ClientRemoteAddr);
     bClient := TJSONRPCTcpIpClient(Client);
     inc(FIncomingsCounter);
     init_json := TPCJSONObject.Create;
-    Try
+    try
       FillMineValue(init_json,bClient);
       bClient.SendJSONRPCMethod(CT_PoolMining_Method_MINER_NOTIFY,init_json,null);
-    Finally
+    finally
       init_json.Free;
-    End;
-    while (Active) And (Client.Connected) do begin
+    end;
+    while (Active) and (Client.Connected) do begin
       doDelete := bClient.LastReadTC+1000<GetTickCount;  // TODO: Protect GetTickCount overflow
       jsonobj := TPCJSONObject.Create;
       try
@@ -680,10 +680,10 @@ begin
       end;
       sleep(10);
     end;
-  Finally
+  finally
     Dec(FClientsCount);
     TLog.NewLog(ltinfo,ClassName,'Finalizing Mining Pool Connection: '+Client.ClientRemoteAddr);
-  End;
+  end;
 end;
 
 procedure TPoolMiningServer.OnNodeNewBlock(Sender: TObject);
@@ -704,26 +704,26 @@ var params : TPCJSONObject;
   l : TList;
 begin
   params := TPCJSONObject.Create;
-  Try
+  try
     l := NetTcpIpClientsLock;
-    Try
+    try
       for i := 0 to l.Count - 1 do begin
-        if Not Active then exit;
+        if not Active then exit;
         FillMineValue(params,TJSONRPCTcpIpClient(l[i]));
         TJSONRPCTcpIpClient(l[i]).SendJSONRPCMethod(CT_PoolMining_Method_MINER_NOTIFY,params,Null);
       end;
-    Finally
+    finally
       NetTcpIpClientsUnlock;
-    End;
-  Finally
+    end;
+  finally
     params.Free;
-  End;
+  end;
 end;
 
 procedure TPoolMiningServer.SetActive(const Value: Boolean);
 begin
   inherited;
-  if (Not Value) then begin
+  if (not Value) then begin
     WaitUntilNetTcpIpClientsFinalized;
   end;
 end;
@@ -767,41 +767,41 @@ begin
 end;
 
 procedure TPoolMinerClient.DoOnConnect;
-Var params : TPCJSONArray;
+var params : TPCJSONArray;
   resultObject : TPCJSONObject;
   s : String;
   raws : TRawBytes;
   i : Integer;
 begin
   inherited DoOnConnect;
-  If FPoolType=ptIdentify then begin
+  if FPoolType=ptIdentify then begin
     // Pool initialization
     params := TPCJSONArray.Create;
     resultObject := TPCJSONObject.Create;
     try
       params.GetAsVariant(0).Value:=UserName;
       params.GetAsVariant(1).Value:=Password;
-      If SendJSONRPCMethodAndWait(CT_PoolMining_Method_STRATUM_MINING_AUTHORIZE,params,1000,resultObject,nil) then begin
+      if SendJSONRPCMethodAndWait(CT_PoolMining_Method_STRATUM_MINING_AUTHORIZE,params,1000,resultObject,nil) then begin
         TLog.NewLog(ltInfo,Classname,CT_PoolMining_Method_STRATUM_MINING_AUTHORIZE+' response: '+resultObject.ToJSON(false));
         // Now subscribe
         params.Clear;
         resultObject.Clear;
-        If SendJSONRPCMethodAndWait(CT_PoolMining_Method_STRATUM_MINING_SUBSCRIBE,params,1000,resultObject,nil) then begin
+        if SendJSONRPCMethodAndWait(CT_PoolMining_Method_STRATUM_MINING_SUBSCRIBE,params,1000,resultObject,nil) then begin
           //
           TLog.NewLog(ltInfo,Classname,CT_PoolMining_Method_STRATUM_MINING_SUBSCRIBE+' response: '+resultObject.ToJSON(false));
           // Decode response
-          If (resultObject.IsNull('error')) then begin
+          if (resultObject.IsNull('error')) then begin
             s := resultObject.GetAsArray('result').GetAsArray(0).GetAsArray(0).GetAsVariant(0).AsString('');
             if (s<>'mining.nonce') then Raise Exception.Create('Not a mining.nonce');
             s := resultObject.GetAsArray('result').GetAsVariant(1).AsString('');
             raws := TCrypto.HexaToRaw(s);
-            If (length(s)>0) And (length(raws)=0) then begin
-              TLog.NewLog(lterror,ClassName,'Invalid value to assign as a Miner name. Not hexadecimal '+s);
+            if (length(s)>0) and (length(raws)=0) then begin
+              TLog.NewLog(lterror,ClassName,'Invalid value to assign as a Miner name. not hexadecimal '+s);
               FPoolFinalMinerName:='';
             end else begin
               FPoolFinalMinerName := raws;
               for i:=1 to length(raws) do begin
-                if Not (raws[i] in [#32..#254]) then begin
+                if not (raws[i] in [#32..#254]) then begin
                   TLog.NewLog(ltError,ClassName,'Invalid proposed miner name. Value at pos '+inttostr(i)+' is not #24..#254: '+IntToStr(integer(raws[i])));
                   FPoolFinalMinerName:='';
                   break;
@@ -820,7 +820,7 @@ begin
 end;
 
 procedure TPoolMinerClient.DoProcessJSONObject(json: TPCJSONObject; ResponseMethod : String);
-Var method : String;
+var method : String;
     id_value : Variant;
     i : Integer;
   params_as_object,pobject : TPCJSONObject;
@@ -830,9 +830,9 @@ Var method : String;
   prev_pow,proposed_pow : TRawBytes;
 begin
   TLog.NewLog(ltInfo,ClassName,'Received JSON: '+json.ToJSON(false));
-  params := Nil;
-  params_as_object := Nil;
-  params_as_array := Nil;
+  params := nil;
+  params_as_object := nil;
+  params_as_array := nil;
   if (ResponseMethod<>'') then begin
     method := ResponseMethod;
     i := json.IndexOfName('result');
@@ -847,7 +847,7 @@ begin
       params := json.Items[i];
     end;
   end;
-  If Assigned(params) then begin
+  if Assigned(params) then begin
     if (params is TPCJSONNameValue) then begin
       if (TPCJSONNameValue(params).Value is TPCJSONObject) then params_as_object := TPCJSONObject(TPCJSONNameValue(params).Value)
       else if (TPCJSONNameValue(params).Value is TPCJSONArray) then params_as_array := TPCJSONArray(TPCJSONNameValue(params).Value);
@@ -860,7 +860,7 @@ begin
     id_value := json.GetAsVariant('id').Value;
   end;
   if method=CT_PoolMining_Method_MINER_NOTIFY then begin
-    If assigned(params_as_array) then pobject := params_as_array.GetAsObject(0)
+    if assigned(params_as_array) then pobject := params_as_array.GetAsObject(0)
     else pobject := params_as_object;
     if assigned(pobject) then begin
       mvfw := CT_TMinerValuesForWork_NULL;
@@ -873,10 +873,10 @@ begin
       mvfw.timestamp := pobject.AsInteger('timestamp',0);
       mvfw.part1 := TCrypto.HexaToRaw(pobject.AsString('part1',''));
       mvfw.target_pow := TCrypto.HexaToRaw(pobject.AsString('target_pow',''));
-      If FPoolType=ptIdentify then begin
+      if FPoolType=ptIdentify then begin
         mvfw.jobid:=pobject.AsString('jobid','');
       end;
-      if (Not VarIsNull(id_value)) And (ResponseMethod='') then begin
+      if (not VarIsNull(id_value)) and (ResponseMethod='') then begin
         SendJSONRPCResponse(pobject,id_value);
       end;
       MinerValuesForWork := mvfw;
@@ -885,11 +885,11 @@ begin
 end;
 
 procedure TPoolMinerClient.SetMinerValuesForWork(const Value: TMinerValuesForWork);
-Var _t : Cardinal;
+var _t : Cardinal;
   _t_pow : TRawBytes;
 begin
   FMinerValuesForWork := Value;
-  If FStratum_Target_PoW<>'' then begin
+  if FStratum_Target_PoW<>'' then begin
     FMinerValuesForWork.target:=TPCBank.TargetToCompact(FStratum_Target_PoW);
     FMinerValuesForWork.target_pow:=TPCBank.TargetFromCompact(FMinerValuesForWork.target);
   end else begin
@@ -900,9 +900,9 @@ begin
       if (FMinerValuesForWork.target<CT_MinCompactTarget) then begin
         // target has no valid value... assigning compact_target!
         FMinerValuesForWork.target:=TPCBank.TargetToCompact(_t_pow);
-      end else if (_t_pow<>FMinerValuesForWork.target_pow) Or (_t<>FMinerValuesForWork.target) then begin
+      end else if (_t_pow<>FMinerValuesForWork.target_pow) or (_t<>FMinerValuesForWork.target) then begin
         TLog.NewLog(ltError,Classname,'Received bad values for target and target_pow!');
-        If (FMinerValuesForWork.target<CT_MinCompactTarget) then begin
+        if (FMinerValuesForWork.target<CT_MinCompactTarget) then begin
           FMinerValuesForWork.target_pow:=TPCBank.TargetFromCompact(FMinerValuesForWork.target);
         end else begin
           FMinerValuesForWork.target:=TPCBank.TargetToCompact(_t_pow);
@@ -919,18 +919,18 @@ begin
       end;
     end;
   end;
-  If (FPoolType=ptIdentify) And (FPoolFinalMinerName<>'') then FMinerValuesForWork.payload_start:=FPoolFinalMinerName;
+  if (FPoolType=ptIdentify) and (FPoolFinalMinerName<>'') then FMinerValuesForWork.payload_start:=FPoolFinalMinerName;
   if Assigned(FOnMinerMustChangeValues) then FOnMinerMustChangeValues(Self);
 end;
 
 procedure TPoolMinerClient.SubmitBlockFound(Const MinerValuesToGenerateBlock : TMinerValuesForWork; const Payload: TRawBytes; Timestamp, NOnce: Cardinal);
-Var json, resultJSON : TPCJSONObject;
+var json, resultJSON : TPCJSONObject;
   nOnceAsSignedInt : Int32;
 begin
   json := TPCJSONObject.Create;
-  Try
+  try
     nOnceAsSignedInt := NOnce;
-    If FPoolType=ptIdentify then begin
+    if FPoolType=ptIdentify then begin
       json.GetAsVariant('jobid').Value := MinerValuesToGenerateBlock.jobid;
     end;
     json.GetAsVariant('payload').Value := TCrypto.ToHexaString(Payload);
@@ -939,12 +939,12 @@ begin
     resultJSON := TPCJSONObject.Create;
     try
       SendJSONRPCMethod(CT_PoolMining_Method_MINER_SUBMIT,json,GetNewId);
-    Finally
+    finally
       resultJSON.free;
     end;
-  Finally
+  finally
     json.Free;
-  End;
+  end;
 end;
 
 end.

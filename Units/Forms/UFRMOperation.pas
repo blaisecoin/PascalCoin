@@ -109,20 +109,20 @@ type
     FSenderAccounts: TOrderedCardinalList;
     FOldOnChanged : TNotifyEvent;
     procedure SetWalletKeys(const Value: TWalletKeys);
-    Procedure UpdateWalletKeys;
+    procedure UpdateWalletKeys;
     { Private declarations }
-    Procedure UpdateAccountsInfo;
-    Function UpdateOperationOptions(var errors : AnsiString) : Boolean;
-    Function UpdatePayload(Const SenderAccount : TAccount; var errors : AnsiString) : Boolean;
+    procedure UpdateAccountsInfo;
+    function UpdateOperationOptions(var errors : AnsiString) : Boolean;
+    function UpdatePayload(Const SenderAccount : TAccount; var errors : AnsiString) : Boolean;
     procedure SetFee(const Value: Int64);
-    Procedure OnSenderAccountsChanged(Sender : TObject);
+    procedure OnSenderAccountsChanged(Sender : TObject);
     procedure OnWalletKeysChanged(Sender : TObject);
     procedure CM_WalletChanged(var Msg: TMessage); message CM_PC_WalletKeysChanged;
   public
     { Public declarations }
-    Property SenderAccounts : TOrderedCardinalList read FSenderAccounts;
-    Property WalletKeys : TWalletKeys read FWalletKeys write SetWalletKeys;
-    Property Fee : Int64 read FFee write SetFee;
+    property SenderAccounts : TOrderedCardinalList read FSenderAccounts;
+    property WalletKeys : TWalletKeys read FWalletKeys write SetWalletKeys;
+    property Fee : Int64 read FFee write SetFee;
   end;
 
 implementation
@@ -139,7 +139,7 @@ uses
 { TFRMOperation }
 
 procedure TFRMOperation.actExecuteExecute(Sender: TObject);
-Var errors : AnsiString;
+var errors : AnsiString;
   P : PAccount;
   i,iAcc : Integer;
   wk : TWalletKey;
@@ -150,10 +150,10 @@ Var errors : AnsiString;
   _amount,_fee, _totalamount, _totalfee : Int64;
   dooperation : Boolean;
 begin
-  if Not Assigned(WalletKeys) then raise Exception.Create('No wallet keys');
-  If Not UpdateOperationOptions(errors) then raise Exception.Create(errors);
+  if not Assigned(WalletKeys) then raise Exception.Create('No wallet keys');
+  if not UpdateOperationOptions(errors) then raise Exception.Create(errors);
   ops := TOperationsHashTree.Create;
-  Try
+  try
     _totalamount := 0;
     _totalfee := 0;
     operationstxt := '';
@@ -161,11 +161,11 @@ begin
     for iAcc := 0 to FSenderAccounts.Count - 1 do begin
       op := Nil;
       account := FNode.Operations.SafeBoxTransaction.Account(FSenderAccounts.Get(iAcc));
-      If Not UpdatePayload(account, errors) then
+      if not UpdatePayload(account, errors) then
         raise Exception.Create('Error encoding payload of sender account '+TAccountComp.AccountNumberToAccountTxtNumber(account.account)+': '+errors);
       i := WalletKeys.IndexOfAccountKey(account.accountkey);
       if i<0 then begin
-        Raise Exception.Create('Sender account private key not found in Wallet');
+        raise Exception.Create('Sender account private key not found in Wallet');
       end;
 
       wk := WalletKeys.Key[i];
@@ -247,35 +247,35 @@ begin
     end else begin
       raise Exception.Create(errors);
     end;
-  Finally
+  finally
     ops.Free;
   End;
 end;
 
 procedure TFRMOperation.bbKeysClick(Sender: TObject);
-Var FRM : TFRMWalletKeys;
+var FRM : TFRMWalletKeys;
 begin
   FRM := TFRMWalletKeys.Create(Self);
-  Try
+  try
     FRM.WalletKeys := WalletKeys;
     FRM.ShowModal;
     rbChangeKey.Checked := true;
     cbNewPrivateKey.SetFocus;
     SetWalletKeys(WalletKeys);
-  Finally
+  finally
     FRM.Free;
   End;
 end;
 
 procedure TFRMOperation.bbPasswordClick(Sender: TObject);
-Var s : String;
+var s : String;
   errors : AnsiString;
 begin
   if FWalletKeys.IsValidPassword then begin
   end else begin
     s := '';
     Repeat
-      if Not InputQuery('Wallet password','Enter wallet password',s) then exit;
+      if not InputQuery('Wallet password','Enter wallet password',s) then exit;
       FWalletKeys.WalletPassword := s;
     Until FWalletKeys.IsValidPassword;
     SetWalletKeys(WalletKeys);
@@ -285,10 +285,10 @@ end;
 
 procedure TFRMOperation.cbNewPrivateKeyChange(Sender: TObject);
 begin
-  If FDisabled then exit;
-  If not rbChangeKey.Checked then begin
+  if FDisabled then exit;
+  if not rbChangeKey.Checked then begin
     rbChangeKey.Checked := true;
-    rbTransactionClick(Nil);
+    rbTransactionClick(nil);
   end;
 end;
 
@@ -300,17 +300,17 @@ end;
 procedure TFRMOperation.ebDestAccountChange(Sender: TObject);
 begin
   if FDisabled then exit;
-  If not rbTransaction.Checked then begin
+  if not rbTransaction.Checked then begin
     rbTransaction.Checked := true;
-    rbTransactionClick(Nil);
+    rbTransactionClick(nil);
   end;
 end;
 
 procedure TFRMOperation.ebDestAccountExit(Sender: TObject);
-Var an : Cardinal;
+var an : Cardinal;
   errors : AnsiString;
 begin
-  If TAccountComp.AccountTxtNumberToAccountNumber(ebDestAccount.Text,an) then begin
+  if TAccountComp.AccountTxtNumberToAccountNumber(ebDestAccount.Text,an) then begin
     ebDestAccount.Text := TAccountComp.AccountNumberToAccountTxtNumber(an);
   end else begin
     ebDestAccount.Text := '';
@@ -322,11 +322,11 @@ procedure TFRMOperation.ebEncryptPasswordChange(Sender: TObject);
 begin
   if FDisabled then exit;
   rbEncrptedWithPassword.Checked := true;
-  memoPayloadClick(Nil);
+  memoPayloadClick(nil);
 end;
 
 procedure TFRMOperation.ebFeeExit(Sender: TObject);
-Var l : boolean;
+var l : boolean;
   errors : AnsiString;
 begin
   l := FDisabled;
@@ -347,14 +347,14 @@ begin
   if FDisabled then exit;
   if not rbTransferToANewOwner.Checked then begin
     rbTransferToANewOwner.Checked := true;
-    rbTransactionClick(Nil);
+    rbTransactionClick(nil);
   end;
 end;
 
 procedure TFRMOperation.ebSenderAccountExit(Sender: TObject);
-Var an : Cardinal;
+var an : Cardinal;
 begin
-  If TAccountComp.AccountTxtNumberToAccountNumber(ebSenderAccount.Text,an) then begin
+  if TAccountComp.AccountTxtNumberToAccountNumber(ebSenderAccount.Text,an) then begin
     SenderAccounts.Disable;
     try
       SenderAccounts.Clear;
@@ -374,7 +374,7 @@ end;
 
 procedure TFRMOperation.ebSenderAccountKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key=#13 then ebSenderAccountExit(Nil);
+  if Key=#13 then ebSenderAccountExit(nil);
 end;
 
 procedure TFRMOperation.FormCreate(Sender: TObject);
@@ -404,21 +404,21 @@ end;
 
 procedure TFRMOperation.ebAmountChange(Sender: TObject);
 begin
-  If FDisabled then exit;
+  if FDisabled then exit;
   TAccountComp.TxtToMoney(ebAmount.text,FTxAmount);
-  If not rbTransaction.Checked then begin
+  if not rbTransaction.Checked then begin
     rbTransaction.Checked := true;
-    rbTransactionClick(Nil);
+    rbTransactionClick(nil);
   end;
 end;
 
 procedure TFRMOperation.ebFeeChange(Sender: TObject);
 begin
-  If FDisabled then exit;
+  if FDisabled then exit;
   TAccountComp.TxtToMoney(ebFee.text,FFee);
-  If not rbTransaction.Checked then begin
+  if not rbTransaction.Checked then begin
     rbTransaction.Checked := true;
-    rbTransactionClick(Nil);
+    rbTransactionClick(nil);
   end;
 end;
 
@@ -435,7 +435,7 @@ begin
 end;
 
 procedure TFRMOperation.memoPayloadClick(Sender: TObject);
-Var errors : AnsiString;
+var errors : AnsiString;
 begin
   if SenderAccounts.Count>0 then begin
     UpdatePayload(TNode.Node.Bank.SafeBox.Account(SenderAccounts.Get(0)),errors);
@@ -443,7 +443,7 @@ begin
 end;
 
 procedure TFRMOperation.OnSenderAccountsChanged(Sender: TObject);
-Var errors : AnsiString;
+var errors : AnsiString;
 begin
   if SenderAccounts.Count>1 then begin
     ebAmount.Text := 'ALL BALANCE';
@@ -465,7 +465,7 @@ begin
 end;
 
 procedure TFRMOperation.rbTransactionClick(Sender: TObject);
-Var errors : AnsiString;
+var errors : AnsiString;
 begin
   UpdateOperationOptions(errors);
 end;
@@ -497,7 +497,7 @@ begin
 end;
 
 procedure TFRMOperation.UpdateAccountsInfo;
-Var ld : Boolean;
+var ld : Boolean;
   i : Integer;
   balance : int64;
   acc : TAccount;
@@ -505,7 +505,7 @@ Var ld : Boolean;
 begin
   ld := FDisabled;
   FDisabled := true;
-  Try
+  try
     lblAccountCaption.Caption := 'Account';
     lblAccountsCount.Visible := false;
     lblAccountsCount.caption := inttostr(senderAccounts.Count)+' accounts';
@@ -536,7 +536,7 @@ begin
     end;
     ebSenderAccount.Enabled := ebSenderAccount.Visible;
     lblAccountBalance.Caption := TAccountComp.FormatMoney(balance);
-  Finally
+  finally
     FDisabled := ld;
   End;
 end;
@@ -558,10 +558,10 @@ begin
   lblNewPrivateKey.Enabled := rbChangeKey.Checked;
   lblNewOwnerPublicKey.Enabled := rbTransferToANewOwner.Checked;
   try
-    Try
+    try
       bbPassword.Visible := false;
       bbPassword.Enabled := false;
-      if Not Assigned(WalletKeys) then begin
+      if not Assigned(WalletKeys) then begin
         errors := 'No wallet keys';
         lblGlobalErrors.Caption := errors;
         exit;
@@ -594,7 +594,7 @@ begin
         end;
       end;
       lblGlobalErrors.Caption := '';
-    Finally
+    finally
       if lblGlobalErrors.Caption<>'' then begin
         tsGlobalError.visible := true;
         tsGlobalError.tabvisible := {$IFDEF LINUX}true{$ELSE}false{$ENDIF};
@@ -628,7 +628,7 @@ begin
         exit;
       end;
       if SenderAccounts.Count>1 then begin
-        // If multisender then amount is ALL balance
+        // if multisender then amount is ALL balance
         ebAmount.Font.Color := clNavy;
       end else begin
         ebAmount.ParentFont := true;
@@ -686,7 +686,7 @@ begin
       ebFee.Font.Color := clGrayText;
       cbNewPrivateKey.Font.Color := clGrayText;
       ebNewPublicKey.ParentFont := true;
-      If Not TAccountComp.AccountKeyFromImport(ebNewPublicKey.Text,FNewAccountPublicKey,errors) then begin
+      if not TAccountComp.AccountKeyFromImport(ebNewPublicKey.Text,FNewAccountPublicKey,errors) then begin
         lblNewOwnerErrors.Caption := errors;
         lblNewOwnerErrors.Font.Color := clRed;
         exit;
@@ -716,7 +716,7 @@ begin
 end;
 
 function TFRMOperation.UpdatePayload(Const SenderAccount : TAccount; var errors : AnsiString) : Boolean;
-Var payload_u : AnsiString;
+var payload_u : AnsiString;
   payload_encrypted : TRawBytes;
   account : TAccount;
   dest_account_number : Cardinal;
@@ -743,7 +743,7 @@ begin
       errors := 'Error encrypting';
       if rbTransaction.Checked then begin
         // With dest public key
-        If Not TAccountComp.AccountTxtNumberToAccountNumber(ebDestAccount.Text,dest_account_number) then begin
+        if not TAccountComp.AccountTxtNumberToAccountNumber(ebDestAccount.Text,dest_account_number) then begin
           errors := 'Invalid dest account number';
           exit;
         end;
@@ -810,12 +810,12 @@ begin
 end;
 
 procedure TFRMOperation.UpdateWalletKeys;
-Var i : Integer;
+var i : Integer;
   wk : TWalletKey;
   s : String;
 begin
   cbNewPrivateKey.items.BeginUpdate;
-  Try
+  try
     cbNewPrivateKey.Items.Clear;
     //cbNewPrivateKey.Items.AddObject('Generate a new Private Key',TObject(-1));
     For i:=0 to FWalletKeys.Count-1 do begin
@@ -825,14 +825,14 @@ begin
       end else begin
         s := wk.Name;
       end;
-      if Not Assigned(wk.PrivateKey) then s := s + '(*)';
+      if not Assigned(wk.PrivateKey) then s := s + '(*)';
       cbNewPrivateKey.Items.AddObject(s,TObject(i));
     end;
-  Finally
+  finally
     cbNewPrivateKey.Items.EndUpdate;
   End;
-  rbTransactionClick(Nil);
-  memoPayloadClick(Nil);
+  rbTransactionClick(nil);
+  memoPayloadClick(nil);
 end;
 
 end.

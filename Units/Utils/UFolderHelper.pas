@@ -34,7 +34,7 @@ Type TFileVersionInfo = record
        PrivateBuild : Boolean;
        InfoInferred : Boolean;
        SpecialBuild : Boolean;
-     End;
+     end;
 
   TFolderHelper = record
   strict private
@@ -44,7 +44,7 @@ Type TFileVersionInfo = record
     class function GetAppDataFolder : string; static;
   public
     class function GetPascalCoinDataFolder : string; static;
-    class Function GetTFileVersionInfo(Const FileName : String) : TFileVersionInfo; static;
+    class function GetTFileVersionInfo(Const FileName : String) : TFileVersionInfo; static;
   end;
 
 implementation
@@ -106,7 +106,7 @@ end;
 
 class function TFolderHelper.GetTFileVersionInfo(Const FileName: String): TFileVersionInfo;
 {$IFDEF FILEVERSIONINFO}
-Var verInfoSize : DWord;
+var verInfoSize : DWord;
     GetInfoSizeJunk : DWord;
     VersionInfo,
     Translation,
@@ -116,7 +116,7 @@ Var verInfoSize : DWord;
 {$ENDIF}
 Begin
    With result do
-   Begin
+   begin
      HasInfo := False;
      CompanyName := '';
      FileDescription := '';
@@ -134,11 +134,11 @@ Begin
      PrivateBuild := False;
      InfoInferred := False;
      SpecialBuild := False;
-   End;
+   end;
    {$IFDEF FILEVERSIONINFO}
    VerInfoSize := GetFileVersionInfoSize(PChar(FileName),GetInfoSizeJunk);
-   If verInfoSize>0 Then
-     Begin
+   if verInfoSize>0 Then
+     begin
        Result.HasInfo := True;
        GetMem(VersionInfo,VerInfoSize);
        GetFileVersionInfo(PChar(FileName),0,VerInfoSize,VersionInfo);
@@ -146,37 +146,37 @@ Begin
        VersionValue := '\\StringFileInfo\\'+
          inttohex(LoWord(LongInt(Translation^)),4)+
          inttohex(HiWord(LongInt(Translation^)),4)+ '\\';
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'CompanyName'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'CompanyName'),InfoPointer,VersionInfoSize) Then
          Result.CompanyName := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'FileDescription'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'FileDescription'),InfoPointer,VersionInfoSize) Then
          Result.FileDescription := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'FileVersion'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'FileVersion'),InfoPointer,VersionInfoSize) Then
          Result.FileVersion := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'InternalName'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'InternalName'),InfoPointer,VersionInfoSize) Then
          Result.InternalName := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'LegalCopyright'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'LegalCopyright'),InfoPointer,VersionInfoSize) Then
          Result.LegalCopyRight := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'LegalTrademarks'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'LegalTrademarks'),InfoPointer,VersionInfoSize) Then
          Result.LegalTradeMarks := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'OriginalFilename'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'OriginalFilename'),InfoPointer,VersionInfoSize) Then
          Result.OriginalFileName := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'ProductName'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'ProductName'),InfoPointer,VersionInfoSize) Then
          Result.ProductName := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'ProductVersion'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'ProductVersion'),InfoPointer,VersionInfoSize) Then
          Result.ProductVersion := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,PChar(VersionValue+'Comments'),InfoPointer,VersionInfoSize) Then
+       if VerQueryValue(VersionInfo,PChar(VersionValue+'Comments'),InfoPointer,VersionInfoSize) Then
          Result.Comments := String(PChar(InfoPointer));
-       If VerQueryValue(VersionInfo,'\',InfoPointer,VersionInfoSize) Then
-         Begin
-           Result.Debug := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_DEBUG);
-           Result.Pre_Release := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_PRERELEASE);
-           Result.Patched := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_PATCHED);
-           Result.PrivateBuild := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_PRIVATEBUILD);
-           Result.InfoInferred := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_INFOINFERRED);
-           Result.SpecialBuild := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags AND VS_FF_SPECIALBUILD);
-         End;
+       if VerQueryValue(VersionInfo,'\',InfoPointer,VersionInfoSize) Then
+         begin
+           Result.Debug := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_DEBUG);
+           Result.Pre_Release := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_PRERELEASE);
+           Result.Patched := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_PATCHED);
+           Result.PrivateBuild := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_PRIVATEBUILD);
+           Result.InfoInferred := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_INFOINFERRED);
+           Result.SpecialBuild := BOOL(TVSFixedFileInfo(InfoPointer^).dwFileFlags and VS_FF_SPECIALBUILD);
+         end;
        FreeMem(VersionInfo,VerInfoSize);
-     End;
+     end;
    {$ENDIF}
 end;
 

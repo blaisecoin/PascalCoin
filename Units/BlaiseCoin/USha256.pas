@@ -19,12 +19,12 @@ function CalcSHA256(Stream: TStream): TSHA256HASH; overload;
 function SHA256ToStr(Hash: TSHA256HASH): String;
 
 
-Function CanBeModifiedOnLastChunk(MessageTotalLength : Int64; var startBytePos : integer) : Boolean;
+function CanBeModifiedOnLastChunk(MessageTotalLength : Int64; var startBytePos : integer) : Boolean;
 Procedure PascalCoinPrepareLastChunk(Const messageToHash : AnsiString; var stateForLastChunk : TSHA256HASH; var bufferForLastChunk : TChunk);
-Function ExecuteLastChunk(const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
-Function ExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
+function ExecuteLastChunk(const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
+function ExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
 Procedure PascalCoinExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal; var ResultSha256 : AnsiString);
-Function Sha256HashToRaw(Const hash : TSHA256HASH) : AnsiString;
+function Sha256HashToRaw(Const hash : TSHA256HASH) : AnsiString;
 
 implementation
 
@@ -227,7 +227,7 @@ begin
   Result:= Result + IntToHex(Hash[7],8);
 end;
 
-Function CanBeModifiedOnLastChunk(MessageTotalLength : Int64; var startBytePos : integer) : Boolean;
+function CanBeModifiedOnLastChunk(MessageTotalLength : Int64; var startBytePos : integer) : Boolean;
 Begin
   { Sha256 process each round 512 bits (64 bytes)
     Timestamp and nOnce are last 8 bytes of digest message, so must be processed on last round
@@ -235,12 +235,12 @@ Begin
      - 1 byte for $80 (1 bit left padded)
      - 8 bytes for length of digest message in bits
     Start byte pos can be a number between 0..63 - (9 reserved bytes) = 0..54
-    Also, start byte must be MOD 4=0 because each value is 4 bytes in Sha256 calcs, so must discard last 4 bytes of left padded bit 0..51
-    Finally: Value between 0..51 and (MOD 4=0)
+    Also, start byte must be mod 4=0 because each value is 4 bytes in Sha256 calcs, so must discard last 4 bytes of left padded bit 0..51
+    finally: Value between 0..51 and (MOD 4=0)
     Valid values are: 0,4,8,12,16,20,24,28,32,36,40,44,48 = TOTAL 12 valid values of 64
     }
-  startBytePos := (((((MessageTotalLength)*8)+72) MOD 512) DIV 8) - (8+9);
-  Result := (startBytePos >= 0) And ((startBytePos MOD 4)=0) And (startBytePos<=48);
+  startBytePos := (((((MessageTotalLength)*8)+72) mod 512) div 8) - (8+9);
+  Result := (startBytePos >= 0) and ((startBytePos mod 4)=0) and (startBytePos<=48);
 End;
 
 Procedure PascalCoinPrepareLastChunk(Const messageToHash : AnsiString; var stateForLastChunk : TSHA256HASH; var bufferForLastChunk : TChunk);
@@ -298,7 +298,7 @@ begin
 end;
 
 
-Function ExecuteLastChunk(const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
+function ExecuteLastChunk(const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
 Var
   bflc : TChunk;
   P : PAnsiChar;
@@ -314,7 +314,7 @@ Begin
     Result[k]:= stateForLastChunk[k] + H[k];
 End;
 
-Function ExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
+function ExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal) : TSHA256HASH;
 var
   i,k: Integer;
   Size: int64;
@@ -353,23 +353,23 @@ Begin
 End;
 
 Procedure PascalCoinExecuteLastChunkAndDoSha256(Const stateForLastChunk : TSHA256HASH; const bufferForLastChunk : TChunk; nPos : Integer; nOnce,Timestamp : Cardinal; var ResultSha256 : AnsiString);
-Var  H: TSHA256HASH;
+var  H: TSHA256HASH;
 Begin
   H := ExecuteLastChunkAndDoSha256(stateForLastChunk,bufferForLastChunk,nPos,nOnce,Timestamp);
   ResultSha256 := Sha256HashToRaw(H);
 End;
 
-Function Sha256HashToRaw(Const hash : TSHA256HASH) : AnsiString;
+function Sha256HashToRaw(Const hash : TSHA256HASH) : AnsiString;
 var i: Integer;
   c : Cardinal;
 begin
   SetLength(Result,32);
   for i:= 0 to 7 do begin
     c := hash[i];
-    Result[4+(i*4)] := AnsiChar(c MOD 256);
-    Result[3+(i*4)] := AnsiChar((c SHR 8) MOD 256);
-    Result[2+(i*4)] := AnsiChar((c SHR 16) MOD 256);
-    Result[1+(i*4)] := AnsiChar((c SHR 24) MOD 256);
+    Result[4+(i*4)] := AnsiChar(c mod 256);
+    Result[3+(i*4)] := AnsiChar((c SHR 8) mod 256);
+    Result[2+(i*4)] := AnsiChar((c SHR 16) mod 256);
+    Result[1+(i*4)] := AnsiChar((c SHR 24) mod 256);
   end;
 End;
 

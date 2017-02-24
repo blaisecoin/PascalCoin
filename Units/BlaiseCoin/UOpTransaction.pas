@@ -16,11 +16,11 @@ unit UOpTransaction;
 
 interface
 
-Uses UCrypto, UBlockChain, Classes, UAccounts;
+uses UCrypto, UBlockChain, Classes, UAccounts;
 
 Type
   // Operations Type
-  TOpTransactionData = Record
+  TOpTransactionData = record
     sender: Cardinal;
     n_operation : Cardinal;
     target: Cardinal;
@@ -29,9 +29,9 @@ Type
     payload: AnsiString;
     public_key: TECDSA_Public;
     sign: TECDSA_SIG;
-  End;
+  end;
 
-  TOpChangeKeyData = Record
+  TOpChangeKeyData = record
     account: Cardinal;
     n_operation : Cardinal;
     fee: UInt64;
@@ -39,17 +39,17 @@ Type
     public_key: TECDSA_Public;
     new_accountkey: TAccountKey;
     sign: TECDSA_SIG;
-  End;
+  end;
 
-  TOpRecoverFoundsData = Record
+  TOpRecoverFoundsData = record
     account: Cardinal;
     n_operation : Cardinal;
     fee: UInt64;
-  End;
+  end;
 
   { TOpTransaction }
 
-  TOpTransaction = Class(TPCOperation)
+  TOpTransaction = class(TPCOperation)
   private
     FData : TOpTransactionData;
   public
@@ -59,28 +59,28 @@ Type
     function LoadFromStream(Stream : TStream) : Boolean; override;
     procedure AffectedAccounts(list : TList); override;
     //
-    Class Function GetTransactionHashToSign(const trans : TOpTransactionData) : TRawBytes;
-    Class Function DoSignOperation(key : TECPrivateKey; var trans : TOpTransactionData) : Boolean;
+    class function GetTransactionHashToSign(const trans : TOpTransactionData) : TRawBytes;
+    class function DoSignOperation(key : TECPrivateKey; var trans : TOpTransactionData) : Boolean;
     class function OpType : Byte; override;
     function OperationAmount : Int64; override;
     function OperationFee : UInt64; override;
     function OperationPayload : TRawBytes; override;
     function SenderAccount : Cardinal; override;
     function N_Operation : Cardinal; override;
-    Property Data : TOpTransactionData read FData;
+    property Data : TOpTransactionData read FData;
 
-    Constructor Create(sender, n_operation, target: Cardinal; key: TECPrivateKey; amount, fee: UInt64; payload: AnsiString);
-    Function toString : String; Override;
-  End;
+    constructor Create(sender, n_operation, target: Cardinal; key: TECPrivateKey; amount, fee: UInt64; payload: AnsiString);
+    function toString : String; Override;
+  end;
 
   { TOpChangeKey }
 
-  TOpChangeKey = Class(TPCOperation)
+  TOpChangeKey = class(TPCOperation)
   private
     FData : TOpChangeKeyData;
   public
-    Class Function GetOperationHasthToSign(const op : TOpChangeKeyData) : TRawBytes;
-    Class Function DoSignOperation(key : TECPrivateKey; var op : TOpChangeKeyData) : Boolean;
+    class function GetOperationHasthToSign(const op : TOpChangeKeyData) : TRawBytes;
+    class function DoSignOperation(key : TECPrivateKey; var op : TOpChangeKeyData) : Boolean;
     class function OpType : Byte; override;
 
     function GetOperationBufferToHash : TRawBytes; override;
@@ -93,14 +93,14 @@ Type
     function SenderAccount : Cardinal; override;
     function N_Operation : Cardinal; override;
     procedure AffectedAccounts(list : TList); override;
-    Constructor Create(account_number, n_operation: Cardinal; key:TECPrivateKey; new_account_key : TAccountKey; fee: UInt64; payload: AnsiString);
-    Property Data : TOpChangeKeyData read FData;
-    Function toString : String; Override;
-  End;
+    constructor Create(account_number, n_operation: Cardinal; key:TECPrivateKey; new_account_key : TAccountKey; fee: UInt64; payload: AnsiString);
+    property Data : TOpChangeKeyData read FData;
+    function toString : String; Override;
+  end;
 
   { TOpRecoverFounds }
 
-  TOpRecoverFounds = Class(TPCOperation)
+  TOpRecoverFounds = class(TPCOperation)
   private
     FData : TOpRecoverFoundsData;
   public
@@ -116,10 +116,10 @@ Type
     function SenderAccount : Cardinal; override;
     function N_Operation : Cardinal; override;
     procedure AffectedAccounts(list : TList); override;
-    Constructor Create(account_number, n_operation: Cardinal; fee: UInt64);
-    Property Data : TOpRecoverFoundsData read FData;
-    Function toString : String; Override;
-  End;
+    constructor Create(account_number, n_operation: Cardinal; fee: UInt64);
+    property Data : TOpRecoverFoundsData read FData;
+    function toString : String; Override;
+  end;
 
 Procedure RegisterOperationsClass;
 
@@ -153,14 +153,14 @@ begin
   FData.fee := fee;
   FData.payload := payload;
   FData.public_key := key.PublicKey;
-  If Not DoSignOperation(key,FData) then begin
+  if not DoSignOperation(key,FData) then begin
     TLog.NewLog(lterror,Classname,'Error signing a new Transaction');
     FHasValidSignature := false;
   end else FHasValidSignature := true;
 end;
 
 function TOpTransaction.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors : AnsiString): Boolean;
-Var s_new, t_new : Int64;
+var s_new, t_new : Int64;
   totalamount : Cardinal;
   sender,target : TAccount;
   _h : TRawBytes;
@@ -188,11 +188,11 @@ begin
     errors := Format('target (%d) is blocked for protocol',[FData.target]);
     Exit;
   end;
-  if (FData.amount<=0) Or (FData.amount>CT_MaxTransactionAmount) then begin
+  if (FData.amount<=0) or (FData.amount>CT_MaxTransactionAmount) then begin
     errors := Format('Invalid amount %d (0 or max: %d)',[FData.amount,CT_MaxTransactionAmount]);
     Exit;
   end;
-  if (FData.fee<0) Or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then begin
     errors := Format('Invalid fee %d (max %d)',[FData.fee,CT_MaxTransactionFee]);
     Exit;
   end;
@@ -216,7 +216,7 @@ begin
     Exit;
   end;
   // Build 1.4
-  If (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) And (Not TAccountComp.Equal(FData.public_key,sender.accountkey)) then begin
+  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,sender.accountkey)) then begin
     errors := Format('Invalid sender public key for account %d. Distinct from SafeBox public key! %s <> %s',[
       FData.sender,
       TCrypto.ToHexaString(TAccountComp.AccountKey2RawString(FData.public_key)),
@@ -225,7 +225,7 @@ begin
   end;
   // Check signature
   _h := GetTransactionHashToSign(FData);
-  if (Not TCrypto.ECDSAVerify(sender.accountkey,_h,FData.sign)) then begin
+  if (not TCrypto.ECDSAVerify(sender.accountkey,_h,FData.sign)) then begin
     errors := 'Invalid sign';
     FHasValidSignature := false;
     Exit;
@@ -241,27 +241,27 @@ class function TOpTransaction.DoSignOperation(key : TECPrivateKey; var trans : T
 var s : AnsiString;
   _sign : TECDSA_SIG;
 begin
-  If Not Assigned(key.PrivateKey) then begin
+  if not Assigned(key.PrivateKey) then begin
     Result := false;
     trans.sign.r:='';
     trans.sign.s:='';
     exit;
   end;
   s := GetTransactionHashToSign(trans);
-  Try
+  try
     _sign := TCrypto.ECDSASign(key.PrivateKey,s);
     trans.sign := _sign;
     Result := true;
-  Except
+  except
     trans.sign.r:='';
     trans.sign.s:='';
     Result := false;
-  End;
+  end;
   SetLength(s,0);
 end;
 
 function TOpTransaction.GetOperationBufferToHash: TRawBytes;
-Var ms : TMemoryStream;
+var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
@@ -285,7 +285,7 @@ begin
 end;
 
 class function TOpTransaction.GetTransactionHashToSign(const trans: TOpTransactionData): TRawBytes;
-Var ms : TMemoryStream;
+var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
@@ -394,14 +394,14 @@ begin
   FData.payload := payload;
   FData.public_key := key.PublicKey;
   FData.new_accountkey := new_account_key;
-  If Not DoSignOperation(key,FData) then begin
+  if not DoSignOperation(key,FData) then begin
     TLog.NewLog(lterror,Classname,'Error signing a new Change key');
     FHasValidSignature := false;
   end else FHasValidSignature := true;
 end;
 
 function TOpChangeKey.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
-Var account : TAccount;
+var account : TAccount;
 begin
   Result := false;
   if (FData.account>=AccountTransaction.FreezedSafeBox.AccountsCount) then begin
@@ -412,7 +412,7 @@ begin
     errors := 'account is blocked for protocol';
     Exit;
   end;
-  if (FData.fee<0) Or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then begin
     errors := 'Invalid fee: '+Inttostr(FData.fee);
     exit;
   end;
@@ -428,11 +428,11 @@ begin
   if (length(FData.payload)>CT_MaxPayloadSize) then begin
     errors := 'Invalid Payload size:'+inttostr(length(FData.payload))+' (Max: '+inttostr(CT_MaxPayloadSize)+')';
   end;
-  If Not TAccountComp.IsValidAccountKey( FData.new_accountkey, errors ) then begin
+  if not TAccountComp.IsValidAccountKey( FData.new_accountkey, errors ) then begin
     exit;
   end;
   // Build 1.4
-  If (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) And (Not TAccountComp.Equal(FData.public_key,account.accountkey)) then begin
+  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,account.accountkey)) then begin
     errors := Format('Invalid public key for account %d. Distinct from SafeBox public key! %s <> %s',[
       FData.account,
       TCrypto.ToHexaString(TAccountComp.AccountKey2RawString(FData.public_key)),
@@ -440,7 +440,7 @@ begin
     exit;
   end;
 
-  If Not TCrypto.ECDSAVerify(account.accountkey,GetOperationHasthToSign(FData),FData.sign) then begin
+  if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHasthToSign(FData),FData.sign) then begin
     errors := 'Invalid sign';
     FHasValidSignature := false;
     exit;
@@ -454,16 +454,16 @@ var s : AnsiString;
   _sign : TECDSA_SIG;
 begin
   s := GetOperationHasthToSign(op);
-  Try
+  try
     _sign := TCrypto.ECDSASign(key.PrivateKey,s);
     op.sign := _sign;
     Result := true;
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       Result := false;
       TLog.NewLog(lterror,ClassName,'Error signing ChangeKey operation: '+E.Message);
     end;
-  End;
+  end;
 end;
 
 function TOpChangeKey.GetOperationBufferToHash: TRawBytes;
@@ -603,7 +603,7 @@ begin
 end;
 
 function TOpRecoverFounds.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
-Var acc : TAccount;
+var acc : TAccount;
 begin
   Result := false;
   if TAccountComp.IsAccountBlockedByProtocol(FData.account,AccountTransaction.FreezedSafeBox.BlocksCount) then begin
@@ -624,7 +624,7 @@ begin
     errors := 'Invalid n_operation';
     Exit;
   end;
-  if (FData.fee<=0) Or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<=0) or (FData.fee>CT_MaxTransactionFee) then begin
     errors := 'Invalid fee '+Inttostr(FData.fee);
     exit;
   end;

@@ -45,7 +45,7 @@ type
     procedure Label5Click(Sender: TObject);
   private
     { Private declarations }
-    Procedure OpenURL(Url : String);
+    procedure OpenURL(Url : String);
   public
     { Public declarations }
   end;
@@ -67,7 +67,7 @@ uses
 
 procedure TFRMAbout.FormCreate(Sender: TObject);
 {$IFnDEF FPC}
-Var fvi : TFileVersionInfo;
+var fvi : TFileVersionInfo;
 {$ENDIF}
 begin
   {$IFDEF FPC}

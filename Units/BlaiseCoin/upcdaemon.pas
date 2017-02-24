@@ -34,11 +34,11 @@ Const
 Type
   { TPCDaemonThread }
 
-  TPCDaemonThread = Class(TPCThread)
+  TPCDaemonThread = class(TPCThread)
   private
     FIniFile : TIniFile;
   protected
-    Procedure BCExecute; override;
+    procedure BCExecute; override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -46,37 +46,37 @@ Type
 
   { TPCDaemon }
 
-  TPCDaemon = Class(TCustomDaemon)
-  Private
+  TPCDaemon = class(TCustomDaemon)
+  private
     FThread : TPCDaemonThread;
-    Procedure ThreadStopped (Sender : TObject);
+    procedure ThreadStopped (Sender : TObject);
   public
-    Function Start : Boolean; override;
-    Function Stop : Boolean; override;
-    Function Pause : Boolean; override;
-    Function Continue : Boolean; override;
-    Function Execute : Boolean; override;
-    Function ShutDown : Boolean; override;
-    Function Install : Boolean; override;
-    Function UnInstall: boolean; override;
+    function Start : Boolean; override;
+    function Stop : Boolean; override;
+    function Pause : Boolean; override;
+    function Continue : Boolean; override;
+    function Execute : Boolean; override;
+    function ShutDown : Boolean; override;
+    function Install : Boolean; override;
+    function UnInstall: boolean; override;
   end;
 
   { TPCDaemonMapper }
 
-  TPCDaemonMapper = Class(TCustomDaemonMapper)
+  TPCDaemonMapper = class(TCustomDaemonMapper)
   private
     FLog : TLog;
     procedure OnPascalCoinInThreadLog(logtype : TLogType; Time : TDateTime; AThreadID : Cardinal; Const sender, logtext : AnsiString);
   protected
-    Procedure DoOnCreate; override;
-    Procedure DoOnDestroy; override;
+    procedure DoOnCreate; override;
+    procedure DoOnDestroy; override;
   public
   end;
 
 
 implementation
 
-Var _FLog : TLog;
+var _FLog : TLog;
 
 { TPCDaemonThread }
 
@@ -87,8 +87,8 @@ var
   FRPC : TRPCServer;
   FMinerServer : TPoolMiningServer;
 
-  Procedure InitRPCServer;
-  Var port : Integer;
+  procedure InitRPCServer;
+  var port : Integer;
   Begin
     port := FIniFile.ReadInteger(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_PORT,-1);
     if (port<=0) then begin
@@ -102,7 +102,7 @@ var
     FRPC.Active:=true;
     FRPC.ValidIPs:=FIniFile.ReadString(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_WHITELIST,'127.0.0.1;');
     TLog.NewLog(ltInfo,ClassName,'RPC server is active on port '+IntToStr(port));
-    If FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,true) then begin
+    if FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,true) then begin
       FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SAVELOGS,true);
       FRPC.LogFileName:= TFolderHelper.GetPascalCoinDataFolder+PathDelim+'blaisecoin_rpc.log';
       TLog.NewLog(ltInfo,ClassName,'Activating RPC logs on file '+FRPC.LogFileName);
@@ -112,8 +112,8 @@ var
     end;
   end;
 
-  Procedure InitRPCMinerServer;
-  Var i, port, maxconnections : Integer;
+  procedure InitRPCMinerServer;
+  var i, port, maxconnections : Integer;
     s : String;
     pubkey : TAccountKey;
     errors : AnsiString;
@@ -126,10 +126,10 @@ var
       FIniFile.WriteInteger(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_RPC_SERVERMINER_PORT,port);
       pubkey := CT_TECDSA_Public_Nul;
       s := Trim(FIniFile.ReadString(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_MINER_B58_PUBLICKEY,''));
-      If (s='') Or (Not TAccountComp.AccountKeyFromImport(s,pubkey,errors)) then begin
-        If s<>'' then TLog.NewLog(lterror,Classname,'Invalid INI file public key: '+errors);
+      if (s='') or (not TAccountComp.AccountKeyFromImport(s,pubkey,errors)) then begin
+        if s<>'' then TLog.NewLog(lterror,Classname,'Invalid INI file public key: '+errors);
         i := 0;
-        While (i<FWalletKeys.Count) And (pubkey.EC_OpenSSL_NID=CT_TECDSA_Public_Nul.EC_OpenSSL_NID) do begin
+        while (i<FWalletKeys.Count) and (pubkey.EC_OpenSSL_NID=CT_TECDSA_Public_Nul.EC_OpenSSL_NID) do begin
           if (FWalletKeys.Key[i].CryptedKey<>'') then pubkey := FWalletKeys[i].AccountKey
           else inc(i);
         end;
@@ -173,14 +173,14 @@ var
   end;
 
 begin
-  FMInerServer := Nil;
+  FMInerServer := nil;
   TLog.NewLog(ltinfo,Classname,'START BlaiseCoin Server');
   try
     try
       FWalletKeys := TWalletKeysExt.Create(Nil);
       // Load Node
       // Check OpenSSL dll
-      if Not LoadSSLCrypt then begin
+      if not LoadSSLCrypt then begin
         WriteLn('Cannot load '+SSL_C_LIB);
         WriteLn('To use this software make sure this file is available on you system or reinstall the application');
         raise Exception.Create('Cannot load '+SSL_C_LIB+#10+'To use this software make sure this file is available on you system or reinstall the application');
@@ -191,7 +191,7 @@ begin
       FNode := TNode.Node;
       // RPC Server
       InitRPCServer;
-      Try
+      try
         // Check Database
         FNode.Bank.StorageClass := TFileStorage;
         TFileStorage(FNode.Bank.Storage).DatabaseFolder := TFolderHelper.GetPascalCoinDataFolder+PathDelim+'Data';
@@ -203,14 +203,14 @@ begin
 
         // RPC Miner Server
         InitRPCMinerServer;
-        Try
+        try
           Repeat
             Sleep(100);
           Until Terminated;
         finally
           FreeAndNil(FMinerServer);
         end;
-      Finally
+      finally
         FreeAndNil(FRPC);
       end;
       FNode.NetServer.Active := false;
@@ -230,7 +230,7 @@ constructor TPCDaemonThread.Create;
 begin
   inherited Create(True);
   FIniFile := TIniFile.Create(ExtractFileDir(Application.ExeName)+PathDelim+'blaisecoin_daemon.ini');
-  If FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,true) then begin
+  if FIniFile.ReadBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,true) then begin
     _FLog.SaveTypes:=CT_TLogTypes_ALL;
     _FLog.FileName:=TFolderHelper.GetPascalCoinDataFolder+PathDelim+'blaisecoin_'+FormatDateTime('yyyymmddhhnn',Now)+'.log';
     FIniFile.WriteBool(CT_INI_SECTION_GLOBAL,CT_INI_IDENT_SAVELOGS,true);
@@ -313,17 +313,17 @@ end;
 
 procedure TPCDaemonMapper.OnPascalCoinInThreadLog(logtype: TLogType;
   Time: TDateTime; AThreadID: Cardinal; const sender, logtext: AnsiString);
-Var s : AnsiString;
+var s : AnsiString;
 begin
-//  If Not SameText(sender,TPCDaemonThread.ClassName) then exit;
-  If logtype in [lterror,ltinfo] then begin
+//  if not SameText(sender,TPCDaemonThread.ClassName) then exit;
+  if logtype in [lterror,ltinfo] then begin
     if AThreadID=MainThreadID then s := ' MAIN:' else s:=' TID:';
     WriteLn(formatDateTime('dd/mm/yyyy hh:nn:ss.zzz',Time)+s+IntToHex(AThreadID,8)+' ['+CT_LogType[Logtype]+'] <'+sender+'> '+logtext);
   end;
 end;
 
 procedure TPCDaemonMapper.DoOnCreate;
-Var D : TDaemonDef;
+var D : TDaemonDef;
 begin
   inherited DoOnCreate;
   WriteLn('');
@@ -340,8 +340,8 @@ end;
 
 procedure TPCDaemonMapper.DoOnDestroy;
 begin
-  If Assigned(FLog) then begin
-    FLog.OnInThreadNewLog:=Nil;
+  if Assigned(FLog) then begin
+    FLog.OnInThreadNewLog:= nil;
     FreeAndNil(FLog);
   end;
   inherited DoOnDestroy;

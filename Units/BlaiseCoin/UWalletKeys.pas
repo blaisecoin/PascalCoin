@@ -20,15 +20,15 @@ uses
   Classes, UBlockChain, UAccounts, UCrypto;
 
 Type
-  TWalletKey = Record
+  TWalletKey = record
     Name : AnsiString;
     AccountKey : TAccountKey;
     CryptedKey : TRawBytes;
-    PrivateKey : TECPrivateKey;
+    privateKey : TECPrivateKey;
     SearchableAccountKey : TRawBytes;
-  End;
+  end;
 
-  TWalletKeys = Class(TComponent)
+  TWalletKeys = class(TComponent)
   private
     FSearchableKeys : TList;
     FFileName: AnsiString;
@@ -40,45 +40,45 @@ Type
     FOnChanged: TNotifyEvent;
     function GetKey(index: Integer): TWalletKey;
     procedure SetWalletPassword(const Value: AnsiString);
-    Procedure GeneratePrivateKeysFromPassword;
+    procedure GeneratePrivateKeysFromPassword;
     procedure SetWalletFileName(const Value: AnsiString);
-    Function Find(Const AccountKey: TAccountKey; var Index: Integer): Boolean;
+    function Find(Const AccountKey: TAccountKey; var Index: Integer): Boolean;
   public
-    Property Key[index : Integer] : TWalletKey read GetKey; default;
-    Constructor Create(AOwner : TComponent); override;
+    property Key[index : Integer] : TWalletKey read GetKey; default;
+    constructor Create(AOwner : TComponent); override;
     Destructor destroy; override;
-    Procedure LoadFromStream(Stream : TStream);
-    Procedure SaveToStream(Stream : TStream);
-    Property IsValidPassword : Boolean read FIsValidPassword;
-    Property WalletPassword : AnsiString read FWalletPassword write SetWalletPassword;
-    Function AddPrivateKey(Const Name : AnsiString; ECPrivateKey : TECPrivateKey) : Integer; virtual;
-    Function AddPublicKey(Const Name : AnsiString; ECDSA_Public : TECDSA_Public) : Integer; virtual;
-    Function IndexOfAccountKey(AccountKey : TAccountKey) : Integer;
-    Procedure Delete(index : Integer); virtual;
-    Procedure Clear; virtual;
-    Function Count : Integer;
-    Property WalletFileName : AnsiString read FWalletFileName write SetWalletFileName;
-    Property OnChanged : TNotifyEvent read FOnChanged write FOnChanged;
-    Procedure SetName(index : Integer; Const newName : AnsiString);
-    Function LockWallet : Boolean;
-  End;
+    procedure LoadFromStream(Stream : TStream);
+    procedure SaveToStream(Stream : TStream);
+    property IsValidPassword : Boolean read FIsValidPassword;
+    property WalletPassword : AnsiString read FWalletPassword write SetWalletPassword;
+    function AddPrivateKey(Const Name : AnsiString; ECPrivateKey : TECPrivateKey) : Integer; virtual;
+    function AddPublicKey(Const Name : AnsiString; ECDSA_Public : TECDSA_Public) : Integer; virtual;
+    function IndexOfAccountKey(AccountKey : TAccountKey) : Integer;
+    procedure Delete(index : Integer); virtual;
+    procedure Clear; virtual;
+    function Count : Integer;
+    property WalletFileName : AnsiString read FWalletFileName write SetWalletFileName;
+    property OnChanged : TNotifyEvent read FOnChanged write FOnChanged;
+    procedure SetName(index : Integer; Const newName : AnsiString);
+    function LockWallet : Boolean;
+  end;
 
-  TWalletKeysExt = Class(TWalletKeys)
+  TWalletKeysExt = class(TWalletKeys)
   private
     FOrderedAccountKeysList : TOrderedAccountKeysList;
     procedure SetSafeBox(const Value: TPCSafeBox);
     function GetSafeBox: TPCSafeBox;
   public
-    Constructor Create(AOwner : TComponent); override;
+    constructor Create(AOwner : TComponent); override;
     Destructor destroy; override;
-    Function AddPrivateKey(Const Name : AnsiString; ECPrivateKey : TECPrivateKey) : Integer; override;
-    Function AddPublicKey(Const Name : AnsiString; ECDSA_Public : TECDSA_Public) : Integer; override;
-    Procedure Delete(index : Integer); override;
-    Procedure Clear; override;
+    function AddPrivateKey(Const Name : AnsiString; ECPrivateKey : TECPrivateKey) : Integer; override;
+    function AddPublicKey(Const Name : AnsiString; ECDSA_Public : TECDSA_Public) : Integer; override;
+    procedure Delete(index : Integer); override;
+    procedure Clear; override;
     //
-    Property AccountsKeyList : TOrderedAccountKeysList read FOrderedAccountKeysList;
-    Property SafeBox : TPCSafeBox read GetSafeBox write SetSafeBox;
-  End;
+    property AccountsKeyList : TOrderedAccountKeysList read FOrderedAccountKeysList;
+    property SafeBox : TPCSafeBox read GetSafeBox write SetSafeBox;
+  end;
 
 
 Const CT_TWalletKey_NUL  : TWalletKey = (Name:'';AccountKey:(EC_OpenSSL_NID:0;x:'';y:'');CryptedKey:'';PrivateKey:Nil;SearchableAccountKey:'');
@@ -97,10 +97,10 @@ Const
 Type PWalletKey = ^TWalletKey;
 
 function TWalletKeys.AddPrivateKey(Const Name : AnsiString; ECPrivateKey: TECPrivateKey): Integer;
-Var P : PWalletKey;
+var P : PWalletKey;
   s : AnsiString;
 begin
-  if Not Find(ECPrivateKey.PublicKey,Result) then begin
+  if not Find(ECPrivateKey.PublicKey,Result) then begin
     // Result is new position
     New(P);
     P^ := CT_TWalletKey_NUL;
@@ -115,32 +115,32 @@ begin
     P := FSearchableKeys[Result];
     P^.Name := Name;
   end;
-  if Not FIsReadingStream then SaveToStream(FWalletFileStream);
+  if not FIsReadingStream then SaveToStream(FWalletFileStream);
   if Assigned(FOnChanged) then  FOnChanged(Self);
 end;
 
 function TWalletKeys.AddPublicKey(const Name: AnsiString; ECDSA_Public: TECDSA_Public): Integer;
-Var P : PWalletKey;
+var P : PWalletKey;
 begin
-  if Not Find(ECDSA_Public,Result) then begin
+  if not Find(ECDSA_Public,Result) then begin
     // Result is new position
     New(P);
     P^ := CT_TWalletKey_NUL;
     P^.Name := Name;
     P^.AccountKey := ECDSA_Public;
-    P^.PrivateKey := Nil;
+    P^.PrivateKey := nil;
     P^.SearchableAccountKey := TAccountComp.AccountKey2RawString(ECDSA_Public);
     FSearchableKeys.Insert(Result,P);
   end else begin
     P := FSearchableKeys[Result];
     P^.Name := Name;
   end;
-  if Not FIsReadingStream then SaveToStream(FWalletFileStream);
+  if not FIsReadingStream then SaveToStream(FWalletFileStream);
   if Assigned(FOnChanged) then  FOnChanged(Self);
 end;
 
 procedure TWalletKeys.Clear;
-Var P : PWalletKey;
+var P : PWalletKey;
   i : Integer;
 begin
   for i := FSearchableKeys.Count-1 downto 0 do begin
@@ -161,15 +161,15 @@ constructor TWalletKeys.Create(AOwner : TComponent);
 begin
   inherited;
   FIsValidPassword := false;
-  FWalletFileStream := Nil;
+  FWalletFileStream := nil;
   FWalletPassword := '';
   FSearchableKeys := TList.Create;
   FIsReadingStream := false;
-  FOnChanged := Nil;
+  FOnChanged := nil;
 end;
 
 procedure TWalletKeys.Delete(index: Integer);
-Var P : PWalletKey;
+var P : PWalletKey;
 begin
   P := FSearchableKeys[index];
   FreeAndNil(P^.PrivateKey);
@@ -181,7 +181,7 @@ end;
 
 destructor TWalletKeys.destroy;
 begin
-  FOnChanged := Nil;
+  FOnChanged := nil;
   FreeAndNil(FWalletFileStream);
   Clear;
   FreeAndNil(FSearchableKeys);
@@ -214,7 +214,7 @@ begin
 end;
 
 procedure TWalletKeys.GeneratePrivateKeysFromPassword;
-Var i : Integer;
+var i : Integer;
  P : PWalletKey;
  s : TRawBytes;
  isOk : Boolean;
@@ -230,13 +230,13 @@ begin
     P := FSearchableKeys[i];
     if P^.CryptedKey<>'' then begin
       isOk := TAESComp.EVP_Decrypt_AES256( P^.CryptedKey, FWalletPassword, s );
-      If isOk then begin
+      if isOk then begin
         P^.PrivateKey := TECPrivateKey.Create;
         try
           P^.PrivateKey.SetPrivateKeyFromHexa(P^.AccountKey.EC_OpenSSL_NID,s);
         except on E: Exception do begin
             P^.PrivateKey.Free;
-            P^.PrivateKey := Nil;
+            P^.PrivateKey := nil;
             isOk := false;
             TLog.NewLog(lterror,ClassName,Format('Fatal error when generating EC private key %d/%d: %s',[i+1,FSearchableKeys.Count,E.Message]));
             //disabled exit... continue: exit;
@@ -255,11 +255,11 @@ end;
 
 function TWalletKeys.IndexOfAccountKey(AccountKey: TAccountKey): Integer;
 begin
-  if Not find(AccountKey,Result) then Result := -1;
+  if not find(AccountKey,Result) then Result := -1;
 end;
 
 procedure TWalletKeys.LoadFromStream(Stream: TStream);
-Var fileversion,i,l,j : Integer;
+var fileversion,i,l,j : Integer;
   s : AnsiString;
   P : PWalletKey;
   wk : TWalletKey;
@@ -270,13 +270,13 @@ begin
   try
     if Stream.Size - Stream.Position > 0 then begin
       TStreamOp.ReadAnsiString(Stream,s);
-      if Not AnsiSameStr(s,CT_PrivateKeyFile_Magic) then raise Exception.Create('Invalid '+Classname+' stream');
+      if not AnsiSameStr(s,CT_PrivateKeyFile_Magic) then raise Exception.Create('Invalid '+Classname+' stream');
       // Read version:
       Stream.Read(fileversion,4);
       if (fileversion<>CT_PrivateKeyFile_Version) then begin
         // Old version
         Stream.Position := Stream.Position-4;
-        TLog.NewLog(lterror,ClassName,'Invalid PrivateKeys file version: '+Inttostr(fileversion));
+        TLog.NewLog(lterror,ClassName,'Invalid privateKeys file version: '+Inttostr(fileversion));
       end;
       Stream.Read(l,4);
       for i := 0 to l - 1 do begin
@@ -286,7 +286,7 @@ begin
         TStreamOp.ReadAnsiString(Stream,wk.AccountKey.x);
         TStreamOp.ReadAnsiString(Stream,wk.AccountKey.y);
         TStreamOp.ReadAnsiString(Stream,wk.CryptedKey);
-        wk.PrivateKey := Nil;
+        wk.PrivateKey := nil;
         j :=AddPublicKey(wk.Name,wk.AccountKey);
         P := PWalletKey(FSearchableKeys[j]);
         P^.CryptedKey := wk.CryptedKey; // Adding encrypted data
@@ -304,7 +304,7 @@ begin
   // Return true when wallet has a password, locking it. False if there password is empty string
   FWalletPassword := '';
   GeneratePrivateKeysFromPassword;
-  Result := Not IsValidPassword;
+  Result := not IsValidPassword;
   if Assigned(FOnChanged) then FOnChanged(Self);
 end;
 
@@ -313,7 +313,7 @@ var i : Integer;
   P : PWalletKey;
 begin
   if FIsReadingStream then exit;
-  if Not Assigned(Stream) then exit;
+  if not Assigned(Stream) then exit;
   Stream.Size := 0;
   Stream.Position:=0;
   TStreamOp.WriteAnsiString(Stream,CT_PrivateKeyFile_Magic);
@@ -345,7 +345,7 @@ begin
   if FWalletFileName = Value then exit;
   FWalletFileName := Value;
   if Assigned(FWalletFileStream) then FWalletFileStream.Free;
-  FWalletFileStream := Nil;
+  FWalletFileStream := nil;
   if Value<>'' then begin
     if FileExists(Value) then fm := fmOpenReadWrite
     else fm := fmCreate;
@@ -356,18 +356,18 @@ begin
 end;
 
 procedure TWalletKeys.SetWalletPassword(const Value: AnsiString);
-Var i : Integer;
+var i : Integer;
   P : PWalletKey;
 begin
   if FWalletPassword=Value then exit;
   FWalletPassword := Value;
   for i := 0 to FSearchableKeys.Count - 1 do begin
     P := FSearchableKeys[i];
-    If Assigned(P^.PrivateKey) then begin
+    if Assigned(P^.PrivateKey) then begin
       P^.CryptedKey := TAESComp.EVP_Encrypt_AES256(TCrypto.PrivateKey2Hexa(P^.PrivateKey.PrivateKey),FWalletPassword);
     end else begin
       if FIsValidPassword then begin
-        TLog.NewLog(lterror,Classname,Format('Fatal error: Private key not found %d/%d',[i+1,FSearchableKeys.Count]));
+        TLog.NewLog(lterror,Classname,Format('Fatal error: private key not found %d/%d',[i+1,FSearchableKeys.Count]));
       end;
       FIsValidPassword := false;
     end;
@@ -409,7 +409,7 @@ end;
 constructor TWalletKeysExt.Create(AOwner: TComponent);
 begin
   inherited;
-  FOrderedAccountKeysList := Nil;
+  FOrderedAccountKeysList := nil;
 end;
 
 procedure TWalletKeysExt.Delete(index: Integer);
@@ -428,14 +428,14 @@ end;
 
 function TWalletKeysExt.GetSafeBox: TPCSafeBox;
 begin
-  Result := Nil;
+  Result := nil;
   if Assigned(FOrderedAccountKeysList) then begin
     Result := FOrderedAccountKeysList.SafeBox;
   end;
 end;
 
 procedure TWalletKeysExt.SetSafeBox(const Value: TPCSafeBox);
-Var i : Integer;
+var i : Integer;
 begin
   if Assigned(FOrderedAccountKeysList) then begin
     if FOrderedAccountKeysList.SafeBox<>Value then FreeAndNil(FOrderedAccountKeysList)

@@ -22,7 +22,7 @@ interface
   {$MODE Delphi}
 {$ENDIF}
 
-Uses UOpenSSLdef;
+uses UOpenSSLdef;
 {$I config.inc}
 
 var
@@ -211,7 +211,7 @@ end;
 
 function LoadSSLCrypt: Boolean;
 begin
-  If hCrypt=0 then begin
+  if hCrypt=0 then begin
     {$IFDEF UNIX}
     hCrypt := LoadLibrary(SSL_C_LIB);
     {$ELSE}
@@ -245,7 +245,7 @@ end;
 
 function InitSSLFunctions : Boolean;
 Begin
-  If not LoadSSLCrypt then begin
+  if not LoadSSLCrypt then begin
     result := false;
     exit;
   end else result := true;

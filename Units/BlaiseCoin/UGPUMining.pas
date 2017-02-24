@@ -10,7 +10,7 @@ unit UGPUMining;
   This unit is a part of Pascal Coin, a P2P crypto currency without need of
   historical operations.
 
-  If you like it, consider a donation using BitCoin:
+  if you like it, consider a donation using BitCoin:
   16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
 
   }
@@ -25,7 +25,7 @@ Type
 
   { TGPUDeviceThread }
 
-  TGPUDeviceThread = Class(TCustomMinerDeviceThread)
+  TGPUDeviceThread = class(TCustomMinerDeviceThread)
   private
     FNeedNewDevice : Boolean;
     FDevice: Integer;
@@ -48,31 +48,31 @@ Type
   protected
     procedure BCExecute; override;
     procedure SetMinerValuesForWork(const Value: TMinerValuesForWork); override;
-    Procedure UpdateState; override;
-    Procedure UpdateBuffers;
+    procedure UpdateState; override;
+    procedure UpdateBuffers;
   public
-    Constructor Create(PoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); override;
-    Destructor Destroy; override;
-    Property Platform : Integer read FPlatform write SetPlatform;
-    Property Device : Integer read FDevice write SetDevice;
-    Property ProgramFileName : String read FProgramFileName write SetProgramFileName;
-    Function MinerDeviceName : String; override;
-    Function GetState : String; override;
+    constructor Create(PoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); override;
+    destructor Destroy; override;
+    property Platform : Integer read FPlatform write SetPlatform;
+    property Device : Integer read FDevice write SetDevice;
+    property ProgramFileName : String read FProgramFileName write SetProgramFileName;
+    function MinerDeviceName : String; override;
+    function GetState : String; override;
   end;
 
   { TGPUDriver }
 
-  TGPUDriver = Class
+  TGPUDriver = class
   private
     FHasOpenCL: Boolean;
     FPlatforms: TDCLPlatforms;
     function GetPlatforms: TDCLPlatforms;
   public
-    Constructor Create;
-    Destructor Destroy; override;
+    constructor Create;
+    destructor Destroy; override;
     class function GPUDriver : TGPUDriver;
-    Property HasOpenCL : Boolean read FHasOpenCL;
-    Property Platforms : TDCLPlatforms read GetPlatforms;
+    property HasOpenCL : Boolean read FHasOpenCL;
+    property Platforms : TDCLPlatforms read GetPlatforms;
   end;
 
 
@@ -95,8 +95,8 @@ end;
 
 function TGPUDriver.GetPlatforms: TDCLPlatforms;
 begin
-  If Not Assigned(FPlatforms) then begin
-    If Not FHasOpenCL then Raise Exception.create('No OpenCL available on this computer!');
+  if not Assigned(FPlatforms) then begin
+    if not FHasOpenCL then Raise Exception.create('No OpenCL available on this computer!');
     FPlatforms := TDCLPlatforms.Create;
   end;
   Result := FPlatforms;
@@ -104,21 +104,21 @@ end;
 
 constructor TGPUDriver.Create;
 begin
-  FPlatforms := Nil;
+  FPlatforms := nil;
   FHasOpenCL:=InitOpenCL;
   _GPUDriver := Self;
 end;
 
 destructor TGPUDriver.Destroy;
 begin
-  if _GPUDriver=Self then _GPUDriver := Nil;
+  if _GPUDriver=Self then _GPUDriver := nil;
   FreeAndNil(FPlatforms);
   inherited Destroy;
 end;
 
 class function TGPUDriver.GPUDriver: TGPUDriver;
 begin
-  If Not assigned(_GPUDriver) then begin
+  if not assigned(_GPUDriver) then begin
     _GPUDriver := TGPUDriver.Create;
   end;
   Result := _GPUDriver;
@@ -129,7 +129,7 @@ end;
 procedure TGPUDeviceThread.BCExecute;
 Const CT_LAPS_ROUND = 16777216; // 2^24 = 16777216 2^22 = 4194304     2^20 = 1048576
       CT_MAX_LAPS = 256; // 2^8 = 256 2^10 = 1024
-Var Timestamp, nOnce : Cardinal;
+var Timestamp, nOnce : Cardinal;
   nLap : Cardinal;
   baseRealTC,baseHashingTC,finalHashingTC,lastNotifyTC : Cardinal;
   AuxStats : TMinerStats;
@@ -138,20 +138,20 @@ begin
   nLap := 0;
   AuxStats := CT_TMinerStats_NULL;
   lastNotifyTC :=GetTickCount;
-  while Not Terminated do begin
-    If (Paused) then begin
+  while not Terminated do begin
+    if (Paused) then begin
       sleep(1);
     end else begin
       baseRealTC := GetTickCount;
       FLock.Acquire;
       try
       //  AuxStats := CT_TMinerStats_NULL;
-        If FReadyToGPU then begin
+        if FReadyToGPU then begin
           Timestamp := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
           if Timestamp<=PoolMinerThread.GlobalMinerValuesForWork.timestamp then Timestamp := PoolMinerThread.GlobalMinerValuesForWork.timestamp+1;
-          FKernelArg1[ (FChangeTimestampAndNOnceBytePos DIV 4) ] := bswap(Timestamp);
+          FKernelArg1[ (FChangeTimestampAndNOnceBytePos div 4) ] := bswap(Timestamp);
           // FKernelArg1[24] = Position to save nOnce
-          FKernelArg1[24] := (FChangeTimestampAndNOnceBytePos DIV 4)+1;
+          FKernelArg1[24] := (FChangeTimestampAndNOnceBytePos div 4)+1;
           // FKernelArg1[25] = high-order 10 bits for nOnce (see .cl source file)
           FKernelArg1[25] := nLap;
           //
@@ -166,7 +166,7 @@ begin
             FreeAndNil(FKernelInputBuffer);
           end;
           FDCLCommandQueue.ReadBuffer(FKernelOutputBuffer,4,@FKernelArg2);
-          If FKernelArg2<>0 then begin
+          if FKernelArg2<>0 then begin
             nOnce := bswap(FKernelArg2);
             FreeAndNil(FKernelOutputBuffer);
             FKernelArg2 := 0; // Save nOnce=0 (not valid)
@@ -186,12 +186,12 @@ begin
       finally
         FLock.Release;
       end;
-      If (AuxStats.RoundsCount>0) then begin
+      if (AuxStats.RoundsCount>0) then begin
         inc(AuxStats.WorkingMillisecondsTotal,GetTickCount - baseRealTC);
         inc(AuxStats.WorkingMillisecondsHashing,finalHashingTC-baseHashingTC);
       end;
     end;
-    If (lastNotifyTC + 200 < GetTickCount) then begin
+    if (lastNotifyTC + 200 < GetTickCount) then begin
       sleep(1);
       lastNotifyTC := GetTickCount;
       UpdateDeviceStats(AuxStats);
@@ -208,12 +208,12 @@ begin
   FNeedNewDevice:=false;
   FProgramFileName:='';
   FLock := TCriticalSection.Create;
-  FDCLDevice := Nil;
-  FDCLProgram := Nil;
-  FDCLCommandQueue := Nil;
-  FDCLKernel := Nil;
-  FKernelInputBuffer := Nil;
-  FKernelOutputBuffer := Nil;
+  FDCLDevice := nil;
+  FDCLProgram := nil;
+  FDCLCommandQueue := nil;
+  FDCLKernel := nil;
+  FKernelInputBuffer := nil;
+  FKernelOutputBuffer := nil;
   inherited Create(PoolMinerThread, InitialMinerValuesForWork);
 end;
 
@@ -230,15 +230,15 @@ end;
 
 function TGPUDeviceThread.GetState: String;
 begin
-  If Paused then result := 'GPU miner is paused'
-  else if (IsMining) And Assigned(FDCLDevice) then Result := 'GPU is mining on p '+IntToStr(Platform)+' d '+IntToStr(Device)+' Compute units:'+IntToStr(FDCLDevice.MaxComputeUnits)+' Freq:'+IntToStr(FDCLDevice.MaxClockFrequency)
+  if Paused then result := 'GPU miner is paused'
+  else if (IsMining) and Assigned(FDCLDevice) then Result := 'GPU is mining on p '+IntToStr(Platform)+' d '+IntToStr(Device)+' Compute units:'+IntToStr(FDCLDevice.MaxComputeUnits)+' Freq:'+IntToStr(FDCLDevice.MaxClockFrequency)
   else Result := 'GPU miner is waiting for configuration...';
 end;
 
 function TGPUDeviceThread.MinerDeviceName: String;
 begin
   Result := 'GPU p'+inttostr(FPlatform)+' d'+IntToStr(FDevice);
-  If assigned(FDCLDevice) then begin
+  if assigned(FDCLDevice) then begin
     Result := Result+' Name:'+Trim(FDCLDevice.Name)+' CU:'+IntToStr(FDCLDevice.MaxComputeUnits)+' Freq:'+IntToStr(FDCLDevice.MaxClockFrequency);
   end else Result := Result + ' (no info)';
 end;
@@ -277,22 +277,22 @@ procedure TGPUDeviceThread.UpdateState;
 begin
   FLock.Acquire;
   try
-    If FNeedNewDevice then begin
-      FDCLDevice := Nil;
+    if FNeedNewDevice then begin
+      FDCLDevice := nil;
       FreeAndNil(FDCLCommandQueue);
       FreeAndNil(FKernelInputBuffer);
       FreeAndNil(FKernelOutputBuffer);
       FreeAndNil(FDCLKernel);
       FreeAndNil(FDCLProgram);
       FNeedNewDevice:=false;
-      If (FDevice>=0) And (FPlatform>=0) And (Assigned(_GPUDriver)) then begin
-        If (_GPUDriver.platforms.PlatformCount>=FPlatform) then begin
-          If (_GPUDriver.platforms.Platforms[FPlatform].DeviceCount>=FDevice) then begin
+      if (FDevice>=0) and (FPlatform>=0) and (Assigned(_GPUDriver)) then begin
+        if (_GPUDriver.platforms.PlatformCount>=FPlatform) then begin
+          if (_GPUDriver.platforms.Platforms[FPlatform].DeviceCount>=FDevice) then begin
             FDCLDevice := _GPUDriver.Platforms.Platforms[FPlatform].Devices[FDevice]^;
           end;
         end;
       end;
-      If Assigned(FDCLDevice) And (FProgramFileName<>'') And (FileExists(FProgramFileName)) then begin
+      if Assigned(FDCLDevice) and (FProgramFileName<>'') and (FileExists(FProgramFileName)) then begin
         FDCLCommandQueue := FDCLDevice.CreateCommandQueue;
         FDCLProgram := FDCLDevice.CreateProgram(FProgramFileName);
         FKernelArg2 := 0; // Save nOnce=0 (not valid)
@@ -308,7 +308,7 @@ begin
 end;
 
 procedure TGPUDeviceThread.UpdateBuffers;
-Var stateforlastchunk : TSHA256HASH;
+var stateforlastchunk : TSHA256HASH;
   bufferForLastChunk : TChunk;
   i : Integer;
   canWork : Boolean;
@@ -318,15 +318,15 @@ Var stateforlastchunk : TSHA256HASH;
 begin
   FLock.Acquire;
   try
-    FReadyToGPU := (MinerValuesForWork.part1<>'') And (Assigned(FDCLKernel));
-    If (Not FReadyToGPU) then begin
+    FReadyToGPU := (MinerValuesForWork.part1<>'') and (Assigned(FDCLKernel));
+    if (not FReadyToGPU) then begin
       IsMining := false;
       exit;
     end;
     Repeat
       i := Length(MinerValuesForWork.part1)+Length(MinerValuesForWork.payload_start)+Length(MinerValuesForWork.part3)+8;
       canWork := CanBeModifiedOnLastChunk(i,FChangeTimestampAndNOnceBytePos);
-      If Not canWork then FMinerValuesForWork.payload_start:=MinerValuesForWork.payload_start+'.';
+      if not canWork then FMinerValuesForWork.payload_start:=MinerValuesForWork.payload_start+'.';
     until (canWork);
     FillChar(FKernelArg1[0],29*4,#0);
     s := MinerValuesForWork.part1+MinerValuesForWork.payload_start+MinerValuesForWork.part3+'00000000';
@@ -344,13 +344,13 @@ begin
     FillChar(FKernelArg1[26],4*3,#0);
     s := MinerValuesForWork.target_pow;
     i := 1;
-    while (length(s)>=i) And (i<=4*3) do begin
+    while (length(s)>=i) and (i<=4*3) do begin
       b := Byte(s[i]);
       b := b XOR $FF;
-      c1 := FKernelArg1[26+((i-1) DIV 4)]; // Last value
-      c2 := b SHL (((4-i) MOD 4)*8);
-      c2 := c1 OR c2;
-      FKernelArg1[26+((i-1) DIV 4)] := c2;
+      c1 := FKernelArg1[26+((i-1) div 4)]; // Last value
+      c2 := b SHL (((4-i) mod 4)*8);
+      c2 := c1 or c2;
+      FKernelArg1[26+((i-1) div 4)] := c2;
       if (b<>$FF) then break; // Found first 1 bit
       inc(i);
     end;

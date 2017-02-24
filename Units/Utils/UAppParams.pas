@@ -22,12 +22,12 @@ uses
 Type
   TAppParamType = (ptString, ptInteger, ptLongWord, ptInt64, ptBoolean, ptStream);
 
-  TAppParams = Class;
+  TAppParams = class;
 
-  TAppParam = Class
+  TAppParam = class
     FAppParams : TAppParams;
-    Function LoadFromStream(Stream : TStream) : Boolean;
-    Procedure SaveToStream(Stream : TStream);
+    function LoadFromStream(Stream : TStream) : Boolean;
+    procedure SaveToStream(Stream : TStream);
   private
     FParamName: AnsiString;
     FValue: Variant;
@@ -40,48 +40,48 @@ Type
   published
   public
     Constructor Create(AParamName : AnsiString);
-    Property ParamName : AnsiString read FParamName write SetParamName;
-    Property Value : Variant read FValue write SetValue;
-    Property ParamType : TAppParamType read FParamType write SetParamType;
-    Procedure SetAsInteger(IntValue : Integer);
-    Procedure SetAsCardinal(CardValue : Cardinal);
-    Procedure SetAsString(StringValue : AnsiString);
-    Procedure SetAsInt64(Int64Value : Int64);
-    Procedure SetAsBoolean(BoolValue : Boolean);
-    Procedure SetAsStream(Stream : TStream);
-    Property IsNull : Boolean read GetIsNull;
+    property ParamName : AnsiString read FParamName write SetParamName;
+    property Value : Variant read FValue write SetValue;
+    property ParamType : TAppParamType read FParamType write SetParamType;
+    procedure SetAsInteger(IntValue : Integer);
+    procedure SetAsCardinal(CardValue : Cardinal);
+    procedure SetAsString(StringValue : AnsiString);
+    procedure SetAsInt64(Int64Value : Int64);
+    procedure SetAsBoolean(BoolValue : Boolean);
+    procedure SetAsStream(Stream : TStream);
+    property IsNull : Boolean read GetIsNull;
     function GetAsString(Const DefValue : AnsiString): AnsiString;
     function GetAsBoolean(Const DefValue : Boolean): Boolean;
     function GetAsInteger(Const DefValue : Integer): Integer;
     function GetAsInt64(Const DefValue : Int64): Int64;
     function GetAsStream(Stream : TStream) : Integer;
-  End;
+  end;
 
-  TAppParams = Class(TComponent)
+  TAppParams = class(TComponent)
   private
     FParamsStream : TFileStream;
     FParams : TList;
     FFileName: AnsiString;
-    Function LoadFromStream(Stream : TStream) : Boolean;
-    Procedure SaveToStream(Stream : TStream);
+    function LoadFromStream(Stream : TStream) : Boolean;
+    procedure SaveToStream(Stream : TStream);
     function GetParam(ParamName: AnsiString): TAppParam;
-    Procedure InternalClear;
-    Function IndexOfParam(Const ParamName : AnsiString) : Integer;
+    procedure InternalClear;
+    function IndexOfParam(Const ParamName : AnsiString) : Integer;
     procedure SetFileName(const Value: AnsiString);
-    Procedure Save;
+    procedure Save;
   protected
   public
     Constructor Create(AOwner : TComponent); override;
     Destructor Destroy; override;
-    Class function AppParams : TAppParams;
-    Property FileName : AnsiString read FFileName write SetFileName;
-    Property ParamByName[ParamName : AnsiString] : TAppParam read GetParam;
-    Procedure Clear;
-    Procedure Delete(Const ParamName : AnsiString);
-    Function Count : Integer;
-    Function Param(index : Integer) : TAppParam;
-    Function FindParam(Const ParamName : AnsiString) : TAppParam;
-  End;
+    class function AppParams : TAppParams;
+    property FileName : AnsiString read FFileName write SetFileName;
+    property ParamByName[ParamName : AnsiString] : TAppParam read GetParam;
+    procedure Clear;
+    procedure Delete(Const ParamName : AnsiString);
+    function Count : Integer;
+    function Param(index : Integer) : TAppParam;
+    function FindParam(Const ParamName : AnsiString) : TAppParam;
+  end;
 
 implementation
 
@@ -91,13 +91,13 @@ uses
 Const
   CT_AppParams_File_Magic = 'TAppParams';
 
-Var _appParams : TAppParams;
+var _appParams : TAppParams;
 
 { TAppParam }
 
 constructor TAppParam.Create(AParamName: AnsiString);
 begin
-  FAppParams := Nil;
+  FAppParams := nil;
   FParamName := AParamName;
   FValue := Null;
 end;
@@ -106,11 +106,11 @@ function TAppParam.GetAsBoolean(const DefValue: Boolean): Boolean;
 begin
   if IsNull then Result := DefValue
   else begin
-    Try
+    try
       Result := FValue;
-    Except
+    except
       Result := DefValue;
-    End;
+    end;
   end;
 end;
 
@@ -118,11 +118,11 @@ function TAppParam.GetAsInt64(const DefValue: Int64): Int64;
 begin
   if IsNull then Result := DefValue
   else begin
-    Try
+    try
       Result := FValue;
-    Except
+    except
       Result := DefValue;
-    End;
+    end;
   end;
 end;
 
@@ -130,11 +130,11 @@ function TAppParam.GetAsInteger(const DefValue: Integer): Integer;
 begin
   if IsNull then Result := DefValue
   else begin
-    Try
+    try
       Result := FValue;
-    Except
+    except
       Result := DefValue;
-    End;
+    end;
   end;
 end;
 
@@ -162,8 +162,8 @@ begin
   Result := VarIsNull( FValue );
 end;
 
-Function TAppParam.LoadFromStream(Stream: TStream)  : Boolean;
-Var bpt : Byte;
+function TAppParam.LoadFromStream(Stream: TStream)  : Boolean;
+var bpt : Byte;
   pt : TAppParamType;
   s : AnsiString;
   i : Integer;
@@ -181,27 +181,27 @@ begin
   else begin
     case pt of
       ptString : begin
-        If TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
+        if TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
         FValue := s;
       end;
       ptInteger : begin
         if Stream.Read(i,sizeof(i))<sizeof(i) then exit;
         FValue := i;
       end;
-      ptLongWord : Begin
+      ptLongWord : begin
         if Stream.Read(c,sizeof(c))<sizeof(c) then exit;
         FValue := c;
-      End;
-      ptInt64 : Begin
+      end;
+      ptInt64 : begin
         if Stream.Read(i64,sizeof(i64))<sizeof(i64) then exit;
         FValue := i64;
-      End;
-      ptBoolean : Begin
+      end;
+      ptBoolean : begin
         if Stream.Read(bpt,sizeof(bpt))<sizeof(bpt) then exit;
         if bpt=0 then FValue := false
         else FValue := true;
-      End;
-      ptStream : Begin
+      end;
+      ptStream : begin
         if TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
         FValue := s;
       End
@@ -243,12 +243,12 @@ begin
         i64 := FValue;
         Stream.Write(i64,sizeof(i64));
       end;
-      ptBoolean : Begin
+      ptBoolean : begin
         if FValue then b := 1
         else b := 0;
         Stream.Write(b,sizeof(b));
-      End;
-      ptStream : Begin
+      end;
+      ptStream : begin
         TStreamOp.WriteAnsiString(Stream,VarToStrDef(FValue,''));
       End
     else
@@ -261,28 +261,28 @@ procedure TAppParam.SetAsBoolean(BoolValue: Boolean);
 begin
   FParamType := ptBoolean;
   FValue := BoolValue;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetAsCardinal(CardValue: Cardinal);
 begin
   FParamType := ptLongWord;
   FValue := CardValue;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetAsInt64(Int64Value: Int64);
 begin
   FParamType := ptInt64;
   FValue := Int64Value;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetAsInteger(IntValue: Integer);
 begin
   FParamType := ptInteger;
   FValue := IntValue;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetAsStream(Stream: TStream);
@@ -293,7 +293,7 @@ begin
   Stream.ReadBuffer(s[1],Stream.Size);
   FParamType := ptString;
   FValue := s;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetAsString(StringValue: AnsiString);
@@ -302,33 +302,33 @@ begin
 
   FParamType := ptString;
   FValue := StringValue;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetParamName(const Value: AnsiString);
 begin
   FParamName := Value;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetParamType(const Value: TAppParamType);
 begin
   FParamType := Value;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 procedure TAppParam.SetValue(const Value: Variant);
 begin
   FValue := Value;
-  If Assigned(FAppParams) then FAppParams.Save;
+  if Assigned(FAppParams) then FAppParams.Save;
 end;
 
 { TAppParams }
 
 class function TAppParams.AppParams: TAppParams;
 begin
-  if Not Assigned(_appParams) then begin
-    _appParams := TAppParams.Create(Nil);
+  if not Assigned(_appParams) then begin
+    _appParams := TAppParams.Create(nil);
   end;
   Result := _appParams;
 end;
@@ -349,13 +349,13 @@ begin
   inherited;
   FParams := TList.Create;
   FFileName := '';
-  FParamsStream := Nil;
-  if _appParams=Nil then _appParams := Self;
+  FParamsStream := nil;
+  if _appParams=nil then _appParams := Self;
 
 end;
 
 procedure TAppParams.Delete(const ParamName: AnsiString);
-Var P : TAppParam;
+var P : TAppParam;
   i : Integer;
 begin
   i := IndexOfParam(ParamName);
@@ -368,24 +368,24 @@ end;
 
 destructor TAppParams.Destroy;
 begin
-  FreeAndNil(FParamsStream);
+  FreeAndnil(FParamsStream);
   InternalClear;
   FParams.Free;
   inherited;
-  if _appParams=Self then _appParams := Nil;
+  if _appParams=Self then _appParams := nil;
 
 end;
 
 function TAppParams.FindParam(const ParamName: AnsiString): TAppParam;
-Var i : Integer;
+var i : Integer;
 begin
   i := IndexOfParam(ParamName);
   if i>=0 then Result := FParams[i]
-  else Result := Nil;
+  else Result := nil;
 end;
 
 function TAppParams.GetParam(ParamName: AnsiString): TAppParam;
-Var i : Integer;
+var i : Integer;
   P : TAppParam;
 begin
   i := IndexOfParam(ParamName);
@@ -406,7 +406,7 @@ begin
 end;
 
 procedure TAppParams.InternalClear;
-Var P : TAppParam;
+var P : TAppParam;
   i : Integer;
 begin
   for i := 0 to FParams.Count - 1 do begin
@@ -417,20 +417,20 @@ begin
 end;
 
 function TAppParams.LoadFromStream(Stream: TStream): Boolean;
-Var s : AnsiString;
+var s : AnsiString;
   i,c : Integer;
   P : TAppParam;
 begin
   Result := false;
   InternalClear;
-  If TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
-  If s<>CT_AppParams_File_Magic then raise Exception.Create('Invalid file type');
+  if TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
+  if s<>CT_AppParams_File_Magic then raise Exception.Create('Invalid file type');
   Stream.Read(c,sizeof(c));
   for i := 0 to c-1 do begin
     P := TAppParam(TAppParam.NewInstance);
     P.FAppParams := Self;
     FParams.Add(P);
-    If Not P.LoadFromStream(Stream) then exit;
+    if not P.LoadFromStream(Stream) then exit;
   end;
   Result := true;
 end;
@@ -450,7 +450,7 @@ begin
 end;
 
 procedure TAppParams.SaveToStream(Stream: TStream);
-Var s : AnsiString;
+var s : AnsiString;
   i : Integer;
 begin
   s := CT_AppParams_File_Magic;
@@ -463,11 +463,11 @@ begin
 end;
 
 procedure TAppParams.SetFileName(const Value: AnsiString);
-Var fm : Word;
+var fm : Word;
 begin
   if FFileName=Value then exit;
   if Assigned(FParamsStream) then FParamsStream.Free;
-  FParamsStream := Nil;
+  FParamsStream := nil;
   FFileName := Value;
   if Value<>'' then begin
     if FileExists(Value) then fm := fmOpenReadWrite
@@ -479,5 +479,5 @@ begin
 end;
 
 initialization
-  _appParams := Nil;
+  _appParams := nil;
 end.

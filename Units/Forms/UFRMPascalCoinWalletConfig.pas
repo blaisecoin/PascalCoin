@@ -75,12 +75,12 @@ type
     FWalletKeys: TWalletKeys;
     procedure SetAppParams(const Value: TAppParams);
     procedure SetWalletKeys(const Value: TWalletKeys);
-    Procedure UpdateWalletConfig;
+    procedure UpdateWalletConfig;
     { Private declarations }
   public
     { Public declarations }
-    Property AppParams : TAppParams read FAppParams write SetAppParams;
-    Property WalletKeys : TWalletKeys read FWalletKeys write SetWalletKeys;
+    property AppParams : TAppParams read FAppParams write SetAppParams;
+    property WalletKeys : TWalletKeys read FWalletKeys write SetWalletKeys;
   end;
 
 implementation
@@ -94,7 +94,7 @@ uses UConst, UAccounts, ULog, UCrypto, UFolderHelper;
 {$ENDIF}
 
 procedure TFRMPascalCoinWalletConfig.bbOkClick(Sender: TObject);
-Var df : Int64;
+var df : Int64;
   mpk : TMinerPrivateKey;
   i : Integer;
 begin
@@ -141,22 +141,22 @@ begin
 end;
 
 procedure TFRMPascalCoinWalletConfig.bbUpdatePasswordClick(Sender: TObject);
-Var s,s2 : String;
+var s,s2 : String;
 begin
-  if Not Assigned(FWalletKeys) then exit;
-  if Not FWalletKeys.IsValidPassword then begin
+  if not Assigned(FWalletKeys) then exit;
+  if not FWalletKeys.IsValidPassword then begin
     s := '';
     Repeat
-      if Not InputQuery('Wallet Password','Insert Wallet Password',s) then exit;
+      if not InputQuery('Wallet Password','Insert Wallet Password',s) then exit;
       FWalletKeys.WalletPassword := s;
-      if Not FWalletKeys.IsValidPassword then Application.MessageBox(PChar('Invalid password'),PChar(Application.Title),MB_ICONERROR+MB_OK);
+      if not FWalletKeys.IsValidPassword then Application.MessageBox(PChar('Invalid password'),PChar(Application.Title),MB_ICONERROR+MB_OK);
     Until FWalletKeys.IsValidPassword;
   end;
   if FWalletKeys.IsValidPassword then begin
     s := ''; s2 := '';
-    if Not InputQuery('Change password','Type new password',s) then exit;
+    if not InputQuery('Change password','Type new password',s) then exit;
     if trim(s)<>s then raise Exception.Create('Password cannot start or end with a space character');
-    if Not InputQuery('Change password','Type new password again',s2) then exit;
+    if not InputQuery('Change password','Type new password again',s2) then exit;
     if s<>s2 then raise Exception.Create('Two passwords are different!');
 
     FWalletKeys.WalletPassword := s;
@@ -190,11 +190,11 @@ begin
 end;
 
 procedure TFRMPascalCoinWalletConfig.SetAppParams(const Value: TAppParams);
-Var i : Integer;
+var i : Integer;
 begin
   FAppParams := Value;
-  if Not Assigned(Value) then exit;
-  Try
+  if not Assigned(Value) then exit;
+  try
     udInternetServerPort.Position := AppParams.ParamByName[CT_PARAM_InternetServerPort].GetAsInteger(CT_NetServer_Port);
     ebDefaultFee.Text := TAccountComp.FormatMoney(AppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(0));
     cbJSONRPCMinerServerActive.Checked := AppParams.ParamByName[CT_PARAM_JSONRPCMinerServerActive].GetAsBoolean(true);
@@ -213,8 +213,8 @@ begin
     udJSONRPCMinerServerPort.Position := AppParams.ParamByName[CT_PARAM_JSONRPCMinerServerPort].GetAsInteger(CT_JSONRPCMinerServer_Port);
     cbJSONRPCPortEnabled.Checked := AppParams.ParamByName[CT_PARAM_JSONRPCEnabled].GetAsBoolean(false);
     ebJSONRPCAllowedIPs.Text := AppParams.ParamByName[CT_PARAM_JSONRPCAllowedIPs].GetAsString('127.0.0.1;');
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       TLog.NewLog(lterror,ClassName,'Exception at SetAppParams: '+E.Message);
     end;
   End;
@@ -230,7 +230,7 @@ end;
 
 
 procedure TFRMPascalCoinWalletConfig.UpdateWalletConfig;
-Var i, iselected : Integer;
+var i, iselected : Integer;
   s : String;
   wk : TWalletKey;
 begin

@@ -21,17 +21,17 @@ uses
 {$I config.inc}
 
 Type
-  TBlockHeader = Record
+  TBlockHeader = record
     BlockNumber : Cardinal;
     StreamBlockRelStartPos : Int64;
     BlockSize : Cardinal;
   end; // 16 bytes
 
-  TArrayOfInt64 = Array of Int64;
+  TArrayOfInt64 = array of Int64;
 
   { TFileStorage }
 
-  TFileStorage = Class(TStorage)
+  TFileStorage = class(TStorage)
   private
     FStorageLock : TPCCriticalSection;
     FBlockChainStream : TFileStream;
@@ -40,42 +40,42 @@ Type
     FBlockHeadersFirstBytePosition : TArrayOfInt64;
     FDatabaseFolder: AnsiString;
     FBlockChainFileName : AnsiString;
-    Function StreamReadBlockHeader(Stream: TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock, Block: Cardinal; var BlockHeader : TBlockHeader): Boolean;
-    Function StreamBlockRead(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock, Block : Cardinal; Operations : TPCOperationsComp) : Boolean;
-    Function StreamBlockSave(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal; Operations : TPCOperationsComp) : Boolean;
-    Function GetFolder(Const AOrphan : TOrphan): AnsiString;
-    Function GetBlockHeaderFirstBytePosition(Stream : TStream; Block : Cardinal; var StreamBlockHeaderStartPos : Int64; var BlockHeaderFirstBlock : Cardinal) : Boolean;
-    Function GetBlockHeaderFixedSize : Int64;
+    function StreamReadBlockHeader(Stream: TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock, Block: Cardinal; var BlockHeader : TBlockHeader): Boolean;
+    function StreamBlockRead(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock, Block : Cardinal; Operations : TPCOperationsComp) : Boolean;
+    function StreamBlockSave(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal; Operations : TPCOperationsComp) : Boolean;
+    function GetFolder(Const AOrphan : TOrphan): AnsiString;
+    function GetBlockHeaderFirstBytePosition(Stream : TStream; Block : Cardinal; var StreamBlockHeaderStartPos : Int64; var BlockHeaderFirstBlock : Cardinal) : Boolean;
+    function GetBlockHeaderFixedSize : Int64;
     procedure SetDatabaseFolder(const Value: AnsiString);
-    Procedure ClearStream;
+    procedure ClearStream;
   protected
     procedure SetReadOnly(const Value: Boolean); override;
     procedure SetOrphan(const Value: TOrphan); override;
-    Function DoLoadBlockChain(Operations : TPCOperationsComp; Block : Cardinal) : Boolean; override;
-    Function DoSaveBlockChain(Operations : TPCOperationsComp) : Boolean; override;
-    Function DoMoveBlockChain(Start_Block : Cardinal; Const DestOrphan : TOrphan; DestStorage : TStorage) : Boolean; override;
-    Function DoSaveBank : Boolean; override;
-    Function DoRestoreBank(max_block : Int64) : Boolean; override;
-    Procedure DoDeleteBlockChainBlocks(StartingDeleteBlock : Cardinal); override;
-    Function BlockExists(Block : Cardinal) : Boolean; override;
-    Function LockBlockChainStream : TFileStream;
-    Procedure UnlockBlockChainStream;
-    Function LoadBankFileInfo(Const Filename : AnsiString; var BlocksCount : Cardinal) : Boolean;
+    function DoLoadBlockChain(Operations : TPCOperationsComp; Block : Cardinal) : Boolean; override;
+    function DoSaveBlockChain(Operations : TPCOperationsComp) : Boolean; override;
+    function DoMoveBlockChain(Start_Block : Cardinal; Const DestOrphan : TOrphan; DestStorage : TStorage) : Boolean; override;
+    function DoSaveBank : Boolean; override;
+    function DoRestoreBank(max_block : Int64) : Boolean; override;
+    procedure DoDeleteBlockChainBlocks(StartingDeleteBlock : Cardinal); override;
+    function BlockExists(Block : Cardinal) : Boolean; override;
+    function LockBlockChainStream : TFileStream;
+    procedure UnlockBlockChainStream;
+    function LoadBankFileInfo(Const Filename : AnsiString; var BlocksCount : Cardinal) : Boolean;
     function GetFirstBlockNumber: Int64; override;
     function GetLastBlockNumber: Int64; override;
     function DoInitialize : Boolean; override;
   public
-    Constructor Create(AOwner : TComponent); Override;
-    Destructor Destroy; Override;
-    Class Function GetBankFileName(Const BaseDataFolder : AnsiString; block : Cardinal) : AnsiString;
-    Property DatabaseFolder : AnsiString read FDatabaseFolder write SetDatabaseFolder;
-    Procedure CopyConfiguration(Const CopyFrom : TStorage); override;
-    Procedure SetBlockChainFile(BlockChainFileName : AnsiString);
-  End;
+    constructor Create(AOwner : TComponent); Override;
+    destructor Destroy; Override;
+    class function GetBankFileName(Const BaseDataFolder : AnsiString; block : Cardinal) : AnsiString;
+    property DatabaseFolder : AnsiString read FDatabaseFolder write SetDatabaseFolder;
+    procedure CopyConfiguration(Const CopyFrom : TStorage); override;
+    procedure SetBlockChainFile(BlockChainFileName : AnsiString);
+  end;
 
 implementation
 
-Uses ULog, SysUtils, UConst;
+uses ULog, SysUtils, UConst;
 
 { TFileStorage }
 
@@ -92,7 +92,7 @@ Const CT_TBlockHeader_NUL : TBlockHeader = (BlockNumber:0;StreamBlockRelStartPos
       StreamBlockRelStartPos : 8 bytes  -> Start pos relative to End of BlockHeader
       BlockSizeH : 4 bytes
       -- Total size of BlockHeader: (4+8+4) * (CT_GroupBlockSize) = 16 * CT_GroupBlockSize
-    -- Note: If BlockHeader starts at pos X, it ends at pos X + (16*CT_GroupBlockSize)
+    -- Note: if BlockHeader starts at pos X, it ends at pos X + (16*CT_GroupBlockSize)
   Block 0
     BlockSizeC: 4 bytes
     Data: BlockSizeC bytes
@@ -113,17 +113,17 @@ Const CT_TBlockHeader_NUL : TBlockHeader = (BlockNumber:0;StreamBlockRelStartPos
   }
 
 function TFileStorage.BlockExists(Block: Cardinal): Boolean;
-Var  StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal;
+var  StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal;
   stream : TStream;
   BlockHeader : TBlockHeader;
 begin
   Result := false;
   stream := LockBlockChainStream;
   try
-    if Not GetBlockHeaderFirstBytePosition(stream,Block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
+    if not GetBlockHeaderFirstBytePosition(stream,Block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
     if not StreamReadBlockHeader(stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,Block,BlockHeader) then exit;
-    Result := (BlockHeader.BlockNumber = Block) And
-        (((BlockHeader.BlockNumber MOD CT_GroupBlockSize)=0) OR (BlockHeader.StreamBlockRelStartPos>0)) And
+    Result := (BlockHeader.BlockNumber = Block) and
+        (((BlockHeader.BlockNumber mod CT_GroupBlockSize)=0) or (BlockHeader.StreamBlockRelStartPos>0)) and
         (BlockHeader.BlockSize>0);
   finally
     UnlockBlockChainStream;
@@ -151,7 +151,7 @@ begin
   inherited;
   FDatabaseFolder := '';
   FBlockChainFileName := '';
-  FBlockChainStream := Nil;
+  FBlockChainStream := nil;
   SetLength(FBlockHeadersFirstBytePosition,0);
   FStreamFirstBlockNumber := 0;
   FStreamLastBlockNumber := -1;
@@ -166,75 +166,75 @@ begin
 end;
 
 procedure TFileStorage.DoDeleteBlockChainBlocks(StartingDeleteBlock: Cardinal);
-Var stream : TStream;
+var stream : TStream;
   StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal;
   _Header : TBlockHeader;
   _intBlockIndex : Cardinal;
   p : Int64;
-  Procedure GrowUntilPos(newPos : Int64; DeleteDataStartingAtCurrentPos : Boolean);
-  Var b : Byte;
+  procedure GrowUntilPos(newPos : Int64; DeleteDataStartingAtCurrentPos : Boolean);
+  var b : Byte;
   begin
     b := 0;
-    if Not DeleteDataStartingAtCurrentPos then begin
+    if not DeleteDataStartingAtCurrentPos then begin
       Stream.Position := Stream.Size;
     end;
-    While (Stream.Position<newPos) do begin
+    while (Stream.Position<newPos) do begin
       Stream.Write(b,1);
     end;
     Stream.Position := newPos;
   end;
 begin
   stream := LockBlockChainStream;
-  Try
-    if Not GetBlockHeaderFirstBytePosition(stream,StartingDeleteBlock,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
-    If Not StreamReadBlockHeader(Stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,StartingDeleteBlock,_Header) then exit;
+  try
+    if not GetBlockHeaderFirstBytePosition(stream,StartingDeleteBlock,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
+    if not StreamReadBlockHeader(Stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,StartingDeleteBlock,_Header) then exit;
     _intBlockIndex := (_Header.BlockNumber-BlockHeaderFirstBlock);
     p := Int64(_intBlockIndex) * Int64(CT_SizeOfBlockHeader);
     // Write null data until end of header
     GrowUntilPos(StreamBlockHeaderStartPos + GetBlockHeaderFixedSize,true);
     // End Stream at _Header
     Stream.Size := Stream.Position + _Header.StreamBlockRelStartPos-1;
-  Finally
+  finally
     UnlockBlockChainStream;
-  End;
+  end;
 end;
 
 function TFileStorage.DoInitialize: Boolean;
-Var stream : TStream;
+var stream : TStream;
 begin
   stream := LockBlockChainStream;
-  Try
+  try
     Result := true;
-  Finally
+  finally
     UnlockBlockChainStream;
-  End;
+  end;
 end;
 
 function TFileStorage.DoLoadBlockChain(Operations: TPCOperationsComp; Block: Cardinal): Boolean;
-Var stream : TStream;
+var stream : TStream;
   StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal;
 begin
   Result := False;
   stream := LockBlockChainStream;
-  Try
-    if Not GetBlockHeaderFirstBytePosition(stream,Block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
+  try
+    if not GetBlockHeaderFirstBytePosition(stream,Block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
     Result := StreamBlockRead(stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,Block,Operations);
-  Finally
+  finally
     UnlockBlockChainStream;
-  End;
+  end;
 end;
 
 function TFileStorage.DoMoveBlockChain(Start_Block: Cardinal; const DestOrphan: TOrphan; DestStorage : TStorage): Boolean;
-Var db : TFileStorage;
+var db : TFileStorage;
   i : Integer;
   ops : TPCOperationsComp;
   b : Cardinal;
 begin
-  Try
-    if (Assigned(DestStorage)) And (DestStorage is TFileStorage) then db := TFileStorage(DestStorage)
-    else db := Nil;
+  try
+    if (Assigned(DestStorage)) and (DestStorage is TFileStorage) then db := TFileStorage(DestStorage)
+    else db := nil;
     try
-      if Not assigned(db) then begin
+      if not assigned(db) then begin
         db := TFileStorage.Create(Nil);
         db.DatabaseFolder := Self.DatabaseFolder;
         db.Bank := Self.Bank;
@@ -257,15 +257,15 @@ begin
       finally
         if db is TFileStorage then TFileStorage(db).UnlockBlockChainStream;
       end;
-    Finally
-      If Not Assigned(DestStorage) then db.Free;
-    End;
-  Except
-    On E:Exception do begin
-      TLog.NewLog(lterror,ClassName,'Error at DoMoveBlockChain: ('+E.ClassName+') '+E.Message);
-      Raise;
+    finally
+      if not Assigned(DestStorage) then db.Free;
     end;
-  End;
+  except
+    on E:Exception do begin
+      TLog.NewLog(lterror,ClassName,'Error at DoMoveBlockChain: ('+E.ClassName+') '+E.Message);
+      raise;
+    end;
+  end;
 end;
 
 function TFileStorage.DoRestoreBank(max_block: Int64): Boolean;
@@ -280,7 +280,7 @@ var
     blockscount, c : Cardinal;
 begin
   LockBlockChainStream;
-  Try
+  try
     FileAttrs := faArchive;
     folder := GetFolder(Orphan);
     filename := '';
@@ -289,8 +289,8 @@ begin
       repeat
         if (sr.Attr and FileAttrs) = FileAttrs then begin
           auxfn := folder+PathDelim+sr.Name;
-          If LoadBankFileInfo(auxfn,c) then begin
-            if ((c<=max_block) AND (c>blockscount)) then begin
+          if LoadBankFileInfo(auxfn,c) then begin
+            if ((c<=max_block) and (c>blockscount)) then begin
               filename := auxfn;
               blockscount := c;
             end;
@@ -304,23 +304,23 @@ begin
       fs := TFileStream.Create(filename,fmOpenRead);
       try
         ms := TMemoryStream.Create;
-        Try
+        try
           ms.CopyFrom(fs,0);
           fs.Position := 0;
           ms.Position := 0;
           if not Bank.LoadBankFromStream(ms,errors) then begin
             TLog.NewLog(lterror,ClassName,'Error reading bank from file: '+filename+ ' Error: '+errors);
           end;
-        Finally
+        finally
           ms.Free;
-        End;
+        end;
       finally
         fs.Free;
       end;
     end;
-  Finally
+  finally
     UnlockBlockChainStream;
-  End;
+  end;
 end;
 
 function TFileStorage.DoSaveBank: Boolean;
@@ -350,12 +350,12 @@ begin
 end;
 
 function TFileStorage.DoSaveBlockChain(Operations: TPCOperationsComp): Boolean;
-Var stream : TStream;
+var stream : TStream;
   StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal;
 begin
   Result := False;
   stream := LockBlockChainStream;
-  Try
+  try
     if (Length(FBlockHeadersFirstBytePosition)=0) then begin
       // Is saving first block on the stream?
       if (Stream.Size=0) then begin
@@ -364,23 +364,23 @@ begin
       end;
       TLog.NewLog(ltdebug,Classname,Format('Saving Block %d on a newer stream, stream first position=%d',[Operations.OperationBlock.block,FStreamFirstBlockNumber]));
     end;
-    if Not GetBlockHeaderFirstBytePosition(stream,Operations.OperationBlock.block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
+    if not GetBlockHeaderFirstBytePosition(stream,Operations.OperationBlock.block,StreamBlockHeaderStartPos,BlockHeaderFirstBlock) then exit;
     Result := StreamBlockSave(stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,Operations);
-  Finally
+  finally
     UnlockBlockChainStream;
-  End;
+  end;
   if Assigned(Bank) then SaveBank;
 end;
 
 class function TFileStorage.GetBankFileName(const BaseDataFolder: AnsiString;
   block: Cardinal): AnsiString;
-Var c : Cardinal;
+var c : Cardinal;
   folder : AnsiString;
 begin
   Result := '';
-  If not ForceDirectories(BaseDataFolder) then exit;
+  if not ForceDirectories(BaseDataFolder) then exit;
   // We will store last 5 banks
-  Result := BaseDataFolder + PathDelim+'bank'+ inttostr((block DIV CT_BankToDiskEveryNBlocks) MOD 5)+'.bank';
+  Result := BaseDataFolder + PathDelim+'bank'+ inttostr((block div CT_BankToDiskEveryNBlocks) mod 5)+'.bank';
 end;
 
 function TFileStorage.GetBlockHeaderFirstBytePosition(Stream : TStream; Block: Cardinal; var StreamBlockHeaderStartPos: Int64; var BlockHeaderFirstBlock: Cardinal): Boolean;
@@ -392,7 +392,7 @@ begin
     TLog.NewLog(lterror,Classname,Format('Block %d is lower than Stream First block %d',[Block,FStreamFirstBlockNumber]));
     exit;
   end;
-  iPos := (Block-FStreamFirstBlockNumber) DIV CT_GroupBlockSize;
+  iPos := (Block-FStreamFirstBlockNumber) div CT_GroupBlockSize;
   if iPos>High(FBlockHeadersFirstBytePosition) then Begin
     if Length(FBlockHeadersFirstBytePosition)>0 then begin
       start := High(FBlockHeadersFirstBytePosition);
@@ -419,7 +419,7 @@ begin
       FBlockHeadersFirstBytePosition[High(FBlockHeadersFirstBytePosition)] := Stream.Position + bh.StreamBlockRelStartPos + bh.BlockSize;
       inc(start);
     end;
-  End;
+  end;
   StreamBlockHeaderStartPos := FBlockHeadersFirstBytePosition[iPos];
   BlockHeaderFirstBlock := FStreamFirstBlockNumber + (iPos * CT_GroupBlockSize);
   Result := true;
@@ -453,7 +453,7 @@ var fs: TFileStream;
 begin
   Result := false;
   BlocksCount:=0;
-  If Not FileExists(Filename) then exit;
+  if not FileExists(Filename) then exit;
   fs := TFileStream.Create(Filename,fmOpenRead);
   try
     fs.Position:=0;
@@ -465,7 +465,7 @@ end;
 
 function TFileStorage.LockBlockChainStream: TFileStream;
   function InitStreamInfo(Stream : TStream; var errors : String) : Boolean;
-  Var mem : TStream;
+  var mem : TStream;
     iPos : Int64;
     i,j,k : Integer;
     bh,lastbh : TBlockHeader;
@@ -492,7 +492,7 @@ function TFileStorage.LockBlockChainStream: TFileStream;
       FBlockHeadersFirstBytePosition[0] := 0;
     end;
     mem := TMemoryStream.Create;
-    Try
+    try
       iPos := 0;
       while (iPos + GetBlockHeaderFixedSize < Stream.Size) do begin
         Stream.Position := iPos;
@@ -504,7 +504,7 @@ function TFileStorage.LockBlockChainStream: TFileStream;
           mem.Read(bh.BlockNumber,SizeOf(bh.BlockNumber));
           mem.Read(bh.StreamBlockRelStartPos,SizeOf(bh.StreamBlockRelStartPos));
           mem.Read(bh.BlockSize,sizeof(bh.BlockSize));
-          if (i=0) And (iPos=0) then begin
+          if (i=0) and (iPos=0) then begin
               FStreamFirstBlockNumber := bh.BlockNumber;
               FStreamLastBlockNumber := bh.BlockNumber;
             if (0<>bh.StreamBlockRelStartPos) then begin
@@ -518,8 +518,8 @@ function TFileStorage.LockBlockChainStream: TFileStream;
               break;
             end;
             if (lastbh.BlockNumber+1<>bh.BlockNumber) or
-              ((lastbh.StreamBlockRelStartPos+lastbh.BlockSize<>bh.StreamBlockRelStartPos) And (i>0)) Or
-              ((0<>bh.StreamBlockRelStartPos) And (i=0)) then begin
+              ((lastbh.StreamBlockRelStartPos+lastbh.BlockSize<>bh.StreamBlockRelStartPos) and (i>0)) Or
+              ((0<>bh.StreamBlockRelStartPos) and (i=0)) then begin
               errors := Format('Invalid check on block header. iPos=%d i=%d Number=%d relstart=%d size=%d',[iPos,i,bh.BlockNumber,bh.StreamBlockRelStartPos,bh.BlockSize]);
               result := false;
               exit;
@@ -532,20 +532,20 @@ function TFileStorage.LockBlockChainStream: TFileStream;
         iPos := iPos + GetBlockHeaderFixedSize + lastbh.StreamBlockRelStartPos + lastBh.BlockSize;
       end;
       Result := true;
-    Finally
+    finally
       mem.Free;
-    End;
+    end;
   end;
 
-Var fn : TFileName;
+var fn : TFileName;
   fm : Word;
   exists : Boolean;
   bh : TBlockHeader;
   errors : String;
 begin
   TPCThread.ProtectEnterCriticalSection(Self,FStorageLock);
-  Try
-    if Not Assigned(FBlockChainStream) then begin
+  try
+    if not Assigned(FBlockChainStream) then begin
       if FBlockChainFileName<>'' then begin
         fn := FBlockChainFileName
       end else begin
@@ -561,15 +561,15 @@ begin
       end;
       FBlockChainStream := TFileStream.Create(fn,fm);
       // Init stream
-      If Not InitStreamInfo(FBlockChainStream,errors) then begin
+      if not InitStreamInfo(FBlockChainStream,errors) then begin
         TLog.NewLog(lterror,ClassName,errors);
         raise Exception.Create('Error reading File: '+errors);
       end;
     end;
-  Except
+  except
     FStorageLock.Release;
-    Raise;
-  End;
+    raise;
+  end;
   Result := FBlockChainStream;
 end;
 
@@ -599,7 +599,7 @@ begin
 end;
 
 function TFileStorage.StreamBlockRead(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock, Block : Cardinal; Operations : TPCOperationsComp) : Boolean;
-Var p : Int64;
+var p : Int64;
   errors : AnsiString;
   streamFirstBlock,
   _BlockSizeC,
@@ -608,7 +608,7 @@ Var p : Int64;
   _ops : TStream;
 begin
   Result := StreamReadBlockHeader(Stream,StreamBlockHeaderStartPos,BlockHeaderFirstBlock,Block,_Header);
-  if Not Result then exit;
+  if not Result then exit;
   // Calculating block position
   p := (StreamBlockHeaderStartPos + GetBlockHeaderFixedSize) +
      (_Header.StreamBlockRelStartPos);
@@ -632,23 +632,23 @@ begin
   try
     _ops.CopyFrom(Stream,_BlockSizeC);
     _ops.Position := 0;
-    If Not Operations.LoadBlockFromStorage(_ops,errors) then begin
+    if not Operations.LoadBlockFromStorage(_ops,errors) then begin
       TLog.NewLog(lterror,Classname,'Error reading OperationBlock '+inttostr(Block)+' from stream. Errors: '+errors);
       exit;
     end;
     Result := true;
-  Finally
+  finally
     _ops.Free;
   end;
 end;
 
 
 function TFileStorage.StreamBlockSave(Stream : TStream; StreamBlockHeaderStartPos : Int64; BlockHeaderFirstBlock : Cardinal; Operations : TPCOperationsComp) : Boolean;
-  Procedure GrowUntilPos(newPos : Int64; DeleteDataStartingAtCurrentPos : Boolean);
-  Var null_buff : Array[1..CT_GroupBlockSize] of Byte;
+  procedure GrowUntilPos(newPos : Int64; DeleteDataStartingAtCurrentPos : Boolean);
+  var null_buff : Array[1..CT_GroupBlockSize] of Byte;
     i : Int64;
   begin
-    if Not DeleteDataStartingAtCurrentPos then begin
+    if not DeleteDataStartingAtCurrentPos then begin
       Stream.Position := Stream.Size;
     end;
     if (stream.Position<newPos) then begin
@@ -661,7 +661,7 @@ function TFileStorage.StreamBlockSave(Stream : TStream; StreamBlockHeaderStartPo
     end;
     Stream.Position := newPos;
   end;
-Var p : Int64;
+var p : Int64;
   c : Cardinal;
   _Header, _HeaderPrevious : TBlockHeader;
   _intBlockIndex : Cardinal;
@@ -682,7 +682,7 @@ begin
     _Header.StreamBlockRelStartPos := 0;
   end;
   _ops := TMemoryStream.Create;
-  Try
+  try
     Operations.SaveBlockToStorage(_ops);
     _Header.BlockSize := _ops.Size;
     // Positioning until Header Position to save Header data
@@ -696,7 +696,7 @@ begin
     Stream.Write(c,sizeof(_Header.BlockSize));
     // Positioning until Header end
     GrowUntilPos(StreamBlockHeaderStartPos + GetBlockHeaderFixedSize,true);
-    // And now positioning until Data:
+    // and now positioning until Data:
     GrowUntilPos(StreamBlockHeaderStartPos + GetBlockHeaderFixedSize + _Header.StreamBlockRelStartPos, false );
     // Save stream size
     Stream.Write(_Header.BlockSize,sizeof(_Header.BlockSize));
@@ -704,7 +704,7 @@ begin
     _ops.Position := 0;
     Stream.CopyFrom(_ops,_ops.Size);
     FStreamLastBlockNumber := Operations.OperationBlock.block;
-  Finally
+  finally
     _ops.Free;
   end;
 end;
@@ -712,7 +712,7 @@ end;
 function TFileStorage.StreamReadBlockHeader(Stream: TStream;
   StreamBlockHeaderStartPos: Int64; BlockHeaderFirstBlock, Block: Cardinal;
   var BlockHeader: TBlockHeader): Boolean;
-Var p : Int64;
+var p : Int64;
   errors : AnsiString;
   streamFirstBlock : Cardinal;
   _intBlockIndex : Cardinal;
@@ -723,14 +723,14 @@ begin
   if (BlockHeaderFirstBlock>Block) then raise Exception.Create('Dev error 20160917-1');
   if (BlockHeaderFirstBlock+CT_GroupBlockSize)<Block then raise Exception.Create('Dev error 20160917-2');
   if Stream.Size< (StreamBlockHeaderStartPos + (GetBlockHeaderFixedSize)) then begin
-    // Not log... it's normal when finding block   TLog.NewLog(ltError,Classname,Format('Invalid stream size %d < (%d + %d) Reading block %d',[Stream.Size,StreamBlockHeaderStartPos,GetBlockHeaderFixedSize,Block]));
+    // not log... it's normal when finding block   TLog.NewLog(ltError,Classname,Format('Invalid stream size %d < (%d + %d) Reading block %d',[Stream.Size,StreamBlockHeaderStartPos,GetBlockHeaderFixedSize,Block]));
     exit;
   end;
   Stream.Position := StreamBlockHeaderStartPos + (CT_SizeOfBlockHeader*(Block-BlockHeaderFirstBlock));
   // Reading block header
-  If Stream.Read(BlockHeader.BlockNumber,sizeof(BlockHeader.BlockNumber))<sizeof(BlockHeader.BlockNumber) then exit;
-  If Stream.Read(BlockHeader.StreamBlockRelStartPos,sizeof(BlockHeader.StreamBlockRelStartPos))<sizeof(BlockHeader.StreamBlockRelStartPos) then exit;
-  If Stream.Read(BlockHeader.BlockSize,sizeof(BlockHeader.BlockSize))<sizeof(BlockHeader.BlockSize) then exit;
+  if Stream.Read(BlockHeader.BlockNumber,sizeof(BlockHeader.BlockNumber))<sizeof(BlockHeader.BlockNumber) then exit;
+  if Stream.Read(BlockHeader.StreamBlockRelStartPos,sizeof(BlockHeader.StreamBlockRelStartPos))<sizeof(BlockHeader.StreamBlockRelStartPos) then exit;
+  if Stream.Read(BlockHeader.BlockSize,sizeof(BlockHeader.BlockSize))<sizeof(BlockHeader.BlockSize) then exit;
   Result := (BlockHeader.BlockNumber = Block);
 end;
 

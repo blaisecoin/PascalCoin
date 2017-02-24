@@ -257,7 +257,7 @@ const
  LN_key_usage                                           = 'X509v3 Key Usage';
  NID_key_usage                                          = 83;
  SN_private_key_usage_period                            = 'privateKeyUsagePeriod';
- LN_private_key_usage_period                            = 'X509v3 Private Key Usage Period';
+ LN_private_key_usage_period                            = 'X509v3 private Key Usage Period';
  NID_private_key_usage_period                           = 84;
  SN_subject_alt_name                                    = 'subjectAltName';
  LN_subject_alt_name                                    = 'X509v3 Subject Alternative Name';
@@ -4787,7 +4787,7 @@ type
   ASN1_ITEM = record
     itype : Char;               // The item type; primitive; SEQUENCE; CHOICE or extern
     utype : TC_LONG;            // underlying type
-    templates : PASN1_TEMPLATE; // If SEQUENCE or CHOICE this contains the contents
+    templates : PASN1_TEMPLATE; // if SEQUENCE or CHOICE this contains the contents
     tcount : TC_LONG;           // Number of templates if SEQUENCE or CHOICE
     funcs : Pointer;            // functions that handle this type
     size : TC_LONG;             // Structure size (usually)

@@ -10,7 +10,7 @@ unit UPoolMinerThreads;
   This unit is a part of Pascal Coin, a P2P crypto currency without need of
   historical operations.
 
-  If you like it, consider a donation using BitCoin:
+  if you like it, consider a donation using BitCoin:
   16K3HCZRhFUtM8GdWRcfKeaa6KsuyxZaYk
 
   }
@@ -23,28 +23,28 @@ uses
   Classes, SysUtils, syncobjs, UThread, UPoolMining, UAccounts, UCrypto, ULog, UBlockChain, USha256;
 
 type
-  TMinerStats = Record
+  TMinerStats = record
     Miners : Integer;
     RoundsCount : UInt64;
     WorkingMillisecondsHashing : Cardinal;
     WorkingMillisecondsTotal : Cardinal;
     WinsCount : Integer;
     Invalids : Integer;
-  End;
+  end;
 
 Const
   CT_TMinerStats_NULL : TMinerStats = (Miners:0;RoundsCount:0;WorkingMillisecondsHashing:0;WorkingMillisecondsTotal:0;WinsCount:0;Invalids:0);
 
 Type
 
-  TCustomMinerDeviceThread = Class;
-  TCustomMinerDeviceThreadClass = Class of TCustomMinerDeviceThread;
+  TCustomMinerDeviceThread = class;
+  TCustomMinerDeviceThreadClass = class of TCustomMinerDeviceThread;
 
   TOnFoundNonce = Procedure(Sender : TCustomMinerDeviceThread; Timestamp, nOnce : Cardinal) of object;
 
   { TPoolMinerThread }
 
-  TPoolMinerThread = Class(TPCThread)
+  TPoolMinerThread = class(TPCThread)
   private
     FMinerAddName: String;
     FPoolMinerClient : TPoolMinerClient;
@@ -53,30 +53,30 @@ Type
     FMinerThreads: Integer;
     FGlobalMinerValuesForWork : TMinerValuesForWork;
     FTestingPoWLeftBits: Byte;
-    Procedure OnPoolMinerClientConnectionChanged(Sender : TObject);
-    Procedure OnPoolMinerMustChangeValues(Sender : TObject);
-    Procedure OnMinerNewBlockFound(sender : TCustomMinerDeviceThread; Timestamp : Cardinal; NOnce : Cardinal);
-    Procedure NotifyPoolMinerConnectionChanged;
+    procedure OnPoolMinerClientConnectionChanged(Sender : TObject);
+    procedure OnPoolMinerMustChangeValues(Sender : TObject);
+    procedure OnMinerNewBlockFound(sender : TCustomMinerDeviceThread; Timestamp : Cardinal; NOnce : Cardinal);
+    procedure NotifyPoolMinerConnectionChanged;
     procedure SetMinerAddName(AValue: String);
     procedure SetTestingPoWLeftBits(AValue: Byte);
   protected
     procedure BCExecute; override;
   public
-    Constructor Create(RemoteHost : String; RemotePort : Integer; InitialAccountKey : TAccountKey);
-    Destructor Destroy; override;
-    Property PoolMinerClient : TPoolMinerClient read FPoolMinerClient;
-    Property OnConnectionStateChanged : TNotifyEvent read FOnConnectionStateChanged write FOnConnectionStateChanged;
-    Function CurrentMinerStats : TMinerStats;
-    Function GlobalMinerStats : TMinerStats;
-    Property GlobalMinerValuesForWork : TMinerValuesForWork read FGlobalMinerValuesForWork;
-    Function DevicesLock : TList;
+    constructor Create(RemoteHost : String; RemotePort : Integer; InitialAccountKey : TAccountKey);
+    destructor Destroy; override;
+    property PoolMinerClient : TPoolMinerClient read FPoolMinerClient;
+    property OnConnectionStateChanged : TNotifyEvent read FOnConnectionStateChanged write FOnConnectionStateChanged;
+    function CurrentMinerStats : TMinerStats;
+    function GlobalMinerStats : TMinerStats;
+    property GlobalMinerValuesForWork : TMinerValuesForWork read FGlobalMinerValuesForWork;
+    function DevicesLock : TList;
     procedure DevicesUnlock;
-    Property MinerAddName : String read FMinerAddName write SetMinerAddName;
-    Property TestingPoWLeftBits : Byte read FTestingPoWLeftBits write SetTestingPoWLeftBits;
-  End;
+    property MinerAddName : String read FMinerAddName write SetMinerAddName;
+    property TestingPoWLeftBits : Byte read FTestingPoWLeftBits write SetTestingPoWLeftBits;
+  end;
 
   { TCustomMinerDeviceThread }
-  TCustomMinerDeviceThread = Class(TPCThread)
+  TCustomMinerDeviceThread = class(TPCThread)
   private
     FIsMining: Boolean;
     FOnFoundNOnce: TOnFoundNonce;
@@ -92,54 +92,54 @@ Type
     procedure SetPaused(AValue: Boolean);
   protected
     FMinerValuesForWork : TMinerValuesForWork;
-    Procedure SetMinerValuesForWork(const Value : TMinerValuesForWork); virtual;
-    Procedure UpdateState; virtual;
-    Procedure UpdateDeviceStats(Stats : TMinerStats); virtual;
-    Procedure FoundNOnce(Timestamp,nOnce : Cardinal);
+    procedure SetMinerValuesForWork(const Value : TMinerValuesForWork); virtual;
+    procedure UpdateState; virtual;
+    procedure UpdateDeviceStats(Stats : TMinerStats); virtual;
+    procedure FoundNOnce(Timestamp,nOnce : Cardinal);
   public
-    Constructor Create(APoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); virtual;
-    Destructor Destroy; override;
-    Function DeviceStats : TMinerStats;
-    Function GlobalDeviceStats : TMinerStats;
-    Function MinerDeviceName : String; virtual; abstract;
-    Property Paused : Boolean read FPaused write SetPaused;
-    Property OnStateChanged : TNotifyEvent read FOnStateChanged write FOnStateChanged;
-    Property OnMinerValuesChanged : TNotifyEvent read FOnMinerValuesChanged write FOnMinerValuesChanged;
-    Property OnFoundNOnce : TOnFoundNonce read FOnFoundNOnce write FOnFoundNOnce;
-    Function GetState : String; virtual; abstract;
+    constructor Create(APoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); virtual;
+    destructor Destroy; override;
+    function DeviceStats : TMinerStats;
+    function GlobalDeviceStats : TMinerStats;
+    function MinerDeviceName : String; virtual; abstract;
+    property Paused : Boolean read FPaused write SetPaused;
+    property OnStateChanged : TNotifyEvent read FOnStateChanged write FOnStateChanged;
+    property OnMinerValuesChanged : TNotifyEvent read FOnMinerValuesChanged write FOnMinerValuesChanged;
+    property OnFoundNOnce : TOnFoundNonce read FOnFoundNOnce write FOnFoundNOnce;
+    function GetState : String; virtual; abstract;
     property MinerValuesForWork : TMinerValuesForWork read FMinerValuesForWork;
-    Property IsMining : Boolean read FIsMining write SetIsMining;
-    Property PoolMinerThread : TPoolMinerThread read FPoolMinerThread;
+    property IsMining : Boolean read FIsMining write SetIsMining;
+    property PoolMinerThread : TPoolMinerThread read FPoolMinerThread;
   end;
 
 
 
   { TCPUDeviceThread }
 
-  TCPUDeviceThread = Class(TCustomMinerDeviceThread)
+  TCPUDeviceThread = class(TCustomMinerDeviceThread)
   private
     FCPUs: Integer;
     FCPUsThreads : TPCThreadList;
     FUseOpenSSLFunctions: Boolean;
     procedure SetCPUs(AValue: Integer);
-    Procedure CheckCPUs;
+    procedure CheckCPUs;
     procedure SetUseOpenSSLFunctions(AValue: Boolean);
   protected
     procedure BCExecute; override;
     procedure SetMinerValuesForWork(const Value: TMinerValuesForWork); override;
-    Procedure UpdateState; override;
+    procedure UpdateState; override;
   public
-    Constructor Create(PoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); override;
-    Destructor Destroy; override;
-    Property CPUs : Integer read FCPUs write SetCPUs;
-    Property UseOpenSSLFunctions : Boolean read FUseOpenSSLFunctions write SetUseOpenSSLFunctions;
-    Function MinerDeviceName : String; override;
-    Function GetState : String; override;
+    constructor Create(PoolMinerThread : TPoolMinerThread; InitialMinerValuesForWork : TMinerValuesForWork); override;
+    destructor Destroy; override;
+    property CPUs : Integer read FCPUs write SetCPUs;
+    property UseOpenSSLFunctions : Boolean read FUseOpenSSLFunctions write SetUseOpenSSLFunctions;
+    function MinerDeviceName : String; override;
+    function GetState : String; override;
   end;
 
   { TCPUOpenSSLMinerThread }
 
-  TCPUOpenSSLMinerThread = Class(TPCThread)
+  TCPUOpenSSLMinerThread = class(TPCThread)
   private
     FCPUDeviceThread : TCPUDeviceThread;
     FLock : TCriticalSection;
@@ -152,9 +152,9 @@ Type
     FMinNOnce,FMaxNOnce : Cardinal;
     procedure BCExecute; override;
   public
-    Constructor Create(CPUDeviceThread : TCPUDeviceThread);
-    Destructor Destroy; override;
-  End;
+    constructor Create(CPUDeviceThread : TCPUDeviceThread);
+    destructor Destroy; override;
+  end;
 
 implementation
 
@@ -163,16 +163,16 @@ uses UConst, UTime, UJSONFunctions, UNode, UNetProtocol;
 { TPoolMinerThread }
 
 procedure TPoolMinerThread.BCExecute;
-Var nID : Cardinal;
+var nID : Cardinal;
   json : TPCJSONObject;
   i : Integer;
   ResponseMethod : String;
   l : TList;
 begin
-  Try
+  try
     while not Terminated do begin
       if not FPoolMinerClient.Connected then begin
-        If Not FPoolMinerClient.Connect then begin
+        if not FPoolMinerClient.Connect then begin
         end else begin
           TLog.NewLog(ltinfo,ClassName,'Starting connection to '+FPoolMinerClient.ClientRemoteAddr);
         end;
@@ -187,7 +187,7 @@ begin
                 FPoolMinerClient.DoProcessJSONObject(json,ResponseMethod);
                 json.Clear;
               end;
-            until (terminated) or (Not FPoolMinerClient.Connected);
+            until (terminated) or (not FPoolMinerClient.Connected);
           finally
             json.Free;
           end;
@@ -198,7 +198,7 @@ begin
         sleep(50);
       end;
     end;
-  Finally
+  finally
     FPoolMinerClient.Disconnect;
     l := FDevicesList.LockList;
     try
@@ -209,7 +209,7 @@ begin
     finally
       FDevicesList.UnlockList;
     end;
-  End;
+  end;
 end;
 
 constructor TPoolMinerThread.Create(RemoteHost: String; RemotePort: Integer; InitialAccountKey : TAccountKey);
@@ -221,7 +221,7 @@ begin
   FPoolMinerClient.OnMinerMustChangeValues := OnPoolMinerMustChangeValues;
   FPoolMinerClient.OnConnect := OnPoolMinerClientConnectionChanged;
   FPoolMinerClient.OnDisconnect := OnPoolMinerClientConnectionChanged;
-  FOnConnectionStateChanged := Nil;
+  FOnConnectionStateChanged := nil;
   FDevicesList := TPCThreadList.Create('TPoolMinerThread_DevicesList');
   FMinerThreads := 0;
   FMinerAddName:='';
@@ -230,7 +230,7 @@ begin
 end;
 
 function TPoolMinerThread.CurrentMinerStats: TMinerStats;
-Var l : TList;
+var l : TList;
   i : Integer;
   ms : TMinerStats;
 begin
@@ -252,7 +252,7 @@ begin
 end;
 
 destructor TPoolMinerThread.Destroy;
-Var i : Integer;
+var i : Integer;
   l : TList;
 begin
   l := FDevicesList.LockList;
@@ -283,7 +283,7 @@ begin
 end;
 
 function TPoolMinerThread.GlobalMinerStats: TMinerStats;
-Var l : TList;
+var l : TList;
   i : Integer;
   ms : TMinerStats;
 begin
@@ -314,19 +314,19 @@ procedure TPoolMinerThread.SetMinerAddName(AValue: String);
 begin
   if FMinerAddName=AValue then Exit;
   FMinerAddName:=AValue;
-  If Assigned(FPoolMinerClient) then OnPoolMinerMustChangeValues(Nil);
+  if Assigned(FPoolMinerClient) then OnPoolMinerMustChangeValues(Nil);
 end;
 
 procedure TPoolMinerThread.SetTestingPoWLeftBits(AValue: Byte);
 begin
   if FTestingPoWLeftBits=AValue then Exit;
-  If (AValue>=0) And (AValue<=32) then
+  if (AValue>=0) and (AValue<=32) then
     FTestingPoWLeftBits:=AValue
   else FTestingPoWLeftBits:=0;
 end;
 
 procedure TPoolMinerThread.OnMinerNewBlockFound(sender : TCustomMinerDeviceThread; Timestamp : Cardinal; NOnce : Cardinal);
-Var mvfw : TMinerValuesForWork;
+var mvfw : TMinerValuesForWork;
 begin
   FDevicesList.LockList;
   try
@@ -339,7 +339,7 @@ begin
 end;
 
 procedure TPoolMinerThread.OnPoolMinerClientConnectionChanged(Sender: TObject);
-Var l : TList;
+var l : TList;
   i : Integer;
 begin
   TLog.NewLog(ltInfo,ClassName,'Connection state changed. New Value:'+inttostr(Integer(FPoolMinerClient.Connected)));
@@ -355,7 +355,7 @@ begin
 end;
 
 procedure TPoolMinerThread.OnPoolMinerMustChangeValues(Sender: TObject);
-Var l : TList;
+var l : TList;
   i,j : Integer;
   digest : TRawBytes;
   ok : Boolean;
@@ -366,7 +366,7 @@ begin
   TLog.NewLog(ltupdate,ClassName,Format('New miner values. Block %d Target %s Payload %s',[FPoolMinerClient.MinerValuesForWork.block,
     IntToHex(FPoolMinerClient.MinerValuesForWork.target,8), FPoolMinerClient.MinerValuesForWork.payload_start]));
   l := FDevicesList.LockList;
-  Try
+  try
     for i := 0 to l.Count - 1 do begin
       minervfw := FGlobalMinerValuesForWork;
       minervfw.payload_start:=minervfw.payload_start+FMinerAddName;
@@ -376,23 +376,23 @@ begin
         ok := CanBeModifiedOnLastChunk(length(digest),j);
         if (not ok) then minervfw.payload_start:=minervfw.payload_start+'-';
       until (Ok);
-      If FTestingPoWLeftBits>0 then begin
+      if FTestingPoWLeftBits>0 then begin
         auxXXXXX := minervfw;
-        auxXXXXX.target:= ((((auxXXXXX.target AND $FF000000) SHR 24)-FTestingPoWLeftBits) SHL 24) + (minervfw.target AND $00FFFFFF);
-        If auxXXXXX.target<CT_MinCompactTarget then auxXXXXX.target:=CT_MinCompactTarget;
+        auxXXXXX.target:= ((((auxXXXXX.target and $FF000000) SHR 24)-FTestingPoWLeftBits) SHL 24) + (minervfw.target and $00FFFFFF);
+        if auxXXXXX.target<CT_MinCompactTarget then auxXXXXX.target:=CT_MinCompactTarget;
         auxXXXXX.target_pow:=TPCBank.TargetFromCompact(auxXXXXX.target);
         TCustomMinerDeviceThread(l[i]).SetMinerValuesForWork(auxXXXXX);
       end else begin
         TCustomMinerDeviceThread(l[i]).SetMinerValuesForWork(minervfw);
       end;
     end;
-  Finally
+  finally
     FDevicesList.UnlockList;
-  End;
+  end;
 end;
 
 Type
-  TTimeMinerStats = Record
+  TTimeMinerStats = record
     tc : Cardinal;
     stats : TMinerStats;
   end;
@@ -407,9 +407,9 @@ begin
   FPartialDeviceStats := CT_TMinerStats_NULL;
   FGlobaDeviceStats := CT_TMinerStats_NULL;
   FLastStats := TPCThreadList.Create('TCustomMinerDeviceThread_LastStats');
-  FOnFoundNOnce:=Nil;
-  FOnMinerValuesChanged:=Nil;
-  FOnStateChanged:=Nil;
+  FOnFoundNOnce:= nil;
+  FOnMinerValuesChanged:= nil;
+  FOnStateChanged:= nil;
   FPaused:=true;
   FLastActiveTC := 0;
   SetMinerValuesForWork(InitialMinerValuesForWork);
@@ -418,7 +418,7 @@ begin
 end;
 
 destructor TCustomMinerDeviceThread.Destroy;
-Var i : Integer;
+var i : Integer;
   P : PTimeMinerStats;
   l : TList;
 begin
@@ -453,7 +453,7 @@ begin
 end;
 
 procedure TCustomMinerDeviceThread.FoundNOnce(Timestamp, nOnce: Cardinal);
-Var digest,dsha256  : TRawBytes;
+var digest,dsha256  : TRawBytes;
 begin
   // Validation
   digest := self.FMinerValuesForWork.part1+self.FMinerValuesForWork.payload_start+self.FMinerValuesForWork.part3+'00000000';
@@ -464,7 +464,7 @@ begin
   dsha256 := TCrypto.DoSha256(TCrypto.DoSha256(digest));
   if (dsha256 <= self.FMinerValuesForWork.target_pow) then begin
     FPoolMinerThread.OnMinerNewBlockFound(self,Timestamp,nOnce);
-    If Assigned(FOnFoundNOnce) then FOnFoundNOnce(Self,Timestamp,nOnce);
+    if Assigned(FOnFoundNOnce) then FOnFoundNOnce(Self,Timestamp,nOnce);
   end else begin
     inc(FGlobaDeviceStats.Invalids);
     TLog.NewLog(lterror,Self.Classname,Format('Invalid Double Sha256 found. Timestamp %s nOnce %s DSHA256 %s Valid POW %s',
@@ -473,12 +473,12 @@ begin
 end;
 
 function TCustomMinerDeviceThread.GlobalDeviceStats: TMinerStats;
-Var g : TMinerStats;
+var g : TMinerStats;
 begin
   FLastStats.LockList;
   try
     g := FGlobaDeviceStats;
-    If Not FPaused then begin
+    if not FPaused then begin
       g.WorkingMillisecondsHashing:= g.WorkingMillisecondsHashing + (GetTickCount - FLastActiveTC);
       g.WorkingMillisecondsTotal:= g.WorkingMillisecondsTotal + (GetTickCount - FLastActiveTC);
     end;
@@ -492,7 +492,7 @@ procedure TCustomMinerDeviceThread.SetIsMining(AValue: Boolean);
 begin
   if FIsMining=AValue then Exit;
   FIsMining:=AValue;
-  If Assigned(FOnStateChanged) then FOnStateChanged(Self);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
 end;
 
 procedure TCustomMinerDeviceThread.SetMinerValuesForWork(const Value: TMinerValuesForWork);
@@ -505,17 +505,17 @@ begin
   Repeat
     i := Length(FMinerValuesForWork.part1)+Length(FMinerValuesForWork.payload_start)+Length(FMinerValuesForWork.part3)+8;
     canWork := CanBeModifiedOnLastChunk(i,aux);
-    If Not canWork then FMinerValuesForWork.payload_start:=FMinerValuesForWork.payload_start+' ';
+    if not canWork then FMinerValuesForWork.payload_start:=FMinerValuesForWork.payload_start+' ';
   until (canWork);
   TLog.NewLog(ltinfo,classname,Format('Updated MinerValuesForWork: Target:%s Payload:%s',[IntToHex(FMinerValuesForWork.target,8),FMinerValuesForWork.payload_start]));
-  If Assigned(FOnMinerValuesChanged) then FOnMinerValuesChanged(Self);
+  if Assigned(FOnMinerValuesChanged) then FOnMinerValuesChanged(Self);
 end;
 
 procedure TCustomMinerDeviceThread.SetPaused(AValue: Boolean);
 begin
   if FPaused=AValue then Exit;
   FPaused:=AValue;
-  If Not FPaused then FLastActiveTC := GetTickCount
+  if not FPaused then FLastActiveTC := GetTickCount
   else begin
     FGlobaDeviceStats.WorkingMillisecondsHashing:=FGlobaDeviceStats.WorkingMillisecondsHashing + (GetTickCount - FLastActiveTC);
     FGlobaDeviceStats.WorkingMillisecondsTotal:=FGlobaDeviceStats.WorkingMillisecondsTotal + (GetTickCount - FLastActiveTC);
@@ -524,18 +524,18 @@ begin
 end;
 
 procedure TCustomMinerDeviceThread.UpdateDeviceStats(Stats: TMinerStats);
-Type TTimeMinerStats = Record
+Type TTimeMinerStats = record
        tc : Cardinal;
        stats : TMinerStats;
      end;
   PTimeMinerStats = ^TTimeMinerStats;
-Var l : TList;
+var l : TList;
   i : Integer;
   P : PTimeMinerStats;
   minTC, foundMaxMiners : Cardinal;
 begin
   l := FLastStats.LockList;
-  Try
+  try
     FPartialDeviceStats := CT_TMinerStats_NULL;
     New(P);
     P^.tc:=(GetTickCount - stats.WorkingMillisecondsTotal);
@@ -545,7 +545,7 @@ begin
     foundMaxMiners:=0;
     for i:=l.Count-1 downto 0 do begin
       P := l[i];
-      If (P^.tc<minTC) then begin
+      if (P^.tc<minTC) then begin
         l.Delete(i);
         Dispose(P);
       end else begin
@@ -554,13 +554,13 @@ begin
         if ((stats.Miners>foundMaxMiners)) then foundMaxMiners := stats.Miners;
       end;
     end;
-    If l.count>0 then begin
+    if l.count>0 then begin
       P := PTimeMinerStats(l[l.count-1]);
       FPartialDeviceStats.WorkingMillisecondsHashing:=P^.tc - PTimeMinerStats(l[0]).tc + P^.stats.WorkingMillisecondsHashing;
       FPartialDeviceStats.WorkingMillisecondsTotal:=P^.tc - PTimeMinerStats(l[0]).tc + P^.stats.WorkingMillisecondsTotal;
     end;
     FPartialDeviceStats.Miners:= foundMaxMiners;
-    If foundMaxMiners>FGlobaDeviceStats.Miners then FGlobaDeviceStats.Miners:=foundMaxMiners;
+    if foundMaxMiners>FGlobaDeviceStats.Miners then FGlobaDeviceStats.Miners:=foundMaxMiners;
     Inc(FGlobaDeviceStats.RoundsCount,Stats.RoundsCount);
     Inc(FGlobaDeviceStats.WinsCount,Stats.WinsCount);
   finally
@@ -570,7 +570,7 @@ end;
 
 procedure TCustomMinerDeviceThread.UpdateState;
 begin
-  If Assigned(FOnStateChanged) then FOnStateChanged(Self);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
 end;
 
 { TCPUDeviceThread }
@@ -589,7 +589,7 @@ var l : TList;
 begin
   needminers := FCPUs;
   if (FMinerValuesForWork.part1='') or (FPaused) then needminers := 0;
-  if Not FPoolMinerThread.PoolMinerClient.Connected then needminers := 0;
+  if not FPoolMinerThread.PoolMinerClient.Connected then needminers := 0;
   l := FCPUsThreads.LockList;
   try
     if l.Count=needminers then exit;
@@ -629,7 +629,7 @@ end;
 
 function TCPUDeviceThread.GetState: String;
 begin
-  If Paused then Result := 'CPU miner is paused'
+  if Paused then Result := 'CPU miner is paused'
   else Result := 'CPU miner is active for '+inttostr(FCPUs)+' CPU''s';
 end;
 
@@ -643,12 +643,12 @@ begin
   if FCPUs=AValue then Exit;
   FCPUs:=AValue;
   if FCPUs<0 then FCPUs := 0;
-  if (FCPUs>CPUCount) And (CPUCount>0) then FCPUs := CPUCount;
+  if (FCPUs>CPUCount) and (CPUCount>0) then FCPUs := CPUCount;
   CheckCPUs;
 end;
 
 procedure TCPUDeviceThread.SetMinerValuesForWork(const Value: TMinerValuesForWork);
-Var l : TList;
+var l : TList;
   i : Integer;
   nextmin : Cardinal;
   npos : Integer;
@@ -681,7 +681,7 @@ begin
         cpu.FDigestStreamMsg.size := 0;
         cpu.FChangeTimestampAndNOnceBytePos:=npos;
         cpu.FMinNOnce:=nextmin;
-        cpu.FMaxNOnce:=nextmin + (Cardinal($FFFFFFFF) DIV FCPUs) - 1;
+        cpu.FMaxNOnce:=nextmin + (Cardinal($FFFFFFFF) div FCPUs) - 1;
         nextmin := cpu.FMaxNOnce+1;
         cpu.FDigestStreamMsg.WriteBuffer(digest[1],length(digest));
       finally
@@ -719,18 +719,18 @@ Var
 begin
   AuxStats := CT_TMinerStats_NULL;
   nonce := 0;
-    while (Not Terminated) do begin
+    while (not Terminated) do begin
       AuxStats := CT_TMinerStats_NULL;
-      If (FCPUDeviceThread.Paused) then sleep(1)
+      if (FCPUDeviceThread.Paused) then sleep(1)
       else begin
         FLock.Acquire;
         try
           baseRealTC := GetTickCount;
-          If (nonce<FMinNOnce) Or (nonce>FMaxNOnce) then nonce:=FMinNOnce;
+          if (nonce<FMinNOnce) or (nonce>FMaxNOnce) then nonce:=FMinNOnce;
           // Timestamp
           ts := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
           if ts<=FCPUDeviceThread.FMinerValuesForWork.timestamp then ts := FCPUDeviceThread.FMinerValuesForWork.timestamp+1;
-          If FDigestStreamMsg.Size>8 then begin
+          if FDigestStreamMsg.Size>8 then begin
             if FCPUDeviceThread.FUseOpenSSLFunctions then begin
               FDigestStreamMsg.Position:=FDigestStreamMsg.Size - 8;
               FDigestStreamMsg.Write(ts,4);
@@ -779,7 +779,7 @@ begin
         finally
           FLock.Release;
         end;
-      end; // Not paused
+      end; // not paused
     end; // while
 end;
 

@@ -33,7 +33,7 @@ Type
 
   { TNode }
 
-  TNode = Class(TComponent)
+  TNode = class(TComponent)
   private
     FNodeLog : TLog;
     FLockNodeOperations : TPCCriticalSection;
@@ -44,57 +44,57 @@ Type
     FBCBankNotify : TPCBankNotify;
     FPeerCache : AnsiString;
     FDisabledsNewBlocksCount : Integer;
-    Procedure OnBankNewBlock(Sender : TObject);
+    procedure OnBankNewBlock(Sender : TObject);
     procedure SetNodeLogFilename(const Value: AnsiString);
     function GetNodeLogFilename: AnsiString;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
-    Class Function Node : TNode;
-    Class Procedure DecodeIpStringToNodeServerAddressArray(Const Ips : AnsiString; Var NodeServerAddressArray : TNodeServerAddressArray);
-    Class Function EncodeNodeServerAddressArrayToIpString(Const NodeServerAddressArray : TNodeServerAddressArray) : AnsiString;
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
-    Property Bank : TPCBank read FBank;
-    Function NetServer : TNetServer;
-    Procedure NotifyNetClientMessage(Sender : TNetConnection; Const TheMessage : AnsiString);
+    class function Node : TNode;
+    class procedure DecodeIpStringToNodeServerAddressArray(Const Ips : AnsiString; var NodeServerAddressArray : TNodeServerAddressArray);
+    class function EncodeNodeServerAddressArrayToIpString(Const NodeServerAddressArray : TNodeServerAddressArray) : AnsiString;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
+    property Bank : TPCBank read FBank;
+    function NetServer : TNetServer;
+    procedure NotifyNetClientMessage(Sender : TNetConnection; Const TheMessage : AnsiString);
     //
-    Property Operations : TPCOperationsComp read FOperations;
+    property Operations : TPCOperationsComp read FOperations;
     //
-    Function AddNewBlockChain(SenderConnection : TNetConnection; NewBlockOperations: TPCOperationsComp; var newBlockAccount: TBlockAccount; var errors: AnsiString): Boolean;
-    Function AddOperations(SenderConnection : TNetConnection; Operations : TOperationsHashTree; OperationsResult : TOperationsResumeList; var errors: AnsiString): Integer;
-    Function AddOperation(SenderConnection : TNetConnection; Operation : TPCOperation; var errors: AnsiString): Boolean;
-    Function SendNodeMessage(Target : TNetConnection; TheMessage : AnsiString; var errors : AnsiString) : Boolean;
+    function AddNewBlockChain(SenderConnection : TNetConnection; NewBlockOperations: TPCOperationsComp; var newBlockAccount: TBlockAccount; var errors: AnsiString): Boolean;
+    function AddOperations(SenderConnection : TNetConnection; Operations : TOperationsHashTree; OperationsResult : TOperationsResumeList; var errors: AnsiString): Integer;
+    function AddOperation(SenderConnection : TNetConnection; Operation : TPCOperation; var errors: AnsiString): Boolean;
+    function SendNodeMessage(Target : TNetConnection; TheMessage : AnsiString; var errors : AnsiString) : Boolean;
     //
-    Procedure NotifyBlocksChanged;
+    procedure NotifyBlocksChanged;
     //
     procedure GetStoredOperationsFromAccount(const OperationsResume: TOperationsResumeList; account_number: Cardinal; MaxDepth, MaxOperations : Integer);
-    Function FindOperation(Const OperationComp : TPCOperationsComp; Const OperationHash : TRawBytes; var block : Cardinal; var operation_block_index : Integer) : Boolean;
+    function FindOperation(Const OperationComp : TPCOperationsComp; Const OperationHash : TRawBytes; var block : Cardinal; var operation_block_index : Integer) : Boolean;
     //
-    Procedure AutoDiscoverNodes(Const ips : AnsiString);
-    Function IsBlockChainValid(var WhyNot : AnsiString) : Boolean;
-    Function IsReady(Var CurrentProcess : AnsiString) : Boolean;
-    Property PeerCache : AnsiString read FPeerCache write FPeerCache;
-    Procedure DisableNewBlocks;
-    Procedure EnableNewBlocks;
-    Property NodeLogFilename : AnsiString read GetNodeLogFilename write SetNodeLogFilename;
-  End;
+    procedure AutoDiscoverNodes(Const ips : AnsiString);
+    function IsBlockChainValid(var WhyNot : AnsiString) : Boolean;
+    function IsReady(var CurrentProcess : AnsiString) : Boolean;
+    property PeerCache : AnsiString read FPeerCache write FPeerCache;
+    procedure DisableNewBlocks;
+    procedure EnableNewBlocks;
+    property NodeLogFilename : AnsiString read GetNodeLogFilename write SetNodeLogFilename;
+  end;
 
-  TNodeNotifyEvents = Class;
+  TNodeNotifyEvents = class;
 
-  TThreadSafeNodeNotifyEvent = Class(TPCThread)
+  TThreadSafeNodeNotifyEvent = class(TPCThread)
     FNodeNotifyEvents : TNodeNotifyEvents;
     FNotifyBlocksChanged : Boolean;
     FNotifyOperationsChanged : Boolean;
-    Procedure SynchronizedProcess;
+    procedure SynchronizedProcess;
   protected
     procedure BCExecute; override;
-    Constructor Create(ANodeNotifyEvents : TNodeNotifyEvents);
-  End;
+    constructor Create(ANodeNotifyEvents : TNodeNotifyEvents);
+  end;
 
   TNodeMessageEvent = Procedure(NetConnection : TNetConnection; MessageData : TRawBytes) of object;
   { TNodeNotifyEvents is ThreadSafe and will only notify in the main thread }
-  TNodeNotifyEvents = Class(TComponent)
+  TNodeNotifyEvents = class(TComponent)
   private
     FNode: TNode;
     FPendingNotificationsList : TPCThreadList;
@@ -105,36 +105,36 @@ Type
     FOnNodeMessageEvent: TNodeMessageEvent;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetNode(const Value: TNode);
-    Procedure NotifyBlocksChanged;
-    Procedure NotifyOperationsChanged;
+    procedure NotifyBlocksChanged;
+    procedure NotifyOperationsChanged;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor Destroy; override;
-    Property Node : TNode read FNode write SetNode;
-    Property OnBlocksChanged : TNotifyEvent read FOnBlocksChanged write FOnBlocksChanged;
-    Property OnOperationsChanged : TNotifyEvent read FOnOperationsChanged write FOnOperationsChanged;
-    Property OnNodeMessageEvent : TNodeMessageEvent read FOnNodeMessageEvent write FOnNodeMessageEvent;
-  End;
+    constructor Create(AOwner : TComponent); override;
+    destructor Destroy; override;
+    property Node : TNode read FNode write SetNode;
+    property OnBlocksChanged : TNotifyEvent read FOnBlocksChanged write FOnBlocksChanged;
+    property OnOperationsChanged : TNotifyEvent read FOnOperationsChanged write FOnOperationsChanged;
+    property OnNodeMessageEvent : TNodeMessageEvent read FOnNodeMessageEvent write FOnNodeMessageEvent;
+  end;
 
-  TThreadNodeNotifyNewBlock = Class(TPCThread)
+  TThreadNodeNotifyNewBlock = class(TPCThread)
     FNetConnection : TNetConnection;
   protected
     procedure BCExecute; override;
-    Constructor Create(NetConnection : TNetConnection);
-  End;
+    constructor Create(NetConnection : TNetConnection);
+  end;
 
-  TThreadNodeNotifyOperations = Class(TPCThread)
+  TThreadNodeNotifyOperations = class(TPCThread)
     FNetConnection : TNetConnection;
     FOperationsHashTree : TOperationsHashTree;
   protected
     procedure BCExecute; override;
-    Constructor Create(NetConnection : TNetConnection; MakeACopyOfOperationsHashTree : TOperationsHashTree);
+    constructor Create(NetConnection : TNetConnection; MakeACopyOfOperationsHashTree : TOperationsHashTree);
     destructor Destroy; override;
-  End;
+  end;
 
 implementation
 
-Uses UOpTransaction, SysUtils,  UConst, UTime;
+uses UOpTransaction, SysUtils,  UConst, UTime;
 
 var _Node : TNode;
 
@@ -142,7 +142,7 @@ var _Node : TNode;
 
 function TNode.AddNewBlockChain(SenderConnection: TNetConnection; NewBlockOperations: TPCOperationsComp;
   var newBlockAccount: TBlockAccount; var errors: AnsiString): Boolean;
-Var i,j : Integer;
+var i,j : Integer;
   nc : TNetConnection;
   ms : TMemoryStream;
   s : String;
@@ -155,12 +155,12 @@ begin
     Inttohex(PtrInt(SenderConnection),8),TPCOperationsComp.OperationBlockToText(NewBlockOperations.OperationBlock)]));
     exit;
   end;
-  If NewBlockOperations.OperationBlock.block<>Bank.BlocksCount then exit;
+  if NewBlockOperations.OperationBlock.block<>Bank.BlocksCount then exit;
   OpBlock := NewBlockOperations.OperationBlock;
   TLog.NewLog(ltdebug,Classname,Format('AddNewBlockChain Connection:%s NewBlock:%s',[
     Inttohex(PtrInt(SenderConnection),8),TPCOperationsComp.OperationBlockToText(OpBlock)]));
-  If Not TPCThread.TryProtectEnterCriticalSection(Self,2000,FLockNodeOperations) then begin
-    If NewBlockOperations.OperationBlock.block<>Bank.BlocksCount then exit;
+  if not TPCThread.TryProtectEnterCriticalSection(Self,2000,FLockNodeOperations) then begin
+    if NewBlockOperations.OperationBlock.block<>Bank.BlocksCount then exit;
     s := 'Cannot AddNewBlockChain due blocking lock operations node';
     TLog.NewLog(lterror,Classname,s);
     if TThread.CurrentThread.ThreadID=MainThreadID then raise Exception.Create(s) else exit;
@@ -185,7 +185,7 @@ begin
       end;
       FOperations.Clear(true);
       ms.Position:=0;
-      If Not FOperations.LoadBlockFromStream(ms,errors2) then begin
+      if not FOperations.LoadBlockFromStream(ms,errors2) then begin
         TLog.NewLog(lterror,Classname,'Error recovering operations to sanitize: '+errors2);
         if Result then errors := errors2
         else errors := errors +' - '+errors2;
@@ -198,7 +198,7 @@ begin
     FLockNodeOperations.Release;
     TLog.NewLog(ltdebug,Classname,Format('Finalizing AddNewBlockChain Connection:%s NewBlock:%s',[
       Inttohex(PtrInt(SenderConnection),8),TPCOperationsComp.OperationBlockToText(OpBlock) ]));
-  End;
+  end;
   if Result then begin
     // Notify to clients
     j := TNetData.NetData.ConnectionsCountAll;
@@ -216,12 +216,12 @@ function TNode.AddOperation(SenderConnection : TNetConnection; Operation: TPCOpe
 var ops : TOperationsHashTree;
 begin
   ops := TOperationsHashTree.Create;
-  Try
+  try
     ops.AddOperationToHashTree(Operation);
     Result := AddOperations(SenderConnection,ops,Nil,errors)=1;
-  Finally
+  finally
     ops.Free;
-  End;
+  end;
 end;
 
 function TNode.AddOperations(SenderConnection : TNetConnection; Operations : TOperationsHashTree; OperationsResult : TOperationsResumeList; var errors: AnsiString): Integer;
@@ -249,7 +249,7 @@ begin
   try
     TLog.NewLog(ltdebug,Classname,Format('AddOperations Connection:%s Operations:%d',[
       Inttohex(PtrInt(SenderConnection),8),Operations.OperationsCount]));
-    if Not TPCThread.TryProtectEnterCriticalSection(Self,4000,FLockNodeOperations) then begin
+    if not TPCThread.TryProtectEnterCriticalSection(Self,4000,FLockNodeOperations) then begin
       s := 'Cannot AddOperations due blocking lock operations node';
       TLog.NewLog(lterror,Classname,s);
       if TThread.CurrentThread.ThreadID=MainThreadID then raise Exception.Create(s) else exit;
@@ -257,7 +257,7 @@ begin
     try
       for j := 0 to Operations.OperationsCount-1 do begin
         ActOp := Operations.GetOperation(j);
-        If FOperations.OperationsHashTree.IndexOfOperation(ActOp)<0 then begin
+        if FOperations.OperationsHashTree.IndexOfOperation(ActOp)<0 then begin
           if (FOperations.AddOperation(true,ActOp,e)) then begin
             inc(Result);
             valids_operations.AddOperationToHashTree(ActOp);
@@ -298,7 +298,7 @@ begin
     // Send to other nodes
     j := TNetData.NetData.ConnectionsCountAll;
     for i:=0 to j-1 do begin
-      If TNetData.NetData.GetConnection(i,nc) then begin
+      if TNetData.NetData.GetConnection(i,nc) then begin
         if (nc<>SenderConnection) then TThreadNodeNotifyOperations.Create(nc,valids_operations);
       end;
     end;
@@ -312,7 +312,7 @@ begin
 end;
 
 procedure TNode.AutoDiscoverNodes(const ips: AnsiString);
-Var i,j : Integer;
+var i,j : Integer;
   nsarr : TNodeServerAddressArray;
 begin
   DecodeIpStringToNodeServerAddressArray(ips+';'+PeerCache,nsarr);
@@ -342,12 +342,12 @@ begin
   FOperations := TPCOperationsComp.Create(Self);
   FOperations.bank := FBank;
   FNotifyList := TList.Create;
-  if Not Assigned(_Node) then _Node := Self;
+  if not Assigned(_Node) then _Node := Self;
 end;
 
 class procedure TNode.DecodeIpStringToNodeServerAddressArray(
   const Ips: AnsiString; var NodeServerAddressArray: TNodeServerAddressArray);
-  Function GetIp(var ips_string : AnsiString; var nsa : TNodeServerAddress) : Boolean;
+  function GetIp(var ips_string : AnsiString; var nsa : TNodeServerAddress) : Boolean;
   Const CT_IP_CHARS = ['a'..'z','A'..'Z','0'..'9','.','-','_'];
   var i : Integer;
     port : AnsiString;
@@ -359,7 +359,7 @@ class procedure TNode.DecodeIpStringToNodeServerAddressArray(
       exit;
     end;
     i := 1;
-    while (i<length(ips_string)) AND (NOT (ips_string[i] IN CT_IP_CHARS)) do inc(i);
+    while (i<length(ips_string)) and (not (ips_string[i] IN CT_IP_CHARS)) do inc(i);
     if (i>1) then ips_string := copy(ips_string,i,length(ips_string));
     //
     i := 1;
@@ -378,14 +378,14 @@ class procedure TNode.DecodeIpStringToNodeServerAddressArray(
     if nsa.port=0 then nsa.port := CT_NetServer_Port;
     Result := (trim(nsa.ip)<>'');
   end;
-Var i,j : Integer;
+var i,j : Integer;
   ips_string : AnsiString;
   nsa : TNodeServerAddress;
 begin
   SetLength(NodeServerAddressArray,0);
   ips_string := Ips;
   repeat
-    If GetIp(ips_string,nsa) then begin
+    if GetIp(ips_string,nsa) then begin
       SetLength(NodeServerAddressArray,length(NodeServerAddressArray)+1);
       NodeServerAddressArray[High(NodeServerAddressArray)] := nsa;
     end;
@@ -393,10 +393,10 @@ begin
 end;
 
 destructor TNode.Destroy;
-Var step : String;
+var step : String;
 begin
   TLog.NewLog(ltInfo,ClassName,'TNode.Destroy START');
-  Try
+  try
     step := 'Deleting critical section';
     FreeAndNil(FLockNodeOperations);
 
@@ -411,7 +411,7 @@ begin
     step := 'Destroying Operations';
     FreeAndNil(FOperations);
     step := 'Assigning NIL to node var';
-    if _Node=Self then _Node := Nil;
+    if _Node=Self then _Node := nil;
 
     step := 'Destroying Bank';
     FreeAndNil(FBCBankNotify);
@@ -420,12 +420,12 @@ begin
     step := 'inherited';
     FreeAndNil(FNodeLog);
     inherited;
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       TLog.NewLog(lterror,Classname,'Error destroying Node step: '+step+' Errors ('+E.ClassName+'): ' +E.Message);
-      Raise;
+      raise;
     end;
-  End;
+  end;
   TLog.NewLog(ltInfo,ClassName,'TNode.Destroy END');
 end;
 
@@ -460,7 +460,7 @@ begin
 end;
 
 function TNode.IsBlockChainValid(var WhyNot : AnsiString): Boolean;
-Var unixtimediff : Integer;
+var unixtimediff : Integer;
 begin
   Result :=false;
   if (TNetData.NetData.NetStatistics.ActiveConnections<=0)  then begin
@@ -472,7 +472,7 @@ begin
     exit;
   end;
   unixtimediff := UnivDateTimeToUnix(DateTime2UnivDateTime(Now)) - Bank.LastOperationBlock.timestamp;
-  If (unixtimediff<0) then begin
+  if (unixtimediff<0) then begin
     WhyNot := 'Invalid Last Block Time';
     exit;
   end;
@@ -521,7 +521,7 @@ begin
 end;
 
 procedure TNode.NotifyBlocksChanged;
-Var i : Integer;
+var i : Integer;
 begin
   for i := 0 to FNotifyList.Count-1 do begin
     TNodeNotifyEvents( FNotifyList[i] ).NotifyBlocksChanged;
@@ -529,7 +529,7 @@ begin
 end;
 
 procedure TNode.GetStoredOperationsFromAccount(const OperationsResume: TOperationsResumeList; account_number: Cardinal; MaxDepth, MaxOperations: Integer);
-  Procedure DoGetFromBlock(block_number : Cardinal; last_balance : Int64; act_depth : Integer);
+  procedure DoGetFromBlock(block_number : Cardinal; last_balance : Int64; act_depth : Integer);
   var opc : TPCOperationsComp;
     op : TPCOperation;
     OPR : TOperationResume;
@@ -537,11 +537,11 @@ procedure TNode.GetStoredOperationsFromAccount(const OperationsResume: TOperatio
     i : Integer;
     next_block_number : Cardinal;
   begin
-    if (act_depth<=0) Or ((block_number<=0) And (block_number>0)) then exit;
+    if (act_depth<=0) or ((block_number<=0) and (block_number>0)) then exit;
 
     opc := TPCOperationsComp.Create(Nil);
-    Try
-      If not Bank.Storage.LoadBlockChainBlock(opc,block_number) then begin
+    try
+      if not Bank.Storage.LoadBlockChainBlock(opc,block_number) then begin
         TLog.NewLog(lterror,ClassName,'Error searching for block '+inttostr(block_number));
         exit;
       end;
@@ -552,10 +552,10 @@ procedure TNode.GetStoredOperationsFromAccount(const OperationsResume: TOperatio
         for i := l.Count - 1 downto 0 do begin
           op := opc.Operation[PtrInt(l.Items[i])];
           if (i=0) then begin
-            If op.SenderAccount=account_number then next_block_number := op.Previous_Sender_updated_block
+            if op.SenderAccount=account_number then next_block_number := op.Previous_Sender_updated_block
             else next_block_number := op.Previous_Destination_updated_block;
           end;
-          If TPCOperation.OperationToOperationResume(block_number,Op,account_number,OPR) then begin
+          if TPCOperation.OperationToOperationResume(block_number,Op,account_number,OPR) then begin
             OPR.NOpInsideBlock := Op.tag; // Note: Used Op.tag to include operation index inside a list
             OPR.time := opc.OperationBlock.timestamp;
             OPR.Block := block_number;
@@ -565,7 +565,7 @@ procedure TNode.GetStoredOperationsFromAccount(const OperationsResume: TOperatio
           end;
         end;
         // Is a new block operation?
-        if (TAccountComp.AccountBlock(account_number)=block_number) And ((account_number MOD CT_AccountsPerBlock)=0) then begin
+        if (TAccountComp.AccountBlock(account_number)=block_number) and ((account_number mod CT_AccountsPerBlock)=0) then begin
           OPR := CT_TOperationResume_NUL;
           OPR.valid := true;
           OPR.Block := block_number;
@@ -579,24 +579,24 @@ procedure TNode.GetStoredOperationsFromAccount(const OperationsResume: TOperatio
         end;
         //
         opc.Clear(true);
-        if (next_block_number>=0) And (next_block_number<block_number) And (act_depth>0)
-           And (next_block_number >= (account_number DIV CT_AccountsPerBlock))
-           And ((OperationsResume.Count<MaxOperations) Or (MaxOperations<=0))
+        if (next_block_number>=0) and (next_block_number<block_number) and (act_depth>0)
+           and (next_block_number >= (account_number div CT_AccountsPerBlock))
+           and ((OperationsResume.Count<MaxOperations) or (MaxOperations<=0))
            then DoGetFromBlock(next_block_number,last_balance,act_depth-1);
       finally
         l.Free;
       end;
-    Finally
+    finally
       opc.Free;
-    End;
+    end;
   end;
 
-Var acc : TAccount;
+var acc : TAccount;
 begin
   if MaxDepth<0 then exit;
   if account_number>=Bank.SafeBox.AccountsCount then exit;
   acc := Bank.SafeBox.Account(account_number);
-  if (acc.updated_block>0) Or (acc.account=0) then DoGetFromBlock(acc.updated_block,acc.balance,MaxDepth);
+  if (acc.updated_block>0) or (acc.account=0) then DoGetFromBlock(acc.updated_block,acc.balance,MaxDepth);
 end;
 
 function TNode.FindOperation(const OperationComp: TPCOperationsComp;
@@ -610,17 +610,17 @@ var account,n_operation : Cardinal;
 begin
   Result := False;
   // Decode OperationHash
-  If not TPCOperation.DecodeOperationHash(OperationHash,block,account,n_operation) then exit;
+  if not TPCOperation.DecodeOperationHash(OperationHash,block,account,n_operation) then exit;
   initial_block := block;
   //
-  If (account>=Bank.AccountsCount) then exit; // Invalid account number
-  // If block=0 then we must search in pending operations first
+  if (account>=Bank.AccountsCount) then exit; // Invalid account number
+  // if block=0 then we must search in pending operations first
   if (block=0) then begin
     FOperations.Lock;
-    Try
+    try
       For i:=0 to FOperations.Count-1 do begin
-        If (FOperations.Operation[i].SenderAccount=account) then begin
-          If (TPCOperation.OperationHash(FOperations.Operation[i],0)=OperationHash) then begin
+        if (FOperations.Operation[i].SenderAccount=account) then begin
+          if (TPCOperation.OperationHash(FOperations.Operation[i],0)=OperationHash) then begin
             operation_block_index:=i;
             OperationComp.CopyFrom(FOperations);
             Result := true;
@@ -637,32 +637,32 @@ begin
   end;
   if (block=0) or (block>=Bank.BlocksCount) then exit;
   // Search in previous blocks
-  While (Not Result) And (block>0) do begin
+  while (not Result) and (block>0) do begin
     aux_block := block;
-    If Not Bank.LoadOperations(OperationComp,block) then exit;
+    if not Bank.LoadOperations(OperationComp,block) then exit;
     For i:=OperationComp.Count-1 downto 0 do begin
       op := OperationComp.Operation[i];
       if (op.SenderAccount=account) then begin
-        If (op.N_Operation<n_operation) then exit; // n_operation is greaten than found
-        If (op.N_Operation=n_operation) then begin
+        if (op.N_Operation<n_operation) then exit; // n_operation is greaten than found
+        if (op.N_Operation=n_operation) then begin
           // Possible candidate or dead
-          If TPCOperation.OperationHash(op,initial_block)=OperationHash then begin
+          if TPCOperation.OperationHash(op,initial_block)=OperationHash then begin
             operation_block_index:=i;
             Result := true;
             exit;
-          end else exit; // Not found!
+          end else exit; // not found!
         end;
-        If op.Previous_Sender_updated_block>block then exit;
+        if op.Previous_Sender_updated_block>block then exit;
         block := op.Previous_Sender_updated_block;
       end;
     end;
     if (block>=aux_block) then exit; // Error... not found a valid block positioning
-    if (initial_block<>0) then exit; // If not found in specified block, no valid hash
+    if (initial_block<>0) then exit; // if not found in specified block, no valid hash
   end;
 end;
 
 procedure TNode.NotifyNetClientMessage(Sender: TNetConnection; const TheMessage: AnsiString);
-Var i : Integer;
+var i : Integer;
   s : AnsiString;
 begin
   for i := 0 to FNotifyList.Count-1 do begin
@@ -678,12 +678,12 @@ begin
 end;
 
 function TNode.SendNodeMessage(Target: TNetConnection; TheMessage: AnsiString; var errors: AnsiString): Boolean;
-Var i,j : Integer;
+var i,j : Integer;
   nc : TNetConnection;
   s : String;
 begin
   Result := false;
-  if Not TPCThread.TryProtectEnterCriticalSection(Self,4000,FLockNodeOperations) then begin
+  if not TPCThread.TryProtectEnterCriticalSection(Self,4000,FLockNodeOperations) then begin
     s := 'Cannot Send node message due blocking lock operations node';
     TLog.NewLog(lterror,Classname,s);
     if TThread.CurrentThread.ThreadID=MainThreadID then raise Exception.Create(s) else exit;
@@ -696,7 +696,7 @@ begin
       j := TNetData.NetData.ConnectionsCountAll;
       for i:=0 to j-1 do begin
         if TNetData.NetData.GetConnection(i,nc) then begin
-          If TNetData.NetData.ConnectionLock(Self,nc,500) then begin
+          if TNetData.NetData.ConnectionLock(Self,nc,500) then begin
             try
               nc.Send_Message(TheMessage);
             finally
@@ -722,9 +722,9 @@ end;
 constructor TNodeNotifyEvents.Create(AOwner: TComponent);
 begin
   inherited;
-  FOnOperationsChanged := Nil;
-  FOnBlocksChanged := Nil;
-  FOnNodeMessageEvent := Nil;
+  FOnOperationsChanged := nil;
+  FOnBlocksChanged := nil;
+  FOnNodeMessageEvent := nil;
   FMessages := TStringList.Create;
   FPendingNotificationsList := TPCThreadList.Create('TNodeNotifyEvents_PendingNotificationsList');
   FThreadSafeNodeNotifyEvent := TThreadSafeNodeNotifyEvent.Create(Self);
@@ -735,7 +735,7 @@ end;
 destructor TNodeNotifyEvents.Destroy;
 begin
   if Assigned(FNode) then FNode.FNotifyList.Remove(Self);
-  FThreadSafeNodeNotifyEvent.FNodeNotifyEvents := Nil;
+  FThreadSafeNodeNotifyEvent.FNodeNotifyEvents := nil;
   FThreadSafeNodeNotifyEvent.Terminate;
   FreeAndNil(FPendingNotificationsList);
   FreeAndNil(FMessages);
@@ -746,7 +746,7 @@ procedure TNodeNotifyEvents.Notification(AComponent: TComponent; Operation: TOpe
 begin
   inherited;
   if (Operation=opremove) then begin
-    if AComponent=FNode then FNode := Nil;
+    if AComponent=FNode then FNode := nil;
   end;
 end;
 
@@ -778,8 +778,8 @@ end;
 
 procedure TThreadSafeNodeNotifyEvent.BCExecute;
 begin
-  while (not Terminated) AND (Assigned(FNodeNotifyEvents)) do begin
-    if (FNotifyOperationsChanged) Or (FNotifyBlocksChanged) Or (FNodeNotifyEvents.FMessages.Count>0) then Synchronize(SynchronizedProcess);
+  while (not Terminated) and (Assigned(FNodeNotifyEvents)) do begin
+    if (FNotifyOperationsChanged) or (FNotifyBlocksChanged) or (FNodeNotifyEvents.FMessages.Count>0) then Synchronize(SynchronizedProcess);
     Sleep(100);
   end;
 end;
@@ -791,25 +791,25 @@ begin
 end;
 
 procedure TThreadSafeNodeNotifyEvent.SynchronizedProcess;
-Var i : Integer;
+var i : Integer;
 begin
-  Try
-    If (Terminated) Or (Not Assigned(FNodeNotifyEvents)) then exit;
+  try
+    if (Terminated) or (not Assigned(FNodeNotifyEvents)) then exit;
     if FNotifyBlocksChanged then begin
       FNotifyBlocksChanged := false;
       DebugStep:='Notify OnBlocksChanged';
-      if Assigned(FNodeNotifyEvents) And (Assigned(FNodeNotifyEvents.FOnBlocksChanged)) then
+      if Assigned(FNodeNotifyEvents) and (Assigned(FNodeNotifyEvents.FOnBlocksChanged)) then
         FNodeNotifyEvents.FOnBlocksChanged(FNodeNotifyEvents);
     end;
     if FNotifyOperationsChanged then begin
       FNotifyOperationsChanged := false;
       DebugStep:='Notify OnOperationsChanged';
-      if Assigned(FNodeNotifyEvents) And (Assigned(FNodeNotifyEvents.FOnOperationsChanged)) then
+      if Assigned(FNodeNotifyEvents) and (Assigned(FNodeNotifyEvents.FOnOperationsChanged)) then
         FNodeNotifyEvents.FOnOperationsChanged(FNodeNotifyEvents);
     end;
     if FNodeNotifyEvents.FMessages.Count>0 then begin
       DebugStep:='Notify OnNodeMessageEvent';
-      if Assigned(FNodeNotifyEvents) And (Assigned(FNodeNotifyEvents.FOnNodeMessageEvent)) then begin
+      if Assigned(FNodeNotifyEvents) and (Assigned(FNodeNotifyEvents.FOnNodeMessageEvent)) then begin
         for i := 0 to FNodeNotifyEvents.FMessages.Count - 1 do begin
           DebugStep:='Notify OnNodeMessageEvent '+inttostr(i+1)+'/'+inttostr(FNodeNotifyEvents.FMessages.Count);
           FNodeNotifyEvents.FOnNodeMessageEvent(TNetConnection(FNodeNotifyEvents.FMessages.Objects[i]),FNodeNotifyEvents.FMessages.Strings[i]);
@@ -817,11 +817,11 @@ begin
       end;
       FNodeNotifyEvents.FMessages.Clear;
     end;
-  Except
-    On E:Exception do begin
+  except
+    on E:Exception do begin
       TLog.NewLog(lterror,ClassName,'Exception inside a Synchronized process: '+E.ClassName+':'+E.Message+' Step:'+DebugStep);
     end;
-  End;
+  end;
 end;
 
 { TThreadNodeNotifyNewBlock }
@@ -881,7 +881,7 @@ begin
 end;
 
 initialization
-  _Node := Nil;
+  _Node := nil;
 finalization
   FreeAndNil(_Node);
 end.

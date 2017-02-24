@@ -99,7 +99,7 @@ end;
 destructor TPascalCoinServerApp.Destroy;
 begin
   FreeAndNil(FWalletKeys);
-  FLog.OnNewLog:=Nil;
+  FLog.OnNewLog:= nil;
   FreeAndNil(FLog);
   FreeAndNil(FLock);
   inherited Destroy;
@@ -130,7 +130,7 @@ end;
 
 procedure TPascalCoinServerApp.OnPascalCoinLog(logtype: TLogType;
   Time: TDateTime; ThreadID: Cardinal; const sender, logtext: AnsiString);
-Var s : AnsiString;
+var s : AnsiString;
 begin
   if (logtype=ltdebug)  then exit;
   if ThreadID=MainThreadID then s := ' MAIN:' else s:=' TID:';
@@ -266,7 +266,7 @@ begin
   TLog.NewLog(ltinfo,Classname,'PascalCoin Server');
   // Load Node
   // Check OpenSSL dll
-  if Not LoadSSLCrypt then raise Exception.Create('Cannot load '+SSL_C_LIB+#10+'To use this software make sure this file is available on you system or reinstall the application');
+  if not LoadSSLCrypt then raise Exception.Create('Cannot load '+SSL_C_LIB+#10+'To use this software make sure this file is available on you system or reinstall the application');
   TCrypto.InitCrypto;
   FWalletKeys.WalletFileName := TFolderHelper.GetPascalCoinDataFolder+PathDelim+'WalletKeys.dat';
   // Creating Node:

@@ -30,14 +30,14 @@ uses
   SysUtils, UCrypto;
 
 Type
-  TAESComp = Class
+  TAESComp = class
   private
   public
-    Class function EVP_Encrypt_AES256(Value: TBytes; APassword: TBytes): TBytes; overload;
-    Class function EVP_Decrypt_AES256(const Value: TBytes; APassword: TBytes; var Decrypted: TBytes) : Boolean; overload;
-    Class function EVP_Encrypt_AES256(Const TheMessage, APassword : AnsiString): AnsiString; overload;
-    Class function EVP_Decrypt_AES256(const EncryptedMessage: TRawBytes; APassword: AnsiString; var Decrypted : AnsiString) : Boolean; overload;
-  End;
+    class function EVP_Encrypt_AES256(Value: TBytes; APassword: TBytes): TBytes; overload;
+    class function EVP_Decrypt_AES256(const Value: TBytes; APassword: TBytes; var Decrypted: TBytes) : Boolean; overload;
+    class function EVP_Encrypt_AES256(Const TheMessage, APassword : AnsiString): AnsiString; overload;
+    class function EVP_Decrypt_AES256(const EncryptedMessage: TRawBytes; APassword: AnsiString; var Decrypted : AnsiString) : Boolean; overload;
+  end;
 
 {$IFDEF FPC}
 procedure CopyMemory(Destination: Pointer; Source: Pointer; Length: DWORD);
@@ -68,7 +68,7 @@ begin
   RAND_pseudo_bytes(@result[0], PKCS5_SALT_LEN);
 end;
 
-Function EVP_GetKeyIV(APassword: TBytes; ACipher: PEVP_CIPHER; const ASalt: TBytes; out Key, IV: TBytes) : Boolean;
+function EVP_GetKeyIV(APassword: TBytes; ACipher: PEVP_CIPHER; const ASalt: TBytes; out Key, IV: TBytes) : Boolean;
 var
   pctx: PEVP_MD_CTX;
   {$IFDEF OpenSSL10}
@@ -112,21 +112,21 @@ begin
   {$ENDIF}
   try
     // Key first
-    If EVP_DigestInit_ex(pctx, hash, nil)<>1 then exit;
-    If EVP_DigestUpdate(pctx, @APassword[0], Length(APassword))<>1 then exit;
+    if EVP_DigestInit_ex(pctx, hash, nil)<>1 then exit;
+    if EVP_DigestUpdate(pctx, @APassword[0], Length(APassword))<>1 then exit;
     if (ASalt <> nil) then begin
       if EVP_DigestUpdate(pctx, @ASalt[0], Length(ASalt))<>1 then exit;
     end;
     if (EVP_DigestFinal_ex(pctx, @Key[0], mds)<>1) then exit;
 
     // Derive IV next
-    If EVP_DigestInit_ex(pctx, hash, nil)<>1 then exit;
-    If EVP_DigestUpdate(pctx, @Key[0], mds)<>1 then exit;
-    If EVP_DigestUpdate(pctx, @APassword[0], Length(APassword))<>1 then exit;
+    if EVP_DigestInit_ex(pctx, hash, nil)<>1 then exit;
+    if EVP_DigestUpdate(pctx, @Key[0], mds)<>1 then exit;
+    if EVP_DigestUpdate(pctx, @APassword[0], Length(APassword))<>1 then exit;
     if (ASalt <> nil) then begin
       if EVP_DigestUpdate(pctx, @ASalt[0], Length(ASalt))<>1 then exit;
     end;
-    If EVP_DigestFinal_ex(pctx, @IV[0], mds)<>1 then exit;
+    if EVP_DigestFinal_ex(pctx, @IV[0], mds)<>1 then exit;
 
     SetLength(IV, niv);
     Result := true;
@@ -142,7 +142,7 @@ end;
 { TAESComp }
 
 class function TAESComp.EVP_Decrypt_AES256(const EncryptedMessage: TRawBytes; APassword: AnsiString; var Decrypted : AnsiString) : Boolean;
-Var bytes_encrypted, bytes_password, bytes_result : TBytes;
+var bytes_encrypted, bytes_password, bytes_result : TBytes;
 begin
   SetLength(bytes_encrypted,length(EncryptedMessage));
   CopyMemory(bytes_encrypted,@EncryptedMessage[1],length(EncryptedMessage));
@@ -169,15 +169,15 @@ begin
   cipher := EVP_aes_256_cbc;
   SetLength(salt, SALT_SIZE);
   // First read the magic text and the salt - if any
-  if (length(Value)>=SALT_MAGIC_LEN) AND (AnsiString(TEncoding.ASCII.GetString(Value, 0, SALT_MAGIC_LEN)) = SALT_MAGIC) then
+  if (length(Value)>=SALT_MAGIC_LEN) and (AnsiString(TEncoding.ASCII.GetString(Value, 0, SALT_MAGIC_LEN)) = SALT_MAGIC) then
   begin
     Move(Value[SALT_MAGIC_LEN], salt[0], SALT_SIZE);
-    If Not EVP_GetKeyIV(APassword, cipher, salt, key, iv) then exit;
+    if not EVP_GetKeyIV(APassword, cipher, salt, key, iv) then exit;
     src_start := SALT_MAGIC_LEN + SALT_SIZE;
   end
   else
   begin
-    If Not EVP_GetKeyIV(APassword, cipher, nil, key, iv) then exit;
+    if not EVP_GetKeyIV(APassword, cipher, nil, key, iv) then exit;
     src_start := 0;
   end;
   {$IFDEF OpenSSL10}
@@ -187,12 +187,12 @@ begin
   pctx := EVP_CIPHER_CTX_new;
   {$ENDIF}
   try
-    If EVP_DecryptInit(pctx, cipher, @key[0], @iv[0])<>1 then exit;
+    if EVP_DecryptInit(pctx, cipher, @key[0], @iv[0])<>1 then exit;
     SetLength(buf, Length(Value));
     buf_start := 0;
-    If EVP_DecryptUpdate(pctx, @buf[buf_start], out_len, @Value[src_start], Length(Value) - src_start)<>1 then exit;
+    if EVP_DecryptUpdate(pctx, @buf[buf_start], out_len, @Value[src_start], Length(Value) - src_start)<>1 then exit;
     Inc(buf_start, out_len);
-    If EVP_DecryptFinal(pctx, @buf[buf_start], out_len)<>1 then exit;
+    if EVP_DecryptFinal(pctx, @buf[buf_start], out_len)<>1 then exit;
     Inc(buf_start, out_len);
     SetLength(buf, buf_start);
     Decrypted := buf;
@@ -207,7 +207,7 @@ begin
 end;
 
 class function TAESComp.EVP_Encrypt_AES256(const TheMessage, APassword: AnsiString): AnsiString;
-Var bytes_message, bytes_password, bytes_result : TBytes;
+var bytes_message, bytes_password, bytes_result : TBytes;
 begin
   SetLength(bytes_message,length(TheMessage));
   CopyMemory(bytes_message,@TheMessage[1],length(TheMessage));
