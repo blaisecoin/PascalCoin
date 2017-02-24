@@ -411,7 +411,7 @@ uses
   SysUtils, Variants, {Graphics,}
   {Controls, Forms,}
   Dialogs, {StdCtrls,}
-  UTime, UConst, UOpTransaction;
+  UTime, UConst, UOpTransaction, UStreamOp;
 
 { TPCBank }
 

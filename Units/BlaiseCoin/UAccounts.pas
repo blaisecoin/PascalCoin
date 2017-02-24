@@ -213,12 +213,6 @@ Type
     function Modified(index : Integer) : TAccount;
   end;
 
-  TStreamOp = class
-  public
-    class function WriteAnsiString(Stream: TStream; value: AnsiString): Integer;
-    class function ReadAnsiString(Stream: TStream; var value: AnsiString): Integer;
-  end;
-
 Const
   CT_Account_NUL : TAccount = (account:0;accountkey:(EC_OpenSSL_NID:0;x:'';y:'');balance:0;updated_block:0;n_operation:0);
   CT_BlockAccount_NUL : TBlockAccount = (
@@ -238,43 +232,7 @@ Const
 implementation
 
 uses
-  SysUtils, ULog, UOpenSSLdef, UOpenSSL;
-
-{ TStreamOp }
-
-class function TStreamOp.ReadAnsiString(Stream: TStream; var value: AnsiString): Integer;
-Var
-  l: Word;
-begin
-  value := '';
-  Result := -1;
-  if Stream.Size - Stream.Position < 2 then
-    exit;
-  Stream.Read(l, 2);
-  if Stream.Size - Stream.Position < l then begin
-    Stream.Position := Stream.Position - 2; // Go back!
-    exit;
-  end;
-  SetLength(value, l);
-  Stream.ReadBuffer(value[1], l);
-  Result := l;
-end;
-
-class function TStreamOp.WriteAnsiString(Stream: TStream; value: AnsiString): Integer;
-Var
-  l: Word;
-begin
-  if (Length(value)>(256*256)) then begin
-    TLog.NewLog(lterror,Classname,'Invalid stream size! '+Inttostr(Length(value)));
-    raise Exception.Create('Invalid stream size! '+Inttostr(Length(value)));
-  end;
-
-  l := Length(value);
-  Stream.Write(l, 2);
-  if (l > 0) then
-    Stream.WriteBuffer(value[1], Length(value));
-  Result := l;
-end;
+  SysUtils, ULog, UStreamOp, UOpenSSLdef, UOpenSSL;
 
 { TAccountComp }
 Const CT_Base58 : AnsiString = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';

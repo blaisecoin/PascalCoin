@@ -32,7 +32,8 @@ uses
   UFileStorage in 'Units\BlaiseCoin\UFileStorage.pas',
   UOpenSSL in 'Units\BlaiseCoin\UOpenSSL.pas',
   UOpenSSLdef in 'Units\BlaiseCoin\UOpenSSLdef.pas',
-  UAES in 'Units\BlaiseCoin\UAES.pas';
+  UAES in 'Units\BlaiseCoin\UAES.pas',
+  UStreamOp in 'Units\BlaiseCoin\UStreamOp.pas';
 
 {$R *.res}
 

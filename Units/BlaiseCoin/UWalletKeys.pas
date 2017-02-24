@@ -86,7 +86,7 @@ Const CT_TWalletKey_NUL  : TWalletKey = (Name:'';AccountKey:(EC_OpenSSL_NID:0;x:
 implementation
 
 uses
-  SysUtils, UConst, ULog, UAES;
+  SysUtils, UConst, ULog, UAES, UStreamOp;
 
 Const
   CT_PrivateKeyFile_Magic = 'TWalletKeys';

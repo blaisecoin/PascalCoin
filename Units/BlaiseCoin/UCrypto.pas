@@ -123,7 +123,7 @@ Const
 implementation
 
 uses
-  ULog, UConst, UAccounts;
+  ULog, UConst, UStreamOp;
 
 var _initialized : Boolean = false;
 

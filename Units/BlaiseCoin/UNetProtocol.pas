@@ -359,7 +359,7 @@ Const
 implementation
 
 uses
-  UConst, ULog, UNode, UTime, UECIES;
+  UConst, ULog, UStreamOp, UNode, UTime, UECIES;
 
 Const
   CT_NetTransferType : Array[TNetTransferType] of AnsiString = ('Unknown','Request','Response','Autosend');

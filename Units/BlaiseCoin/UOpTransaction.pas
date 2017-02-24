@@ -126,7 +126,7 @@ Procedure RegisterOperationsClass;
 implementation
 
 uses
-  SysUtils, UConst, ULog;
+  SysUtils, UConst, ULog, UStreamOp;
 
 Procedure RegisterOperationsClass;
 Begin
