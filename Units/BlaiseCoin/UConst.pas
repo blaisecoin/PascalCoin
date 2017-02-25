@@ -53,7 +53,7 @@ Const
 
   CT_WaitNewBlocksBeforeTransaction = 100;
 
-  CT_RecoverFoundsWaitInactiveCount = 420480;  // After 4 years... if an account has no operations, money will be a reward for a miner!
+  CT_RecoverFundsWaitInactiveCount = 420480;  // After 4 years... if an account has no operations, money will be a reward for a miner!
 
   CT_MaxTransactionAmount = 1000000000000;
   CT_MaxTransactionFee = 100000000;

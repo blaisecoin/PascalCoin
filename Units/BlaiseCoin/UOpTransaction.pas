@@ -655,15 +655,15 @@ begin
     exit;
   end;
   acc := AccountTransaction.Account(FData.account);
-  if (acc.updated_block + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
+  if (acc.updated_block + CT_RecoverFundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
   begin
-    errors := Format('Account is active to recover founds! Account %d Updated %d + %d >= BlockCount : %d',[FData.account,acc.updated_block,CT_RecoverFoundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
+    errors := Format('Account is active to recover funds! Account %d Updated %d + %d >= BlockCount : %d',[FData.account,acc.updated_block,CT_RecoverFundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
     exit;
   end;
   // Build 1.0.8 ... there was a BUG. Need to prevent recent created accounts
-  if (TAccountComp.AccountBlock(FData.account) + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
+  if (TAccountComp.AccountBlock(FData.account) + CT_RecoverFundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
   begin
-    errors := Format('AccountBlock is active to recover founds! AccountBlock %d + %d >= BlockCount : %d',[TAccountComp.AccountBlock(FData.account),CT_RecoverFoundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
+    errors := Format('AccountBlock is active to recover funds! AccountBlock %d + %d >= BlockCount : %d',[TAccountComp.AccountBlock(FData.account),CT_RecoverFundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
     exit;
   end;
   if ((acc.n_operation+1)<>FData.n_operation) then
@@ -752,7 +752,7 @@ end;
 
 function TOpRecoverFunds.toString: String;
 begin
-  Result := Format('Recover founds of account %s fee:%s (n_op:%d)',[
+  Result := Format('Recover funds of account %s fee:%s (n_op:%d)',[
     TAccountComp.AccountNumberToAccountTxtNumber(FData.account),
     TAccountComp.FormatMoney(FData.fee),fData.n_operation]);
 end;
