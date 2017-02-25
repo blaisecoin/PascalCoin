@@ -989,7 +989,7 @@ begin
     bn.LShift(256 - nbits - 25);
     Result := bn.RawValue;
     Result := StringOfChar(#0, 32 - Length(Result)) + Result;
-    if length(Result)<>32 then
+    if Length(Result)<>32 then
     begin
       raise Exception.Create('TargetFromCompact result length<>32 '+inttostr(Length(Result)));
     end;
@@ -1006,8 +1006,8 @@ Var
 begin
   { See instructions in explanation of TargetFromCompact }
   Result := 0;
-  if length(target)>32 then begin
-    raise Exception.Create('Invalid target to compact: '+TCrypto.ToHexaString(target)+' ('+inttostr(length(target))+')');
+  if Length(target)>32 then begin
+    raise Exception.Create('Invalid target to compact: '+TCrypto.ToHexaString(target)+' ('+inttostr(Length(target))+')');
   end;
   target := StringOfChar(#0, 32 - Length(target)) + target;
   bn := TBigNum.Create(0);
@@ -1073,8 +1073,7 @@ Begin
   finally
     Unlock;
   end;
-End;
-
+end;
 
 function TPCOperationsComp.AddOperations(operations: TOperationsHashTree; var errors: AnsiString): Integer;
 var
@@ -1111,45 +1110,63 @@ end;
 
 procedure TPCOperationsComp.CalcProofOfWork(fullcalculation: Boolean;
   var PoW: TRawBytes);
+var
+  l1, l2, l3 : LongInt;
 begin
   if fullcalculation then
   begin
     Calc_Digest_Parts;
   end;
   FStreamPoW.Position := 0;
-  FStreamPoW.WriteBuffer(FDigest_Part1[1],length(FDigest_Part1));
-  FStreamPoW.WriteBuffer(FDigest_Part2_Payload[1],length(FDigest_Part2_Payload));
-  FStreamPoW.WriteBuffer(FDigest_Part3[1],length(FDigest_Part3));
-  FStreamPoW.Write(FOperationBlock.timestamp,4);
-  FStreamPoW.Write(FOperationBlock.nonce,4);
-  TCrypto.DoDoubleSha256(FStreamPoW.Memory,length(FDigest_Part1)+length(FDigest_Part2_Payload)+length(FDigest_Part3)+8,PoW);
+  l1 := Length(FDigest_Part1);
+  if l1 > 0 then
+    FStreamPoW.WriteBuffer(FDigest_Part1[1], l1);
+  l2 := Length(FDigest_Part2_Payload);
+  if l2 > 0 then
+    FStreamPoW.WriteBuffer(FDigest_Part2_Payload[1], l2);
+  l3 :=  Length(FDigest_Part3);
+  if l3 > 0 then
+    FStreamPoW.WriteBuffer(FDigest_Part3[1], l3);
+  FStreamPoW.WriteBuffer(FOperationBlock.timestamp, 4);
+  FStreamPoW.WriteBuffer(FOperationBlock.nonce, 4);
+  TCrypto.DoDoubleSha256(FStreamPoW.Memory, l1 + l2 + l3 + 8, PoW);
 end;
 
 procedure TPCOperationsComp.Calc_Digest_Parts;
-var ms : TMemoryStream;
+var
+  ms : TMemoryStream;
   s : AnsiString;
+  l : LongInt;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(FOperationBlock.block,Sizeof(FOperationBlock.block)); // Little endian
+    ms.WriteBuffer(FOperationBlock.block, SizeOf(FOperationBlock.block)); // Little endian
     s := TAccountComp.AccountKey2RawString(FOperationBlock.account_key);
-    ms.WriteBuffer(s[1],length(s));
-    ms.Write(FOperationBlock.reward,Sizeof(FOperationBlock.reward)); // Little endian
-    ms.Write(FOperationBlock.protocol_version,Sizeof(FOperationBlock.protocol_version)); // Little endian
-    ms.Write(FOperationBlock.protocol_available,Sizeof(FOperationBlock.protocol_available)); // Little endian
-    ms.Write(FOperationBlock.compact_target,Sizeof(FOperationBlock.compact_target)); // Little endian
-    SetLength(FDigest_Part1,ms.Size);
-    ms.Position :=0;
-    ms.ReadBuffer(FDigest_Part1[1],ms.Size);
-    ms.Clear;
-    FDigest_Part2_Payload := FOperationBlock.block_payload;
-    ms.WriteBuffer(FOperationBlock.initial_safe_box_hash[1],length(FOperationBlock.initial_safe_box_hash));
-    ms.WriteBuffer(FOperationsHashTree.HashTree[1],length(FOperationsHashTree.HashTree));
-    // Note about fee: Fee is stored in 8 bytes, but only digest first 4 low bytes
-    ms.Write(FOperationBlock.fee,4);
-    SetLength(FDigest_Part3,ms.Size);
+    l := Length(s);
+    if l > 0 then
+      ms.WriteBuffer(s[1], l);
+    ms.WriteBuffer(OperationBlock.reward, SizeOf(FOperationBlock.reward)); // Little endian
+    ms.WriteBuffer(FOperationBlock.protocol_version, SizeOf(FOperationBlock.protocol_version)); // Little endian
+    ms.WriteBuffer(FOperationBlock.protocol_available, SizeOf(FOperationBlock.protocol_available)); // Little endian
+    ms.WriteBuffer(FOperationBlock.compact_target, SizeOf(FOperationBlock.compact_target)); // Little endian
+    SetLength(FDigest_Part1, ms.Size);
     ms.Position := 0;
-    ms.ReadBuffer(FDigest_Part3[1],ms.Size);
+    ms.ReadBuffer(FDigest_Part1[1], ms.Size);
+
+    FDigest_Part2_Payload := FOperationBlock.block_payload;
+
+    ms.Clear;
+    l := Length(FOperationBlock.initial_safe_box_hash);
+    if l > 0 then
+      ms.WriteBuffer(FOperationBlock.initial_safe_box_hash[1], l);
+    l := Length(FOperationsHashTree.HashTree);
+    if l > 0 then
+      ms.WriteBuffer(FOperationsHashTree.HashTree[1], l);
+    // Note about fee: Fee is stored in 8 bytes, but only digest first 4 low bytes
+    ms.WriteBuffer(FOperationBlock.fee, 4);
+    SetLength(FDigest_Part3, ms.Size);
+    ms.Position := 0;
+    ms.ReadBuffer(FDigest_Part3[1], ms.Size);
   finally
     ms.Free;
   end;
@@ -1432,8 +1449,8 @@ begin
 
     if (soob in [2,3]) then
     begin
-      Stream.Read(FOperationBlock.protocol_version, Sizeof(FOperationBlock.protocol_version));
-      Stream.Read(FOperationBlock.protocol_available, Sizeof(FOperationBlock.protocol_available));
+      Stream.Read(FOperationBlock.protocol_version, SizeOf(FOperationBlock.protocol_version));
+      Stream.Read(FOperationBlock.protocol_available, SizeOf(FOperationBlock.protocol_available));
     end else
     begin
       // We assume that protocol_version is 1 and protocol_available is 0
@@ -1441,21 +1458,21 @@ begin
       FOperationBlock.protocol_available := 0;
     end;
 
-    if Stream.Read(FOperationBlock.block, Sizeof(FOperationBlock.block))<0 then
+    if Stream.Read(FOperationBlock.block, SizeOf(FOperationBlock.block))<0 then
       exit;
 
     if TStreamOp.ReadAnsiString(Stream, m) < 0 then
       exit;
     FOperationBlock.account_key := TAccountComp.RawString2Accountkey(m);
-    if Stream.Read(FOperationBlock.reward, Sizeof(FOperationBlock.reward)) < 0 then
+    if Stream.Read(FOperationBlock.reward, SizeOf(FOperationBlock.reward)) < 0 then
       exit;
-    if Stream.Read(FOperationBlock.fee, Sizeof(FOperationBlock.fee)) < 0 then
+    if Stream.Read(FOperationBlock.fee, SizeOf(FOperationBlock.fee)) < 0 then
       exit;
-    if Stream.Read(FOperationBlock.timestamp, Sizeof(FOperationBlock.timestamp)) < 0 then
+    if Stream.Read(FOperationBlock.timestamp, SizeOf(FOperationBlock.timestamp)) < 0 then
       exit;
-    if Stream.Read(FOperationBlock.compact_target, Sizeof(FOperationBlock.compact_target)) < 0 then
+    if Stream.Read(FOperationBlock.compact_target, SizeOf(FOperationBlock.compact_target)) < 0 then
       exit;
-    if Stream.Read(FOperationBlock.nonce, Sizeof(FOperationBlock.nonce)) < 0 then
+    if Stream.Read(FOperationBlock.nonce, SizeOf(FOperationBlock.nonce)) < 0 then
       exit;
     if TStreamOp.ReadAnsiString(Stream, FOperationBlock.block_payload) < 0 then
       exit;
@@ -1627,18 +1644,18 @@ begin
     Stream.Write(soob,1);
     if (soob>=2) then
     begin
-      Stream.Write(FOperationBlock.protocol_version, Sizeof(FOperationBlock.protocol_version));
-      Stream.Write(FOperationBlock.protocol_available, Sizeof(FOperationBlock.protocol_available));
+      Stream.Write(FOperationBlock.protocol_version, SizeOf(FOperationBlock.protocol_version));
+      Stream.Write(FOperationBlock.protocol_available, SizeOf(FOperationBlock.protocol_available));
     end;
     //
-    Stream.Write(FOperationBlock.block, Sizeof(FOperationBlock.block));
+    Stream.Write(FOperationBlock.block, SizeOf(FOperationBlock.block));
     //
     TStreamOp.WriteAnsiString(Stream,TAccountComp.AccountKey2RawString(FOperationBlock.account_key));
-    Stream.Write(FOperationBlock.reward, Sizeof(FOperationBlock.reward));
-    Stream.Write(FOperationBlock.fee, Sizeof(FOperationBlock.fee));
-    Stream.Write(FOperationBlock.timestamp, Sizeof(FOperationBlock.timestamp));
-    Stream.Write(FOperationBlock.compact_target, Sizeof(FOperationBlock.compact_target));
-    Stream.Write(FOperationBlock.nonce, Sizeof(FOperationBlock.nonce));
+    Stream.Write(FOperationBlock.reward, SizeOf(FOperationBlock.reward));
+    Stream.Write(FOperationBlock.fee, SizeOf(FOperationBlock.fee));
+    Stream.Write(FOperationBlock.timestamp, SizeOf(FOperationBlock.timestamp));
+    Stream.Write(FOperationBlock.compact_target, SizeOf(FOperationBlock.compact_target));
+    Stream.Write(FOperationBlock.nonce, SizeOf(FOperationBlock.nonce));
     TStreamOp.WriteAnsiString(Stream, FOperationBlock.block_payload);
     TStreamOp.WriteAnsiString(Stream, FOperationBlock.initial_safe_box_hash);
     TStreamOp.WriteAnsiString(Stream, FOperationBlock.operations_hash);
@@ -1691,7 +1708,7 @@ begin
     if Value=FOperationBlock.block_payload then exit;
     if Length(Value)>CT_MaxPayloadSize then exit;
     // Checking Miner Payload valid chars
-    for i := 1 to length(Value) do
+    for i := 1 to Length(Value) do
     begin
       if not (Value[i] in [#32..#254]) then
       begin
@@ -1766,13 +1783,13 @@ begin
       end;
     end;
     // Checking Miner payload size
-    if length(BlockPayload)>CT_MaxPayloadSize then
+    if Length(BlockPayload)>CT_MaxPayloadSize then
     begin
       errors := 'Invalid Miner Payload length: '+inttostr(Length(BlockPayload));
       exit;
     end;
     // Checking Miner Payload valid chars
-    for i := 1 to length(BlockPayload) do
+    for i := 1 to Length(BlockPayload) do
     begin
       if not (BlockPayload[i] in [#32..#254]) then
       begin
@@ -2240,8 +2257,8 @@ begin
   begin
     if Stream.Size - Stream.Position < 8 then
       exit;
-    Stream.ReadBuffer(FPrevious_Sender_updated_block,Sizeof(FPrevious_Sender_updated_block));
-    Stream.ReadBuffer(FPrevious_Destination_updated_block,Sizeof(FPrevious_Destination_updated_block));
+    Stream.ReadBuffer(FPrevious_Sender_updated_block, SizeOf(FPrevious_Sender_updated_block));
+    Stream.ReadBuffer(FPrevious_Destination_updated_block, SizeOf(FPrevious_Destination_updated_block));
     Result := true;
   end;
 end;
@@ -2258,18 +2275,22 @@ class function TPCOperation.OperationHash(op: TPCOperation; Block : Cardinal): T
 var
   ms : TMemoryStream;
   _a,_o : Cardinal;
+  _opb, _oph : TRawBytes;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(Block,4);
+    ms.WriteBuffer(Block, 4);
     _a := op.SenderAccount;
     _o := op.N_Operation;
-    ms.Write(_a,4);
-    ms.Write(_o,4);
-    ms.WriteBuffer(TCrypto.DoRipeMD160(op.GetOperationBufferToHash)[1],20);
-    SetLength(Result,ms.size);
-    ms.Position:=0;
-    ms.Read(Result[1],ms.size);
+    ms.WriteBuffer(_a, 4);
+    ms.WriteBuffer(_o, 4);
+    _opb := op.GetOperationBufferToHash;
+    _oph := TCrypto.DoRipeMD160(_opb);
+    Assert(Length(_oph) = 20);
+    ms.WriteBuffer(_oph[1], 20);
+    SetLength(Result, ms.size);
+    ms.Position := 0;
+    ms.ReadBuffer(Result[1], ms.size);
   finally
     ms.Free;
   end;
@@ -2281,17 +2302,17 @@ class function TPCOperation.DecodeOperationHash(const operationHash: TRawBytes;
 var ms : TMemoryStream;
 begin
   Result := false;
-  account:=0;
-  n_operation:=0;
-  if length(operationHash)<>32 then
+  account := 0;
+  n_operation := 0;
+  if Length(operationHash) <> 32 then
     exit;
   ms := TMemoryStream.Create;
   try
-    ms.Write(operationHash[1],length(operationHash));
-    ms.position := 0;
-    ms.Read(block,4);
-    ms.Read(account,4);
-    ms.Read(n_operation,4);
+    ms.WriteBuffer(operationHash[1], Length(operationHash));
+    ms.Position := 0;
+    ms.ReadBuffer(block, 4);
+    ms.ReadBuffer(account, 4);
+    ms.ReadBuffer(n_operation, 4);
     Result := true;
   finally
     ms.free;
@@ -2306,7 +2327,7 @@ begin
   OperationResume.Block:=Block;
   OperationResume.Fee := (-1)*Int64(Operation.OperationFee);
   OperationResume.AffectedAccount := Affected_account_number;
-  OperationResume.OpType:=Operation.OpType;
+  OperationResume.OpType := Operation.OpType;
   Result := false;
   case Operation.OpType of
     CT_Op_Transaction :
@@ -2346,8 +2367,10 @@ begin
     exit;
   end;
   OperationResume.OriginalPayload := Operation.OperationPayload;
-  if TCrypto.IsHumanReadable(OperationResume.OriginalPayload) then OperationResume.PrintablePayload := OperationResume.OriginalPayload
-  else OperationResume.PrintablePayload := TCrypto.ToHexaString(OperationResume.OriginalPayload);
+  if TCrypto.IsHumanReadable(OperationResume.OriginalPayload) then
+    OperationResume.PrintablePayload := OperationResume.OriginalPayload
+  else
+    OperationResume.PrintablePayload := TCrypto.ToHexaString(OperationResume.OriginalPayload);
   OperationResume.OperationHash:=TPCOperation.OperationHash(Operation,Block);
   OperationResume.valid := true;
 end;
@@ -2355,8 +2378,8 @@ end;
 function TPCOperation.SaveToStorage(Stream: TStream): Boolean;
 begin
   Result := SaveToStream(Stream);
-  Stream.Write(FPrevious_Sender_updated_block,Sizeof(FPrevious_Sender_updated_block));
-  Stream.Write(FPrevious_Destination_updated_block,SizeOf(FPrevious_Destination_updated_block));
+  Stream.WriteBuffer(FPrevious_Sender_updated_block, SizeOf(FPrevious_Sender_updated_block));
+  Stream.WriteBuffer(FPrevious_Destination_updated_block, SizeOf(FPrevious_Destination_updated_block));
   Result := true;
 end;
 
