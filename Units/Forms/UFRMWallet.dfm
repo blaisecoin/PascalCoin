@@ -1,7 +1,7 @@
 object FRMWallet: TFRMWallet
   Left = 360
   Top = 328
-  Caption = 'BlaiseCoin Wallet, JSON-RPC Miner & Explorer'
+  Caption = 'BlaiseCoin'
   ClientHeight = 542
   ClientWidth = 849
   Color = clBtnFace

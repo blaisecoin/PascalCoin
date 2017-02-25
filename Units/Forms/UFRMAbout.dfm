@@ -246,9 +246,9 @@ object FRMAbout: TFRMAbout
   object Label1: TLabel
     Left = 90
     Top = 15
-    Width = 370
+    Width = 108
     Height = 25
-    Caption = 'BlaiseCoin Wallet, Miner && Explorer'
+    Caption = 'BlaiseCoin'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -21
@@ -257,54 +257,54 @@ object FRMAbout: TFRMAbout
     ParentFont = False
   end
   object lblBuild: TLabel
-    Left = 15
-    Top = 356
-    Width = 30
+    Left = 90
+    Top = 247
+    Width = 22
     Height = 13
-    Caption = 'Build:'
+    Caption = 'Build'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
+    Font.Style = []
     ParentFont = False
   end
   object lblProtocolVersion: TLabel
-    Left = 15
-    Top = 375
-    Width = 50
+    Left = 90
+    Top = 266
+    Width = 39
     Height = 13
-    Caption = 'Protocol:'
+    Caption = 'Protocol'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
+    Font.Style = []
     ParentFont = False
   end
   object Label2: TLabel
     Left = 90
-    Top = 320
-    Width = 65
+    Top = 293
+    Width = 59
     Height = 13
-    Caption = 'Source Code:'
+    Caption = 'Source code'
   end
   object Label3: TLabel
     Left = 90
-    Top = 339
-    Width = 84
+    Top = 312
+    Width = 68
     Height = 13
-    Caption = 'Latest version:'
+    Caption = 'Latest version'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
+    Font.Style = []
     ParentFont = False
   end
   object Label4: TLabel
     Left = 189
-    Top = 320
+    Top = 293
     Width = 232
     Height = 13
     Cursor = crHandPoint
@@ -319,7 +319,7 @@ object FRMAbout: TFRMAbout
   end
   object Label5: TLabel
     Left = 189
-    Top = 339
+    Top = 312
     Width = 286
     Height = 13
     Cursor = crHandPoint
@@ -336,22 +336,15 @@ object FRMAbout: TFRMAbout
     Left = 90
     Top = 46
     Width = 401
-    Height = 243
+    Height = 195
     BevelInner = bvNone
     BevelOuter = bvNone
     BorderStyle = bsNone
     Ctl3D = False
     Lines.Strings = (
-      'Copyright (c) 2016 Albert Molina'
       'Copyright (c) 2017 BlaiseCoin developers'
       ''
-      
-        'This software is a node of the BlaiseCoin P2P Cryptocurrency. A ' +
-        'crypto-currency '
-      
-        'without need of historical operations. It can be used to mine an' +
-        'd explore blocks '
-      'and operations.'
+      'This software is a node of the BlaiseCoin P2P crypto-currency.'
       ''
       
         'Distributed under the MIT software license, see the accompanying' +

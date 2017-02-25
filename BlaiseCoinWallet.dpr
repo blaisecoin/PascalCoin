@@ -40,7 +40,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.Title := 'BlaiseCoin Wallet, Miner & Explorer';
+  Application.Title := 'BlaiseCoin';
   Application.CreateForm(TFRMWallet, FRMWallet);
   Application.Run;
 end.

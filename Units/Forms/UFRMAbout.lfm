@@ -245,8 +245,8 @@ object FRMAbout: TFRMAbout
     Left = 90
     Height = 25
     Top = 15
-    Width = 382
-    Caption = 'Pascal Coin Wallet, Miner && Explorer'
+    Width = 108
+    Caption = 'BlaiseCoin'
     Font.Color = clBlack
     Font.Height = -21
     Font.Name = 'Tahoma'
@@ -255,57 +255,54 @@ object FRMAbout: TFRMAbout
     ParentFont = False
   end
   object lblBuild: TLabel
-    Left = 15
+    Left = 88
     Height = 13
-    Top = 356
-    Width = 30
-    Caption = 'Build:'
+    Top = 304
+    Width = 22
+    Caption = 'Build'
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object lblProtocolVersion: TLabel
-    Left = 15
+    Left = 88
     Height = 13
-    Top = 375
-    Width = 50
-    Caption = 'Protocol:'
+    Top = 323
+    Width = 39
+    Caption = 'Protocol'
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object Label2: TLabel
     Left = 90
     Height = 13
-    Top = 320
-    Width = 65
-    Caption = 'Source Code:'
+    Top = 256
+    Width = 59
+    Caption = 'Source code'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 90
     Height = 13
-    Top = 339
-    Width = 135
-    Caption = 'Check For New Versions:'
+    Top = 275
+    Width = 68
+    Caption = 'Latest version'
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
   end
   object Label4: TLabel
     Cursor = crHandPoint
-    Left = 170
+    Left = 192
     Height = 13
-    Top = 320
+    Top = 256
     Width = 232
     Caption = 'https://github.com/blaisecoin/blaisecoin'
     Font.Color = clBlue
@@ -318,9 +315,9 @@ object FRMAbout: TFRMAbout
   end
   object Label5: TLabel
     Cursor = crHandPoint
-    Left = 237
+    Left = 192
     Height = 13
-    Top = 339
+    Top = 275
     Width = 286
     Caption = 'https://github.com/blaisecoin/blaisecoin/releases'
     Font.Color = clBlue
@@ -333,17 +330,14 @@ object FRMAbout: TFRMAbout
   end
   object Memo1: TMemo
     Left = 90
-    Height = 266
+    Height = 202
     Top = 46
     Width = 478
     BorderStyle = bsNone
     Lines.Strings = (
-      'Copyright (c) 2016 Albert Molina'
       'Copyright (c) 2017 BlaiseCoin developers'
       ''
-      'This software is a node of the BlaiseCoin P2P Cryptocurrency. A crypto-currency '
-      'without need of historical operations. It can be used to mine and explore blocks '
-      'and operations.'
+      'This software is a node of the BlaiseCoin P2P crypto-currency.'
       ''
       'Distributed under the MIT software license, see the accompanying file LICENSE  or '
       'visit http://www.opensource.org/licenses/mit-license.php.'
