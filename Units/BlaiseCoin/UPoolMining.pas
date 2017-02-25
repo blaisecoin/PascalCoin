@@ -197,7 +197,7 @@ var last_bytes_read : Integer;
   jsonData : TPCJSONData;
   tc : Cardinal;
   ms : TMemoryStream;
-  i,lasti : Integer;
+  lasti : Integer;
   continue : Boolean;
   procedure FlushBufferPendingMessages(doSearchId : Boolean; idValue : Integer);
   var l : TList;
@@ -364,7 +364,6 @@ var json : TPCJSONObject;
   stream : TMemoryStream;
   b : Byte;
   P : PPendingResponseMessage;
-  l : TList;
 begin
   json := TPCJSONObject.Create;
   try
@@ -827,7 +826,6 @@ var method : String;
   params_as_array : TPCJSONArray;
   params : TPCJSONData;
   mvfw : TMinerValuesForWork;
-  prev_pow,proposed_pow : TRawBytes;
 begin
   TLog.NewLog(ltInfo,ClassName,'Received JSON: '+json.ToJSON(false));
   params := nil;

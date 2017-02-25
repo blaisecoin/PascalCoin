@@ -53,7 +53,7 @@ Type
     property privateKey : PEC_KEY read FPrivateKey;
     property PublicKey : TECDSA_Public read GetPublicKey;
     property PublicKeyPoint : PEC_POINT read GetPublicKeyPoint;
-    function SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString) : Boolean;
+    procedure SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString);
     property EC_OpenSSL_NID : Word Read FEC_OpenSSL_NID;
     class function IsValidPublicKey(PubKey : TECDSA_Public) : Boolean;
     function ExportToRaw : TRawBytes;
@@ -177,7 +177,7 @@ begin
 end;
 
 function TECPrivateKey.GetPublicKey: TECDSA_Public;
-var ps : PAnsiChar;
+var
   BNx,BNy : PBIGNUM;
   ctx : PBN_CTX;
 begin
@@ -276,7 +276,7 @@ begin
   FPrivateKey := Value;
 end;
 
-function TECPrivateKey.SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString) : Boolean;
+procedure TECPrivateKey.SetPrivateKeyFromHexa(EC_OpenSSL_NID : Word; hexa : AnsiString);
 var bn : PBIGNUM;
   ctx : PBN_CTX;
   pub_key : PEC_POINT;
@@ -313,7 +313,6 @@ end;
   needed. Also the same with functions "GetMem" and "FreeMem" }
 class procedure TCrypto.DoDoubleSha256(p: PAnsiChar; plength: Cardinal; var ResultSha256: TRawBytes);
 var PS : PAnsiChar;
-  PC : PAnsiChar;
 begin
   if length(ResultSha256)<>32 then SetLength(ResultSha256,32);
   PS := @ResultSha256[1];
@@ -355,7 +354,7 @@ end;
 
 class function TCrypto.ECDSASign(Key: PEC_KEY; const digest: AnsiString): TECDSA_SIG;
 var PECS : PECDSA_SIG;
-  p, pr,ps : PAnsiChar;
+  p : PAnsiChar;
   i : Integer;
   {$IFDEF OpenSSL10}
   {$ELSE}
@@ -679,7 +678,6 @@ begin
 end;
 
 procedure TBigNum.SetDecimalValue(const Value: AnsiString);
-var i : Integer;
 begin
   if BN_dec2bn(@FBN,PAnsiChar(Value))=0 then raise ECryptoException.Create('Error on dec2bn');
 end;

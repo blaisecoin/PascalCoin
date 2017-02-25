@@ -241,7 +241,6 @@ end;
 function TFileStorage.DoMoveBlockChain(Start_Block: Cardinal; const DestOrphan: TOrphan; DestStorage : TStorage): Boolean;
 var
   db : TFileStorage;
-  i : Integer;
   ops : TPCOperationsComp;
   b : Cardinal;
 begin
@@ -410,9 +409,6 @@ end;
 
 class function TFileStorage.GetBankFileName(const BaseDataFolder: AnsiString;
   block: Cardinal): AnsiString;
-var
-  c : Cardinal;
-  folder : AnsiString;
 begin
   Result := '';
   if not ForceDirectories(BaseDataFolder) then
@@ -520,7 +516,7 @@ function TFileStorage.LockBlockChainStream: TFileStream;
   var
     mem : TStream;
     iPos : Int64;
-    i,j,k : Integer;
+    i : Integer;
     bh,lastbh : TBlockHeader;
   begin
     errors := '';
@@ -609,7 +605,6 @@ var
   fn : TFileName;
   fm : Word;
   exists : Boolean;
-  bh : TBlockHeader;
   errors : String;
 begin
   TPCThread.ProtectEnterCriticalSection(Self,FStorageLock);
@@ -683,9 +678,7 @@ function TFileStorage.StreamBlockRead(Stream : TStream; StreamBlockHeaderStartPo
 var
   p : Int64;
   errors : AnsiString;
-  streamFirstBlock,
-  _BlockSizeC,
-  _intBlockIndex : Cardinal;
+  _BlockSizeC : Cardinal;
   _Header : TBlockHeader;
   _ops : TStream;
 begin
@@ -809,11 +802,6 @@ end;
 function TFileStorage.StreamReadBlockHeader(Stream: TStream;
   StreamBlockHeaderStartPos: Int64; BlockHeaderFirstBlock, Block: Cardinal;
   var BlockHeader: TBlockHeader): Boolean;
-var p : Int64;
-  errors : AnsiString;
-  streamFirstBlock : Cardinal;
-  _intBlockIndex : Cardinal;
-  _Blocks : Cardinal;
 begin
   Result := false;
   BlockHeader := CT_TBlockHeader_NUL;

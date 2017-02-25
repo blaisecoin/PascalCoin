@@ -308,11 +308,9 @@ end;
 function TNode.AddOperations(SenderConnection : TNetConnection; Operations : TOperationsHashTree; OperationsResult : TOperationsResumeList; var errors: AnsiString): Integer;
 Var
   i,j : Integer;
-  operationscomp : TPCOperationsComp;
   valids_operations : TOperationsHashTree;
   nc : TNetConnection;
   e : AnsiString;
-  mtl : TList;
   s : String;
   OPR : TOperationResume;
   ActOp : TPCOperation;
@@ -472,7 +470,6 @@ class procedure TNode.DecodeIpStringToNodeServerAddressArray(
   end;
 
 var
-  i,j : Integer;
   ips_string : AnsiString;
   nsa : TNodeServerAddress;
 begin
@@ -773,7 +770,6 @@ end;
 procedure TNode.NotifyNetClientMessage(Sender: TNetConnection; const TheMessage: AnsiString);
 var
   i : Integer;
-  s : AnsiString;
 begin
   for i := 0 to FNotifyList.Count-1 do
   begin

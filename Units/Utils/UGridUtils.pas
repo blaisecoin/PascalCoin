@@ -771,7 +771,7 @@ begin
 end;
 
 procedure TOperationsGrid.ShowModalDecoder(WalletKeys: TWalletKeys; AppParams : TAppParams);
-var i : Integer;
+var
   opr : TOperationResume;
   FRM : TFRMPayloadDecoder;
 begin
@@ -789,7 +789,7 @@ end;
 
 procedure TOperationsGrid.UpdateAccountOperations;
 var list : TList;
-  i,j : Integer;
+  i : Integer;
   OPR : TOperationResume;
   Op : TPCOperation;
   opc : TPCOperationsComp;

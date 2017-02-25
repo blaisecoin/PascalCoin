@@ -318,7 +318,6 @@ end;
 procedure TFRMWalletKeys.bbImportPublicKeyClick(Sender: TObject);
 var s : String;
  raw : AnsiString;
- EC : TECPrivateKey;
  account : TAccountKey;
  errors : AnsiString;
 begin
@@ -487,7 +486,7 @@ end;
 
 procedure TFRMWalletKeys.UpdateWalletKeys;
 var lasti,i : Integer;
-  selected_wk,wk : TWalletKey;
+  wk : TWalletKey;
   s : AnsiString;
 begin
   GetSelectedWalletKeyAndIndex(wk,lasti);

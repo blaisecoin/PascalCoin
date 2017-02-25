@@ -139,8 +139,8 @@ uses
 { TFRMOperation }
 
 procedure TFRMOperation.actExecuteExecute(Sender: TObject);
-var errors : AnsiString;
-  P : PAccount;
+var
+  errors : AnsiString;
   i,iAcc : Integer;
   wk : TWalletKey;
   ops : TOperationsHashTree;
@@ -722,7 +722,6 @@ var payload_u : AnsiString;
   dest_account_number : Cardinal;
   i : Integer;
   valid : Boolean;
-  wk : TWalletKey;
 begin
   valid := false;
   payload_encrypted := '';

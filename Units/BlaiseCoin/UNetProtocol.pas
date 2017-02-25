@@ -519,9 +519,9 @@ end;
 
 procedure TNetData.CleanBlackList;
 var
-  P,Pns : PNodeServerAddress;
-  i,n,j : Integer;
-  l,lns : TList;
+  P : PNodeServerAddress;
+  i,n : Integer;
+  l : TList;
 begin
   // This procedure cleans old blacklisted IPs
   n := 0;
@@ -1102,7 +1102,6 @@ Const CT_LogSender = 'GetNewBlockChainFromClient';
   var
     BlocksList : TList;
     i : Integer;
-    tempfolder : AnsiString;
     OpComp,OpExecute : TPCOperationsComp;
     newBlock : TBlockAccount;
     errors : AnsiString;
@@ -1208,8 +1207,6 @@ Const CT_LogSender = 'GetNewBlockChainFromClient';
 
 var
   rid : Cardinal;
-  bufferdata : TMemoryStream;
-  headerdata : TNetHeaderData;
   my_op, client_op : TOperationBlock;
 begin
   // Protection against discovering servers...
@@ -1494,7 +1491,6 @@ end;
 
 function TNetData.PendingRequest(Sender: TNetConnection; var requests_data : AnsiString): Integer;
 var
-  P : PNetRequestRegistered;
   i : Integer;
   l : TList;
 begin
@@ -2242,12 +2238,11 @@ procedure TNetConnection.DoProcess_Hello(HeaderData: TNetHeaderData; DataBuffer:
     end;
   end;
 var
-  op, myLastOp : TPCOperationsComp;
+  op : TPCOperationsComp;
   errors : AnsiString;
   connection_has_a_server : Word;
   i,c : Integer;
   nsa : TNodeServerAddress;
-  rid : Cardinal;
   connection_ts : Cardinal;
   Duplicate : TNetConnection;
   RawAccountKey : TRawBytes;
@@ -2646,8 +2641,6 @@ var
   tc : Cardinal;
   last_bytes_read, t_bytes_read : Int64;
   //
-  operation : Word;
-  request_id : Integer;
   IsValidHeaderButNeedMoreData : Boolean;
   deletedBytes : Int64;
 begin
@@ -2856,7 +2849,7 @@ end;
 function TNetConnection.Send_AddOperations(Operations : TOperationsHashTree) : Boolean;
 var
   data : TMemoryStream;
-  c1,c2,request_id : Cardinal;
+  c1,request_id : Cardinal;
   i : Integer;
   optype : Byte;
 begin
@@ -3355,7 +3348,6 @@ end;
 procedure TThreadGetNewBlockChainFromClient.BCExecute;
 var i,j, iMax : Integer;
   maxWork : UInt64;
-  nsa : TNodeServerAddress;
   candidates : TList;
   lop : TOperationBlock;
   nc : TNetConnection;

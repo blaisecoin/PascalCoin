@@ -190,7 +190,6 @@ begin
 end;
 
 procedure TFRMPascalCoinWalletConfig.SetAppParams(const Value: TAppParams);
-var i : Integer;
 begin
   FAppParams := Value;
   if not Assigned(Value) then exit;

@@ -90,7 +90,6 @@ type
 { TLog }
 
 constructor TLog.Create(AOwner: TComponent);
-var l : TList;
 begin
   FLock := TCriticalSection.Create;
   FProcessGlobalLogs := true;

@@ -1201,7 +1201,6 @@ end;
 
 function TPCSafeBoxTransaction.TransferAmount(sender, target, n_operation : Cardinal; amount, fee: UInt64; var errors: AnsiString): Boolean;
 var
-  intSender, intTarget : Integer;
   PaccSender, PaccTarget : PAccount;
 begin
   Result := false;
@@ -1264,7 +1263,6 @@ end;
 
 function TPCSafeBoxTransaction.UpdateAccountkey(account_number, n_operation: Cardinal; accountkey: TAccountKey; fee: UInt64; var errors: AnsiString): Boolean;
 var
-  intAccount : Integer;
   P : PAccount;
 begin
   Result := false;
@@ -1459,7 +1457,7 @@ end;
 procedure TOrderedAccountKeysList.AddAccounts(const AccountKey: TAccountKey; const accounts: array of Cardinal);
 var
   P : POrderedAccountKeyList;
-  i,i2 : Integer;
+  i : Integer;
 begin
   if Find(AccountKey,i) then
   begin

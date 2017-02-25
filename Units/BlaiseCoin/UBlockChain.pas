@@ -460,7 +460,6 @@ end;
 
 function TPCBank.AddNewBlockChainBlock(Operations: TPCOperationsComp; var newBlock: TBlockAccount; var errors: AnsiString): Boolean;
 var
-  buffer, pow: AnsiString;
   i : Integer;
 begin
   TPCThread.ProtectEnterCriticalSection(Self,FBankLock);
@@ -750,8 +749,7 @@ end;
 class function TPCBank.GetNewTarget(vteorical, vreal: Cardinal;
   const actualTarget: TRawBytes): TRawBytes;
 var
-  bnact, bnaux, bnmindiff, bnremainder, bn: TBigNum;
-  ts1, ts2: Cardinal;
+  bnact, bnaux, bn: TBigNum;
   tsTeorical, tsReal, factor1000, factor1000Min, factor1000Max: Int64;
 begin
   { Given a teorical time in seconds (vteorical>0) and a real time in seconds (vreal>0)
@@ -947,7 +945,7 @@ end;
 
 class function TPCBank.TargetFromCompact(encoded: Cardinal): TRawBytes;
 Var
-  nbits, high, offset, i: Cardinal;
+  nbits, offset, i: Cardinal;
   bn: TBigNum;
 begin
   {
@@ -1005,7 +1003,6 @@ Var
   bn, bn2: TBigNum;
   i: Int64;
   nbits: Cardinal;
-  c: AnsiChar;
 begin
   { See instructions in explanation of TargetFromCompact }
   Result := 0;
@@ -1978,7 +1975,7 @@ function TOperationsHashTree.GetOperationsAffectingAccount(account_number: Cardi
   // This function retrieves operations from HashTree that affeccts to an account_number
 var
   l,intl : TList;
-  i,j : Integer;
+  i : Integer;
 begin
   List.Clear;
   l := FHashTreeOperations.LockList;
@@ -2258,8 +2255,8 @@ class function TPCOperation.OperationHash(op: TPCOperation; Block : Cardinal): T
     //
     This format is easy to undecode because include account and n_operation
    }
-var ms : TMemoryStream;
-  r : TRawBytes;
+var
+  ms : TMemoryStream;
   _a,_o : Cardinal;
 begin
   ms := TMemoryStream.Create;
@@ -2304,7 +2301,6 @@ end;
 class function TPCOperation.OperationToOperationResume(Block : Cardinal; Operation: TPCOperation;
   Affected_account_number: Cardinal;
   var OperationResume: TOperationResume): Boolean;
-var spayload : AnsiString;
 begin
   OperationResume := CT_TOperationResume_NUL;
   OperationResume.Block:=Block;

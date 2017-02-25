@@ -679,7 +679,8 @@ begin
 end;
 
 function TFRMWallet.DoUpdateAccountsFilter : Boolean;
-var m,bmin,bmax:Int64;
+var
+  bmin,bmax:Int64;
   doupd : Boolean;
 begin
   if FUpdating then exit;
@@ -882,7 +883,7 @@ begin
 end;
 
 procedure TFRMWallet.FormDestroy(Sender: TObject);
-var i : Integer;
+var
   step : String;
 begin
   TLog.NewLog(ltinfo,Classname,'Destroying form - START');
@@ -1629,9 +1630,7 @@ end;
 procedure TFRMWallet.UpdateBlockChainState;
 var isMining : boolean;
 //  hr : Int64;
-  i,mc : Integer;
-  s : String;
-  mtl : TList;
+  mc : Integer;
   f, favg : real;
 begin
   UpdateNodeStatus;

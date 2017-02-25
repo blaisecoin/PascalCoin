@@ -98,7 +98,6 @@ Type PWalletKey = ^TWalletKey;
 
 function TWalletKeys.AddPrivateKey(Const Name : AnsiString; ECPrivateKey: TECPrivateKey): Integer;
 var P : PWalletKey;
-  s : AnsiString;
 begin
   if not Find(ECPrivateKey.PublicKey,Result) then begin
     // Result is new position
