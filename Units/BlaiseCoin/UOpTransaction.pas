@@ -79,7 +79,7 @@ Type
   private
     FData : TOpChangeKeyData;
   public
-    class function GetOperationHasthToSign(const op : TOpChangeKeyData) : TRawBytes;
+    class function GetOperationHashToSign(const op : TOpChangeKeyData) : TRawBytes;
     class function DoSignOperation(key : TECPrivateKey; var op : TOpChangeKeyData) : Boolean;
     class function OpType : Byte; override;
 
@@ -464,7 +464,7 @@ begin
     exit;
   end;
 
-  if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHasthToSign(FData),FData.sign) then
+  if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHashToSign(FData),FData.sign) then
   begin
     errors := 'Invalid sign';
     FHasValidSignature := false;
@@ -480,7 +480,7 @@ class function TOpChangeKey.DoSignOperation(key: TECPrivateKey; var op: TOpChang
 var s : AnsiString;
   _sign : TECDSA_SIG;
 begin
-  s := GetOperationHasthToSign(op);
+  s := GetOperationHashToSign(op);
   try
     _sign := TCrypto.ECDSASign(key.PrivateKey,s);
     op.sign := _sign;
@@ -519,7 +519,7 @@ begin
   end;
 end;
 
-class function TOpChangeKey.GetOperationHasthToSign(const op: TOpChangeKeyData): TRawBytes;
+class function TOpChangeKey.GetOperationHashToSign(const op: TOpChangeKeyData): TRawBytes;
 var ms : TMemoryStream;
   s : AnsiString;
 begin
