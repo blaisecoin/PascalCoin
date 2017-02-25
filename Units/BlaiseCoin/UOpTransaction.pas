@@ -155,8 +155,8 @@ begin
   FData.public_key := key.PublicKey;
   if not DoSignOperation(key,FData) then begin
     TLog.NewLog(lterror,Classname,'Error signing a new Transaction');
-    FHasValidSignature := false;
-  end else FHasValidSignature := true;
+    FHasValidSignature := False;
+  end else FHasValidSignature := True;
 end;
 
 function TOpTransaction.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors : AnsiString): Boolean;
@@ -165,7 +165,7 @@ var
   sender,target : TAccount;
   _h : TRawBytes;
 begin
-  Result := false;
+  Result := False;
   errors := '';
   //
   if (FData.sender>=AccountTransaction.FreezedSafeBox.AccountsCount) then
@@ -239,9 +239,9 @@ begin
   if (not TCrypto.ECDSAVerify(sender.accountkey,_h,FData.sign)) then
   begin
     errors := 'Invalid sign';
-    FHasValidSignature := false;
+    FHasValidSignature := False;
     exit;
-  end else FHasValidSignature := true;
+  end else FHasValidSignature := True;
   //
   FPrevious_Sender_updated_block := sender.updated_block;
   FPrevious_Destination_updated_block := target.updated_block;
@@ -256,7 +256,7 @@ var
 begin
   if not Assigned(key.PrivateKey) then
   begin
-    Result := false;
+    Result := False;
     trans.sign.r:='';
     trans.sign.s:='';
     exit;
@@ -265,34 +265,35 @@ begin
   try
     _sign := TCrypto.ECDSASign(key.PrivateKey,s);
     trans.sign := _sign;
-    Result := true;
+    Result := True;
   except
     trans.sign.r:='';
     trans.sign.s:='';
-    Result := false;
+    Result := False;
   end;
   SetLength(s,0);
 end;
 
 function TOpTransaction.GetOperationBufferToHash: TRawBytes;
-var ms : TMemoryStream;
+var
+  ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(FData.sender,Sizeof(FData.sender));
-    ms.Write(FData.n_operation,Sizeof(FData.n_operation));
-    ms.Write(FData.target,Sizeof(FData.target));
-    ms.Write(FData.amount,Sizeof(FData.amount));
-    ms.Write(FData.fee,Sizeof(FData.fee));
-    ms.WriteBuffer(FData.payload[1],length(FData.payload));
-    ms.Write(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID));
-    ms.WriteBuffer(FData.public_key.x[1],length(FData.public_key.x));
-    ms.WriteBuffer(FData.public_key.y[1],length(FData.public_key.y));
-    ms.WriteBuffer(FData.sign.r[1],length(FData.sign.r));
-    ms.WriteBuffer(FData.sign.s[1],length(FData.sign.s));
-    SetLength(Result,ms.Size);
+    ms.WriteBuffer(FData.sender, SizeOf(FData.sender));
+    ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+    ms.WriteBuffer(FData.target, SizeOf(FData.target));
+    ms.WriteBuffer(FData.amount, SizeOf(FData.amount));
+    ms.WriteBuffer(FData.fee, SizeOf(FData.fee));
+    TStreamOp.WriteAnsiString(ms, FData.payload);
+    ms.WriteBuffer(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID));
+    TStreamOp.WriteAnsiString(ms, FData.public_key.x);
+    TStreamOp.WriteAnsiString(ms, FData.public_key.y);
+    TStreamOp.WriteAnsiString(ms, FData.sign.r);
+    TStreamOp.WriteAnsiString(ms, FData.sign.s);
+    SetLength(Result, ms.Size);
     ms.Position := 0;
-    ms.ReadBuffer(Result[1],ms.Size);
+    ms.ReadBuffer(Result[1], ms.Size);
   finally
     ms.Free;
   end;
@@ -303,18 +304,18 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(trans.sender,Sizeof(trans.sender));
-    ms.Write(trans.n_operation,Sizeof(trans.n_operation));
-    ms.Write(trans.target,Sizeof(trans.target));
-    ms.Write(trans.amount,Sizeof(trans.amount));
-    ms.Write(trans.fee,Sizeof(trans.fee));
-    ms.WriteBuffer(trans.payload[1],length(trans.payload));
-    ms.Write(trans.public_key.EC_OpenSSL_NID,Sizeof(trans.public_key.EC_OpenSSL_NID));
-    ms.WriteBuffer(trans.public_key.x[1],length(trans.public_key.x));
-    ms.WriteBuffer(trans.public_key.y[1],length(trans.public_key.y));
-    SetLength(Result,ms.Size);
+    ms.WriteBuffer(trans.sender, SizeOf(trans.sender));
+    ms.WriteBuffer(trans.n_operation, SizeOf(trans.n_operation));
+    ms.WriteBuffer(trans.target, SizeOf(trans.target));
+    ms.WriteBuffer(trans.amount, SizeOf(trans.amount));
+    ms.WriteBuffer(trans.fee, SizeOf(trans.fee));
+    TStreamOp.WriteAnsiString(ms, trans.payload);
+    ms.WriteBuffer(trans.public_key.EC_OpenSSL_NID, SizeOf(trans.public_key.EC_OpenSSL_NID));
+    TStreamOp.WriteAnsiString(ms, trans.public_key.x);
+    TStreamOp.WriteAnsiString(ms, trans.public_key.y);
+    SetLength(Result, ms.Size);
     ms.Position := 0;
-    ms.ReadBuffer(Result[1],ms.Size);
+    ms.ReadBuffer(Result[1], ms.Size);
   finally
     ms.Free;
   end;
@@ -322,20 +323,27 @@ end;
 
 function TOpTransaction.LoadFromStream(Stream: TStream): Boolean;
 begin
-  Result := false;
-  if Stream.Size-Stream.Position < 28  then exit; // Invalid stream
-  Stream.Read(FData.sender,Sizeof(FData.sender));
-  Stream.Read(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Read(FData.target,Sizeof(FData.target));
-  Stream.Read(FData.amount,Sizeof(FData.amount));
-  Stream.Read(FData.fee,Sizeof(FData.fee));
-  if TStreamOp.ReadAnsiString(Stream,FData.payload)<0 then exit;
-  if Stream.Read(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID))<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.x)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.y)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.r)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.s)<0 then exit;
-  Result := true;
+  Result := False;
+  if Stream.Size - Stream.Position < 28 then
+    exit; // Invalid stream
+  Stream.ReadBuffer(FData.sender, SizeOf(FData.sender));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.target, SizeOf(FData.target));
+  Stream.ReadBuffer(FData.amount, SizeOf(FData.amount));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
+  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
+    exit;
+  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
+    exit;
+  Result := True;
 end;
 
 function TOpTransaction.OperationAmount: Int64;
@@ -360,18 +368,18 @@ end;
 
 function TOpTransaction.SaveToStream(Stream: TStream): Boolean;
 begin
-  Stream.Write(FData.sender,Sizeof(FData.sender));
-  Stream.Write(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Write(FData.target,Sizeof(FData.target));
-  Stream.Write(FData.amount,Sizeof(FData.amount));
-  Stream.Write(FData.fee,Sizeof(FData.fee));
-  TStreamOp.WriteAnsiString(Stream,FData.payload);
-  Stream.Write(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID));
-  TStreamOp.WriteAnsiString(Stream,FData.public_key.x);
-  TStreamOp.WriteAnsiString(Stream,FData.public_key.y);
-  TStreamOp.WriteAnsiString(Stream,FData.sign.r);
-  TStreamOp.WriteAnsiString(Stream,FData.sign.s);
-  Result := true;
+  Stream.WriteBuffer(FData.sender, SizeOf(FData.sender));
+  Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.WriteBuffer(FData.target, SizeOf(FData.target));
+  Stream.WriteBuffer(FData.amount, SizeOf(FData.amount));
+  Stream.WriteBuffer(FData.fee, SizeOf(FData.fee));
+  TStreamOp.WriteAnsiString(Stream, FData.payload);
+  Stream.WriteBuffer(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID));
+  TStreamOp.WriteAnsiString(Stream, FData.public_key.x);
+  TStreamOp.WriteAnsiString(Stream, FData.public_key.y);
+  TStreamOp.WriteAnsiString(Stream, FData.sign.r);
+  TStreamOp.WriteAnsiString(Stream, FData.sign.s);
+  Result := True;
 end;
 
 function TOpTransaction.SenderAccount: Cardinal;
@@ -410,16 +418,16 @@ begin
   if not DoSignOperation(key,FData) then
   begin
     TLog.NewLog(lterror,Classname,'Error signing a new Change key');
-    FHasValidSignature := false;
+    FHasValidSignature := False;
   end
   else
-    FHasValidSignature := true;
+    FHasValidSignature := True;
 end;
 
 function TOpChangeKey.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
 var account : TAccount;
 begin
-  Result := false;
+  Result := False;
   if (FData.account>=AccountTransaction.FreezedSafeBox.AccountsCount) then
   begin
     errors := 'Invalid account number';
@@ -467,11 +475,11 @@ begin
   if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHashToSign(FData),FData.sign) then
   begin
     errors := 'Invalid sign';
-    FHasValidSignature := false;
+    FHasValidSignature := False;
     exit;
   end
   else
-    FHasValidSignature := true;
+    FHasValidSignature := True;
   FPrevious_Sender_updated_block := account.updated_block;
   Result := AccountTransaction.UpdateAccountkey(FData.account,FData.n_operation,FData.new_accountkey,FData.fee,errors);
 end;
@@ -484,11 +492,11 @@ begin
   try
     _sign := TCrypto.ECDSASign(key.PrivateKey,s);
     op.sign := _sign;
-    Result := true;
+    Result := True;
   except
     on E:Exception do
     begin
-      Result := false;
+      Result := False;
       TLog.NewLog(lterror,ClassName,'Error signing ChangeKey operation: '+E.Message);
     end;
   end;
@@ -500,20 +508,20 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(FData.account,Sizeof(FData.account));
-    ms.Write(FData.n_operation,Sizeof(FData.n_operation));
-    ms.Write(FData.fee,Sizeof(FData.fee));
-    ms.WriteBuffer(FData.payload[1],length(FData.payload));
-    ms.Write(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID));
-    ms.WriteBuffer(FData.public_key.x[1],length(FData.public_key.x));
-    ms.WriteBuffer(FData.public_key.y[1],length(FData.public_key.y));
+    ms.WriteBuffer(FData.account, SizeOf(FData.account));
+    ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+    ms.WriteBuffer(FData.fee, SizeOf(FData.fee));
+    TStreamOp.WriteAnsiString(ms, FData.payload);
+    ms.WriteBuffer(FData.public_key.EC_OpenSSL_NID,SizeOf(FData.public_key.EC_OpenSSL_NID));
+    TStreamOp.WriteAnsiString(ms, FData.public_key.x);
+    TStreamOp.WriteAnsiString(ms, FData.public_key.y);
     s := TAccountComp.AccountKey2RawString(FData.new_accountkey);
-    ms.WriteBuffer(s[1],length(s));
-    ms.WriteBuffer(FData.sign.r[1],length(FData.sign.r));
-    ms.WriteBuffer(FData.sign.s[1],length(FData.sign.s));
+    TStreamOp.WriteAnsiString(ms, s);
+    TStreamOp.WriteAnsiString(ms, FData.sign.r);
+    TStreamOp.WriteAnsiString(ms, FData.sign.s);
     ms.Position := 0;
-    setlength(Result,ms.Size);
-    ms.ReadBuffer(Result[1],ms.Size);
+    SetLength(Result, ms.Size);
+    ms.ReadBuffer(Result[1], ms.Size);
   finally
     ms.Free;
   end;
@@ -525,48 +533,48 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(op.account,Sizeof(op.account));
-    ms.Write(op.n_operation,Sizeof(op.n_operation));
-    ms.Write(op.fee,Sizeof(op.fee));
-    ms.WriteBuffer(op.payload[1],length(op.payload));
-    ms.Write(op.public_key.EC_OpenSSL_NID,Sizeof(op.public_key.EC_OpenSSL_NID));
-    ms.WriteBuffer(op.public_key.x[1],length(op.public_key.x));
-    ms.WriteBuffer(op.public_key.y[1],length(op.public_key.y));
+    ms.WriteBuffer(op.account, SizeOf(op.account));
+    ms.WriteBuffer(op.n_operation, SizeOf(op.n_operation));
+    ms.WriteBuffer(op.fee, SizeOf(op.fee));
+    TStreamOp.WriteAnsiString(ms, op.payload);
+    ms.WriteBuffer(op.public_key.EC_OpenSSL_NID, SizeOf(op.public_key.EC_OpenSSL_NID));
+    TStreamOp.WriteAnsiString(ms, op.public_key.x);
+    TStreamOp.WriteAnsiString(ms, op.public_key.y);
     s := TAccountComp.AccountKey2RawString(op.new_accountkey);
-    ms.WriteBuffer(s[1],length(s));
+    TStreamOp.WriteAnsiString(ms, s);
     ms.Position := 0;
-    setlength(Result,ms.Size);
-    ms.ReadBuffer(Result[1],ms.Size);
+    SetLength(Result, ms.Size);
+    ms.ReadBuffer(Result[1], ms.Size);
   finally
     ms.Free;
   end;
 end;
 
-
 function TOpChangeKey.LoadFromStream(Stream: TStream): Boolean;
 var s : AnsiString;
 begin
-  Result := false;
-  if Stream.Size-Stream.Position < 16  then
+  Result := False;
+  if Stream.Size - Stream.Position < 16  then
     exit; // Invalid stream
-  Stream.Read(FData.account,Sizeof(FData.account));
-  Stream.Read(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Read(FData.fee,Sizeof(FData.fee));
-  if TStreamOp.ReadAnsiString(Stream,FData.payload)<0 then
+  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
+  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
     exit;
-  if Stream.Read(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID))<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.x)<0 then
+  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
     exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.y)<0 then
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
     exit;
-  if TStreamOp.ReadAnsiString(Stream,s)<0 then
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, s) < 0 then
     exit;
   FData.new_accountkey := TAccountComp.RawString2Accountkey(s);
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.r)<0 then
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
     exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.s)<0 then
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
     exit;
-  Result := true;
+  Result := True;
 end;
 
 function TOpChangeKey.OperationAmount: Int64;
@@ -591,17 +599,17 @@ end;
 
 function TOpChangeKey.SaveToStream(Stream: TStream): Boolean;
 begin
-  Stream.Write(FData.account,Sizeof(FData.account));
-  Stream.Write(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Write(FData.fee,Sizeof(FData.fee));
-  TStreamOp.WriteAnsiString(Stream,FData.payload);
-  Stream.Write(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID));
-  TStreamOp.WriteAnsiString(Stream,FData.public_key.x);
-  TStreamOp.WriteAnsiString(Stream,FData.public_key.y);
-  TStreamOp.WriteAnsiString(Stream,TAccountComp.AccountKey2RawString(FData.new_accountkey));
-  TStreamOp.WriteAnsiString(Stream,FData.sign.r);
-  TStreamOp.WriteAnsiString(Stream,FData.sign.s);
-  Result := true;
+  Stream.WriteBuffer(FData.account, SizeOf(FData.account));
+  Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.WriteBuffer(FData.fee, SizeOf(FData.fee));
+  TStreamOp.WriteAnsiString(Stream, FData.payload);
+  Stream.WriteBuffer(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID));
+  TStreamOp.WriteAnsiString(Stream, FData.public_key.x);
+  TStreamOp.WriteAnsiString(Stream, FData.public_key.y);
+  TStreamOp.WriteAnsiString(Stream, TAccountComp.AccountKey2RawString(FData.new_accountkey));
+  TStreamOp.WriteAnsiString(Stream, FData.sign.r);
+  TStreamOp.WriteAnsiString(Stream, FData.sign.s);
+  Result := True;
 end;
 
 function TOpChangeKey.SenderAccount: Cardinal;
@@ -629,7 +637,7 @@ begin
   FData.account := account_number;
   FData.n_operation := n_operation;
   FData.fee := fee;
-  FHasValidSignature := true; // Recover funds doesn't need a signature
+  FHasValidSignature := True; // Recover funds doesn't need a signature
 end;
 
 procedure TOpRecoverFunds.AffectedAccounts(list: TList);
@@ -640,7 +648,7 @@ end;
 function TOpRecoverFunds.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
 var acc : TAccount;
 begin
-  Result := false;
+  Result := False;
   if TAccountComp.IsAccountBlockedByProtocol(FData.account,AccountTransaction.FreezedSafeBox.BlocksCount) then
   begin
     errors := 'account is blocked for protocol';
@@ -682,12 +690,12 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(FData.account,Sizeof(FData.account));
-    ms.Write(FData.n_operation,Sizeof(FData.n_operation));
-    ms.Write(FData.fee,Sizeof(FData.fee));
+    ms.WriteBuffer(FData.account, SizeOf(FData.account));
+    ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+    ms.WriteBuffer(FData.fee, SizeOf(FData.fee));
     ms.Position := 0;
-    SetLength(Result,ms.Size);
-    ms.ReadBuffer(Result[1],ms.Size);
+    SetLength(Result, ms.Size);
+    ms.ReadBuffer(Result[1], ms.Size);
   finally
     ms.Free;
   end;
@@ -695,12 +703,13 @@ end;
 
 function TOpRecoverFunds.LoadFromStream(Stream: TStream): Boolean;
 begin
-  Result := false;
-  if Stream.Size - Stream.Position<16 then exit;
-  Stream.Read(FData.account,Sizeof(FData.account));
-  Stream.Read(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Read(FData.fee,Sizeof(FData.fee));
-  Result := true;
+  Result := False;
+  if Stream.Size - Stream.Position < 16 then
+    exit;
+  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
+  Result := True;
 end;
 
 function TOpRecoverFunds.OperationAmount: Int64;
@@ -725,10 +734,10 @@ end;
 
 function TOpRecoverFunds.SaveToStream(Stream: TStream): Boolean;
 begin
-  Stream.Write(FData.account,Sizeof(FData.account));
-  Stream.Write(FData.n_operation,Sizeof(FData.n_operation));
-  Stream.Write(FData.fee,Sizeof(FData.fee));
-  Result := true;
+  Stream.WriteBuffer(FData.account, SizeOf(FData.account));
+  Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.WriteBuffer(FData.fee, SizeOf(FData.fee));
+  Result := True;
 end;
 
 function TOpRecoverFunds.SenderAccount: Cardinal;

@@ -2238,10 +2238,10 @@ begin
   Result := false;
   if LoadFromStream(Stream) then
   begin
-    if Stream.Size - Stream.Position<8 then
+    if Stream.Size - Stream.Position < 8 then
       exit;
-    Stream.Read(FPrevious_Sender_updated_block,Sizeof(FPrevious_Sender_updated_block));
-    Stream.Read(FPrevious_Destination_updated_block,Sizeof(FPrevious_Destination_updated_block));
+    Stream.ReadBuffer(FPrevious_Sender_updated_block,Sizeof(FPrevious_Sender_updated_block));
+    Stream.ReadBuffer(FPrevious_Destination_updated_block,Sizeof(FPrevious_Destination_updated_block));
     Result := true;
   end;
 end;
