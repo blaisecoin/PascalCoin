@@ -250,12 +250,14 @@ begin
   BNMod := TBigNum.Create;
   BNDiv := TBigNum.Create(Length(CT_Base58));
   try
-    BN.HexaValue := '01'+TCrypto.ToHexaString( raw )+TCrypto.ToHexaString(Copy(TCrypto.DoSha256(raw),1,4));
+    BN.HexaValue :=
+      '01' + TCrypto.ToHexaString(raw) +
+      TCrypto.ToHexaString(Copy(TCrypto.DoSha256(raw), 1, 4));
     while (not BN.IsZero) do
     begin
       BN.Divide(BNDiv,BNMod);
-      if (BNMod.Value>=0) and (BNMod.Value<length(CT_Base58)) then
-        Result := CT_Base58[Byte(BNMod.Value)+1] + Result
+      if (BNMod.Value >= 0) and (BNMod.Value < length(CT_Base58)) then
+        Result := CT_Base58[Byte(BNMod.Value) + 1] + Result
       else
         raise Exception.Create('Error converting to Base 58');
     end;
@@ -276,12 +278,12 @@ var s : TMemoryStream;
 begin
   s := TMemoryStream.Create;
   try
-    s.Write(account.EC_OpenSSL_NID, SizeOf(account.EC_OpenSSL_NID));
-    TStreamOp.WriteAnsiString(s,account.x);
-    TStreamOp.WriteAnsiString(s,account.y);
-    SetLength(Result,s.Size);
+    s.WriteBuffer(account.EC_OpenSSL_NID, SizeOf(account.EC_OpenSSL_NID));
+    TStreamOp.WriteAnsiString(s, account.x);
+    TStreamOp.WriteAnsiString(s, account.y);
+    SetLength(Result, s.Size);
     s.Position := 0;
-    s.Read(Result[1],s.Size);
+    s.Read(Result[1], s.Size);
   finally
     s.Free;
   end;
@@ -294,9 +296,9 @@ var
   i,j : Integer;
   s1,s2 : AnsiString;
 begin
-  result := false;
+  result := False;
   account := CT_Account_NUL.accountkey;
-  if length(HumanReadable)<20 then
+  if length(HumanReadable) < 20 then
   begin
     errors := 'Invalid length';
     exit;
@@ -309,7 +311,7 @@ begin
       if (HumanReadable[i]<>' ') then
       begin
         j := pos(HumanReadable[i],CT_Base58);
-        if j=0 then
+        if j = 0 then
         begin
           errors := 'Invalid char "'+HumanReadable[i]+'" at pos '+inttostr(i)+'/'+inttostr(length(HumanReadable));
           exit;
@@ -321,12 +323,12 @@ begin
       end;
     end;
     // Last 8 hexa chars are the checksum of others
-    s1 := Copy(BN.HexaValue,3,length(BN.HexaValue));
-    s2 := copy(s1,length(s1)-7,8);
-    s1 := copy(s1,1,length(s1)-8);
+    s1 := Copy(BN.HexaValue, 3, length(BN.HexaValue));
+    s2 := copy(s1, length(s1) - 7, 8);
+    s1 := copy(s1, 1, length(s1) - 8);
     raw := TCrypto.HexaToRaw(s1);
-    s1 := TCrypto.ToHexaString( TCrypto.DoSha256(raw) );
-    if copy(s1,1,8)<>s2 then
+    s1 := TCrypto.ToHexaString(TCrypto.DoSha256(raw));
+    if copy(s1, 1, 8) <> s2 then
     begin
       // Invalid checksum
       errors := 'Invalid checksum';
@@ -334,7 +336,7 @@ begin
     end;
     try
       account := TAccountComp.RawString2Accountkey(raw);
-      Result := true;
+      Result := True;
       errors := '';
     except
       // Nothing to do... invalid
@@ -351,8 +353,8 @@ class function TAccountComp.AccountNumberToAccountTxtNumber(account_number: Card
 var an : int64;
 begin
   an := account_number;
-  an := ((an * 101) mod 89)+10;
-  Result := IntToStr(account_number)+'-'+Inttostr(an);
+  an := ((an * 101) mod 89) + 10;
+  Result := IntToStr(account_number) + '-' + Inttostr(an);
 end;
 
 class function TAccountComp.AccountPublicKeyExport(const account: TAccountKey): AnsiString;
@@ -389,7 +391,7 @@ var raw : TRawBytes;
   i,j : Integer;
   s1,s2 : AnsiString;
 begin
-  result := false;
+  result := False;
   errors := 'Invalid length';
   account := CT_Account_NUL.accountkey;
   if length(HumanReadable)<20 then exit;
@@ -424,7 +426,7 @@ begin
     end;
     try
       account := TAccountComp.RawString2Accountkey(raw);
-      Result := true;
+      Result := True;
       errors := '';
     except
       // Nothing to do... invalid
@@ -442,7 +444,7 @@ var
   i : Integer;
   an,rn,anaux : Int64;
 begin
-  Result := false;
+  Result := False;
   if length(trim(account_txt_number))=0 then exit;
   an := 0;
   i := 1;
@@ -459,7 +461,7 @@ begin
   account_number := an;
   if (i>length(account_txt_number)) then
   begin
-    result := true;
+    result := True;
     exit;
   end;
   if (account_txt_number[i] in ['-','.',' ']) then
@@ -467,7 +469,7 @@ begin
   if length(account_txt_number)-1<>i then
     exit;
   rn := StrToIntDef(copy(account_txt_number,i,length(account_txt_number)),0);
-  anaux := ((an * 101) mod 89)+10;
+  anaux := ((an * 101) mod 89) + 10;
   Result := rn = anaux;
 end;
 
@@ -497,7 +499,7 @@ end;
 class function TAccountComp.IsAccountBlockedByProtocol(account_number, blocks_count: Cardinal): Boolean;
 begin
   if blocks_count<CT_WaitNewBlocksBeforeTransaction then
-    result := true
+    result := True
   else
     Result := ((blocks_count-CT_WaitNewBlocksBeforeTransaction) * CT_AccountsPerBlock) <= account_number;
 end;
@@ -560,15 +562,15 @@ begin
   money := 0;
   if Trim(moneytxt)='' then
   begin
-    Result := true;
+    Result := True;
     exit;
   end;
   try
     s := StringReplace(moneytxt,ThousandSeparator,'',[rfReplaceAll]);
     money := Round( StrToFloat(s)*10000 );
-    Result := true;
+    Result := True;
   except
-    result := false;
+    result := False;
   end;
 end;
 
@@ -812,24 +814,28 @@ begin
 end;
 
 class function TPCSafeBox.CalcBlockHash(const block : TBlockAccount): AnsiString;
-var s: AnsiString;
+var
+  s : AnsiString;
   ms : TMemoryStream;
   i : Integer;
+  l : LongInt;
 begin
   ms := TMemoryStream.Create;
   try
-    ms.Write(block.blockaccount,4); // Little endian
+    ms.WriteBuffer(block.blockaccount, 4); // Little endian
     for i := Low(block.accounts) to High(block.accounts) do
     begin
-      ms.Write(block.accounts[i].account,4);  // Little endian
+      ms.WriteBuffer(block.accounts[i].account, 4);  // Little endian
       s := TAccountComp.AccountKey2RawString(block.accounts[i].accountkey);
-      ms.WriteBuffer(s[1],length(s)); // Raw bytes
-      ms.Write(block.accounts[i].balance,SizeOf(Uint64));  // Little endian
-      ms.Write(block.accounts[i].updated_block,4);  // Little endian
-      ms.Write(block.accounts[i].n_operation,4); // Little endian
+      l := Length(s);
+      if l > 0 then
+        ms.WriteBuffer(s[1], l); // Raw bytes
+      ms.Write(block.accounts[i].balance, SizeOf(Uint64));  // Little endian
+      ms.Write(block.accounts[i].updated_block, 4);  // Little endian
+      ms.Write(block.accounts[i].n_operation, 4); // Little endian
     end;
-    ms.Write(block.timestamp,4); // Little endian
-    Result := TCrypto.DoSha256(ms.Memory,ms.Size);
+    ms.Write(block.timestamp, 4); // Little endian
+    Result := TCrypto.DoSha256(ms.Memory, ms.Size);
   finally
     ms.Free;
   end;
@@ -889,14 +895,15 @@ end;
 function TPCSafeBox.CalcSafeBoxHash: TRawBytes;
 begin
   // if No buffer to hash is because it's firts block... so use Genesis: CT_Genesis_Magic_String_For_Old_Block_Hash
-  if (FBufferBlocksHash='') then
+  if FBufferBlocksHash = '' then
     Result := TCrypto.DoSha256(CT_Genesis_Magic_String_For_Old_Block_Hash)
   else
     Result := TCrypto.DoSha256(FBufferBlocksHash);
 end;
 
 function TPCSafeBox.LoadSafeBoxFromStream(Stream : TStream; var LastReadBlock : TBlockAccount; var errors : AnsiString) : Boolean;
-var w : Word;
+var
+  w : Word;
   blockscount,iblock,iacc : Cardinal;
   s : AnsiString;
   block : TBlockAccount;
@@ -907,59 +914,59 @@ begin
   StartThreadSafe;
   try
     Clear;
-    Result := false;
+    Result := False;
     try
       errors := 'Invalid stream';
       TStreamOp.ReadAnsiString(Stream,s);
-      if (s<>CT_MagicIdentificator) then
+      if s <> CT_MagicIdentificator then
         exit;
       errors := 'Invalid version or corrupted stream';
-      if Stream.Size<8 then
+      if Stream.Size < 8 then
         exit;
-      Stream.Read(w,2);
-      if w<>CT_BlockChain_Protocol_Version then
+      Stream.ReadBuffer(w, 2);
+      if w <> CT_BlockChain_Protocol_Version then
         exit;
-      Stream.Read(safeBoxBankVersion,2);
-      if safeBoxBankVersion<>CT_SafeBoxBankVersion then
+      Stream.ReadBuffer(safeBoxBankVersion, 2);
+      if safeBoxBankVersion <> CT_SafeBoxBankVersion then
       begin
         errors := 'Invalid SafeBoxBank version: '+InttostR(safeBoxBankVersion);
         exit;
       end;
-      Stream.Read(blockscount,4);
-      if blockscount>(CT_NewLineSecondsAvg*2000000) then
+      Stream.ReadBuffer(blockscount, 4);
+      if blockscount > CT_NewLineSecondsAvg * 2000000 then
         exit; // Protection for corrupted data...
       // Build 1.3.0 to increase reading speed:
       FBlockAccountsList.Capacity := blockscount;
       errors := 'Corrupted stream';
-      for iblock := 0 to blockscount-1 do
+      for iblock := 0 to blockscount - 1 do
       begin
         errors := 'Corrupted stream reading block '+inttostr(iblock+1)+'/'+inttostr(blockscount);
         block := CT_BlockAccount_NUL;
-        if Stream.Read(block.blockaccount,4)<4 then
+        if Stream.Read(block.blockaccount, 4) < 4 then
           exit;
-        if (block.blockaccount<>iblock) then
+        if block.blockaccount<>iblock then
           exit; // Invalid value
         for iacc := Low(block.accounts) to High(block.accounts) do
         begin
           errors := 'Corrupted stream reading account '+inttostr(iacc+1)+'/'+inttostr(length(block.accounts))+' of block '+inttostr(iblock+1)+'/'+inttostr(blockscount);
-          if Stream.Read(block.accounts[iacc].account,4)<4 then
+          if Stream.Read(block.accounts[iacc].account,4) < 4 then
             exit;
           if TStreamOp.ReadAnsiString(Stream,s)<0 then
             exit;
           block.accounts[iacc].accountkey := TAccountComp.RawString2Accountkey(s);
-          if Stream.Read(block.accounts[iacc].balance,SizeOf(UInt64))<SizeOf(UInt64) then
+          if Stream.Read(block.accounts[iacc].balance, SizeOf(UInt64)) < SizeOf(UInt64) then
             exit;
-          if Stream.Read(block.accounts[iacc].updated_block,4)<4 then
+          if Stream.Read(block.accounts[iacc].updated_block, 4) < 4 then
             exit;
-          if Stream.Read(block.accounts[iacc].n_operation,4)<4 then
+          if Stream.Read(block.accounts[iacc].n_operation, 4) < 4 then
             exit;
-          if safeBoxBankVersion>=1 then
+          if safeBoxBankVersion >= 1 then
           begin
-            if Stream.Read(block.accounts[iacc].previous_updated_block,4)<4 then
+            if Stream.Read(block.accounts[iacc].previous_updated_block, 4) < 4 then
               exit;
           end;
           // check valid
-          if not TAccountComp.IsValidAccountKey(block.accounts[iacc].accountkey,s) then
+          if not TAccountComp.IsValidAccountKey(block.accounts[iacc].accountkey, s) then
           begin
             errors := errors + ' > '+s;
             exit;
@@ -967,17 +974,17 @@ begin
           inc(FTotalBalance,block.accounts[iacc].balance);
         end;
         errors := 'Corrupted stream reading block hash '+inttostr(iblock+1)+'/'+inttostr(blockscount);
-        if Stream.Read(block.timestamp,4)<4 then
+        if Stream.Read(block.timestamp, 4) < 4 then
           exit;
-        if TStreamOp.ReadAnsiString(Stream,s)<0 then
+        if TStreamOp.ReadAnsiString(Stream,s) < 0 then
           exit;
         block.block_hash := s;
         // Check is valid:
         if CalcBlockHash(block)<>block.block_hash then
           exit;
-        if safeBoxBankVersion>=2 then
+        if safeBoxBankVersion >= 2 then
         begin
-          if Stream.Read(block.target,4)<4 then
+          if Stream.Read(block.target, 4) < 4 then
             exit;
         end;
         Inc(FWorkSum,block.target);
@@ -997,7 +1004,7 @@ begin
       TStreamOp.ReadAnsiString(Stream,FPreviousBlockSafeBoxHash);
       // Build 1.3.0 adding calculation
       FSafeBoxHash := CalcSafeBoxHash;
-      Result := true;
+      Result := True;
     finally
       if not Result then
         Clear;
@@ -1013,20 +1020,20 @@ var
   s : AnsiString;
   safeBoxBankVersion : Word;
 begin
-  Result := false;
+  Result := False;
   TStreamOp.ReadAnsiString(Stream,s);
-  if (s<>CT_MagicIdentificator) then
+  if s <> CT_MagicIdentificator then
     exit;
-  if Stream.Size<8 then
+  if Stream.Size < 8 then
     exit;
-  Stream.Read(w,2);
-  if w<>CT_BlockChain_Protocol_Version then
+  Stream.Read(w, 2);
+  if w <> CT_BlockChain_Protocol_Version then
     exit;
-  Stream.Read(safeBoxBankVersion,2);
-  if safeBoxBankVersion<>CT_SafeBoxBankVersion then
+  Stream.Read(safeBoxBankVersion, 2);
+  if safeBoxBankVersion <> CT_SafeBoxBankVersion then
     exit;
-  Stream.Read(BlocksCount,4);
-  if BlocksCount>(CT_NewLineSecondsAvg*2000000) then
+  Stream.Read(BlocksCount, 4);
+  if BlocksCount > CT_NewLineSecondsAvg * 2000000 then
     exit; // Protection for corrupted data...
   Result := True;
 end;
@@ -1038,30 +1045,30 @@ Var
 begin
   StartThreadSafe;
   try
-    TStreamOp.WriteAnsiString(Stream,CT_MagicIdentificator);
-    Stream.Write(CT_BlockChain_Protocol_Version,SizeOf(CT_BlockChain_Protocol_Version));
-    Stream.Write(CT_SafeBoxBankVersion,SizeOf(CT_SafeBoxBankVersion));
+    TStreamOp.WriteAnsiString(Stream, CT_MagicIdentificator);
+    Stream.WriteBuffer(CT_BlockChain_Protocol_Version, SizeOf(CT_BlockChain_Protocol_Version));
+    Stream.WriteBuffer(CT_SafeBoxBankVersion, SizeOf(CT_SafeBoxBankVersion));
     c := BlocksCount;
-    Stream.Write(c,Sizeof(c));
-    for iblock := 0 to c-1 do
+    Stream.WriteBuffer(c, Sizeof(c));
+    for iblock := 0 to c - 1 do
     begin
       b := Block(iblock);
-      Stream.Write(b.blockaccount,SizeOf(b.blockaccount)); // Little endian
+      Stream.WriteBuffer(b.blockaccount, SizeOf(b.blockaccount)); // Little endian
       for iacc := Low(b.accounts) to High(b.accounts) do
       begin
-        Stream.Write(b.accounts[iacc].account,Sizeof(b.accounts[iacc].account));
-        TStreamOp.WriteAnsiString(Stream,TAccountComp.AccountKey2RawString(b.accounts[iacc].accountkey));
-        Stream.Write(b.accounts[iacc].balance,Sizeof(b.accounts[iacc].balance));
-        Stream.Write(b.accounts[iacc].updated_block,Sizeof(b.accounts[iacc].updated_block));
-        Stream.Write(b.accounts[iacc].n_operation,Sizeof(b.accounts[iacc].n_operation));
-        Stream.Write(b.accounts[iacc].previous_updated_block,Sizeof(b.accounts[iacc].previous_updated_block));
+        Stream.WriteBuffer(b.accounts[iacc].account, Sizeof(b.accounts[iacc].account));
+        TStreamOp.WriteAnsiString(Stream, TAccountComp.AccountKey2RawString(b.accounts[iacc].accountkey));
+        Stream.WriteBuffer(b.accounts[iacc].balance, Sizeof(b.accounts[iacc].balance));
+        Stream.WriteBuffer(b.accounts[iacc].updated_block, Sizeof(b.accounts[iacc].updated_block));
+        Stream.WriteBuffer(b.accounts[iacc].n_operation, Sizeof(b.accounts[iacc].n_operation));
+        Stream.WriteBuffer(b.accounts[iacc].previous_updated_block, Sizeof(b.accounts[iacc].previous_updated_block));
       end;
-      Stream.Write(b.timestamp,Sizeof(b.timestamp));
-      TStreamOp.WriteAnsiString(Stream,b.block_hash);
-      Stream.Write(b.target,Sizeof(b.target));
+      Stream.WriteBuffer(b.timestamp, Sizeof(b.timestamp));
+      TStreamOp.WriteAnsiString(Stream, b.block_hash);
+      Stream.WriteBuffer(b.target, Sizeof(b.target));
     end;
     // New Build 1.3.0
-    TStreamOp.WriteAnsiString(Stream,FPreviousBlockSafeBoxHash);
+    TStreamOp.WriteAnsiString(Stream, FPreviousBlockSafeBoxHash);
   finally
     EndThreadSave;
   end;
@@ -1115,7 +1122,7 @@ var
   B : TBlockAccount;
   Pa : PAccount;
 begin
-  Result := false;
+  Result := False;
   errors := '';
   FFreezedAccounts.StartThreadSafe;
   try
@@ -1148,7 +1155,7 @@ begin
         [B.accounts[0].account,B.accounts[0].balance,reward,FTotalFee,reward+FTotalFee]));
     end;
     CleanTransaction;
-    Result := true;
+    Result := True;
   finally
     FFreezedAccounts.EndThreadSave;
   end;
@@ -1203,7 +1210,7 @@ function TPCSafeBoxTransaction.TransferAmount(sender, target, n_operation : Card
 var
   PaccSender, PaccTarget : PAccount;
 begin
-  Result := false;
+  Result := False;
   errors := '';
   if not CheckIntegrity then
   begin
@@ -1258,19 +1265,19 @@ begin
 
   Dec(FTotalBalance,fee);
   inc(FTotalFee,fee);
-  Result := true;
+  Result := True;
 end;
 
 function TPCSafeBoxTransaction.UpdateAccountkey(account_number, n_operation: Cardinal; accountkey: TAccountKey; fee: UInt64; var errors: AnsiString): Boolean;
 var
   P : PAccount;
 begin
-  Result := false;
+  Result := False;
   errors := '';
   if (account_number<0) or (account_number>=(FFreezedAccounts.BlocksCount*CT_AccountsPerBlock)) then
   begin
-     errors := 'Invalid account';
-     exit;
+    errors := 'Invalid account';
+    exit;
   end;
   if (TAccountComp.IsAccountBlockedByProtocol(account_number,FFreezedAccounts.BlocksCount)) then
   begin
@@ -1295,7 +1302,7 @@ begin
   Dec(P^.balance,fee);
   Dec(FTotalBalance,fee);
   Inc(FTotalFee,fee);
-  Result := true;
+  Result := True;
 end;
 
 { TOrderedAccountList }
@@ -1418,7 +1425,7 @@ begin
   begin
     FAccountList.FListOfOrderedAccountKeysList.Remove(Self);
   end;
-  ClearAccounts(true);
+  ClearAccounts(True);
   FreeAndNil(FOrderedAccountKeysList);
   inherited;
 end;
@@ -1480,7 +1487,7 @@ end;
 
 procedure TOrderedAccountKeysList.Clear;
 begin
-  ClearAccounts(true);
+  ClearAccounts(True);
 end;
 
 procedure TOrderedAccountKeysList.ClearAccounts(RemoveAccountList : Boolean);
@@ -1601,7 +1608,7 @@ constructor TOrderedCardinalList.Create;
 begin
   FOrderedList := TList.Create;
   FDisabledsCount := 0;
-  FModifiedWhileDisabled := false;
+  FModifiedWhileDisabled := False;
 end;
 
 destructor TOrderedCardinalList.Destroy;
@@ -1699,10 +1706,10 @@ procedure TOrderedCardinalList.NotifyChanged;
 begin
   if FDisabledsCount>0 then
   begin
-    FModifiedWhileDisabled := true;
+    FModifiedWhileDisabled := True;
     exit;
   end;
-  FModifiedWhileDisabled := false;
+  FModifiedWhileDisabled := False;
   if Assigned(FOnListChanged) then
     FOnListChanged(Self);
 end;
