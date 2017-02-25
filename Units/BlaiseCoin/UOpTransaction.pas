@@ -41,7 +41,7 @@ Type
     sign: TECDSA_SIG;
   end;
 
-  TOpRecoverFoundsData = record
+  TOpRecoverFundsData = record
     account: Cardinal;
     n_operation : Cardinal;
     fee: UInt64;
@@ -98,11 +98,11 @@ Type
     function toString : String; Override;
   end;
 
-  { TOpRecoverFounds }
+  { TOpRecoverFunds }
 
-  TOpRecoverFounds = class(TPCOperation)
+  TOpRecoverFunds = class(TPCOperation)
   private
-    FData : TOpRecoverFoundsData;
+    FData : TOpRecoverFundsData;
   public
     class function OpType : Byte; override;
 
@@ -117,22 +117,22 @@ Type
     function N_Operation : Cardinal; override;
     procedure AffectedAccounts(list : TList); override;
     constructor Create(account_number, n_operation: Cardinal; fee: UInt64);
-    property Data : TOpRecoverFoundsData read FData;
+    property Data : TOpRecoverFundsData read FData;
     function toString : String; Override;
   end;
 
-Procedure RegisterOperationsClass;
+procedure RegisterOperationsClass;
 
 implementation
 
 uses
   SysUtils, UConst, ULog, UStreamOp;
 
-Procedure RegisterOperationsClass;
+procedure RegisterOperationsClass;
 Begin
   TPCOperationsComp.RegisterOperationClass(TOpTransaction);
   TPCOperationsComp.RegisterOperationClass(TOpChangeKey);
-  TPCOperationsComp.RegisterOperationClass(TOpRecoverFounds);
+  TPCOperationsComp.RegisterOperationClass(TOpRecoverFunds);
 End;
 
 { TOpTransaction }
@@ -622,22 +622,22 @@ begin
     TAccountComp.FormatMoney(FData.fee),FData.n_operation,Length(FData.payload)]);
 end;
 
-{ TOpRecoverFounds }
+{ TOpRecoverFunds }
 
-procedure TOpRecoverFounds.AffectedAccounts(list: TList);
-begin
-  list.Add(TObject(FData.account));
-end;
-
-constructor TOpRecoverFounds.Create(account_number, n_operation : Cardinal; fee: UInt64);
+constructor TOpRecoverFunds.Create(account_number, n_operation : Cardinal; fee: UInt64);
 begin
   FData.account := account_number;
   FData.n_operation := n_operation;
   FData.fee := fee;
-  FHasValidSignature := true; // Recover founds doesn't need a signature
+  FHasValidSignature := true; // Recover funds doesn't need a signature
 end;
 
-function TOpRecoverFounds.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
+procedure TOpRecoverFunds.AffectedAccounts(list: TList);
+begin
+  list.Add(TObject(FData.account));
+end;
+
+function TOpRecoverFunds.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
 var acc : TAccount;
 begin
   Result := false;
@@ -677,7 +677,7 @@ begin
   Result := AccountTransaction.TransferAmount(FData.account,FData.account,FData.n_operation,0,FData.fee,errors);
 end;
 
-function TOpRecoverFounds.GetOperationBufferToHash: TRawBytes;
+function TOpRecoverFunds.GetOperationBufferToHash: TRawBytes;
 var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
@@ -693,7 +693,7 @@ begin
   end;
 end;
 
-function TOpRecoverFounds.LoadFromStream(Stream: TStream): Boolean;
+function TOpRecoverFunds.LoadFromStream(Stream: TStream): Boolean;
 begin
   Result := false;
   if Stream.Size - Stream.Position<16 then exit;
@@ -703,27 +703,27 @@ begin
   Result := true;
 end;
 
-function TOpRecoverFounds.OperationAmount: Int64;
+function TOpRecoverFunds.OperationAmount: Int64;
 begin
   Result := 0;
 end;
 
-function TOpRecoverFounds.OperationFee: UInt64;
+function TOpRecoverFunds.OperationFee: UInt64;
 begin
   Result := FData.fee;
 end;
 
-function TOpRecoverFounds.OperationPayload: TRawBytes;
+function TOpRecoverFunds.OperationPayload: TRawBytes;
 begin
   Result := '';
 end;
 
-class function TOpRecoverFounds.OpType: Byte;
+class function TOpRecoverFunds.OpType: Byte;
 begin
   Result := CT_Op_Recover;
 end;
 
-function TOpRecoverFounds.SaveToStream(Stream: TStream): Boolean;
+function TOpRecoverFunds.SaveToStream(Stream: TStream): Boolean;
 begin
   Stream.Write(FData.account,Sizeof(FData.account));
   Stream.Write(FData.n_operation,Sizeof(FData.n_operation));
@@ -731,17 +731,17 @@ begin
   Result := true;
 end;
 
-function TOpRecoverFounds.SenderAccount: Cardinal;
+function TOpRecoverFunds.SenderAccount: Cardinal;
 begin
   Result := FData.account;
 end;
 
-function TOpRecoverFounds.N_Operation: Cardinal;
+function TOpRecoverFunds.N_Operation: Cardinal;
 begin
   Result := FData.n_operation;
 end;
 
-function TOpRecoverFounds.toString: String;
+function TOpRecoverFunds.toString: String;
 begin
   Result := Format('Recover founds of account %s fee:%s (n_op:%d)',[
     TAccountComp.AccountNumberToAccountTxtNumber(FData.account),

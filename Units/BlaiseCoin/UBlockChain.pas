@@ -2339,7 +2339,7 @@ begin
     CT_Op_Recover :
     begin
       OperationResume.OperationTxt := 'Recover founds';
-      OperationResume.Fee := TOpRecoverFounds(Operation).Data.fee;
+      OperationResume.Fee := TOpRecoverFunds(Operation).Data.fee;
       Result := true;
     end;
   else
