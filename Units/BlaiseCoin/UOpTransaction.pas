@@ -160,7 +160,8 @@ begin
 end;
 
 function TOpTransaction.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors : AnsiString): Boolean;
-var s_new, t_new : Int64;
+var
+  s_new, t_new : Int64;
   totalamount : Cardinal;
   sender,target : TAccount;
   _h : TRawBytes;
@@ -168,55 +169,66 @@ begin
   Result := false;
   errors := '';
   //
-  if (FData.sender>=AccountTransaction.FreezedSafeBox.AccountsCount) then begin
+  if (FData.sender>=AccountTransaction.FreezedSafeBox.AccountsCount) then
+  begin
     errors := Format('Invalid sender %d',[FData.sender]);
-    Exit;
+    exit;
   end;
-  if (FData.target>=AccountTransaction.FreezedSafeBox.AccountsCount) then begin
+  if (FData.target>=AccountTransaction.FreezedSafeBox.AccountsCount) then
+  begin
     errors := Format('Invalid target %d',[FData.target]);
-    Exit;
+    exit;
   end;
   if (FData.sender=FData.target) then begin
     errors := Format('Sender=Target %d',[FData.sender]);
-    Exit;
+    exit;
   end;
-  if TAccountComp.IsAccountBlockedByProtocol(FData.sender,AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if TAccountComp.IsAccountBlockedByProtocol(FData.sender,AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := Format('sender (%d) is blocked for protocol',[FData.sender]);
-    Exit;
+    exit;
   end;
-  if TAccountComp.IsAccountBlockedByProtocol(FData.target,AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if TAccountComp.IsAccountBlockedByProtocol(FData.target,AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := Format('target (%d) is blocked for protocol',[FData.target]);
-    Exit;
+    exit;
   end;
-  if (FData.amount<=0) or (FData.amount>CT_MaxTransactionAmount) then begin
+  if (FData.amount<=0) or (FData.amount>CT_MaxTransactionAmount) then
+  begin
     errors := Format('Invalid amount %d (0 or max: %d)',[FData.amount,CT_MaxTransactionAmount]);
-    Exit;
+    exit;
   end;
-  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then
+  begin
     errors := Format('Invalid fee %d (max %d)',[FData.fee,CT_MaxTransactionFee]);
-    Exit;
+    exit;
   end;
-  if (length(FData.payload)>CT_MaxPayloadSize) then begin
+  if (length(FData.payload)>CT_MaxPayloadSize) then
+  begin
     errors := 'Invalid Payload size:'+inttostr(length(FData.payload))+' (Max: '+inttostr(CT_MaxPayloadSize)+')';
   end;
 
   sender := AccountTransaction.Account(FData.sender);
   target := AccountTransaction.Account(FData.target);
-  if ((sender.n_operation+1)<>FData.n_operation) then begin
+  if ((sender.n_operation+1)<>FData.n_operation) then
+  begin
     errors := Format('Invalid n_operation %d (expected %d)',[FData.n_operation,sender.n_operation+1]);
-    Exit;
+    exit;
   end;
   totalamount := FData.amount + FData.fee;
-  if (sender.balance<totalamount) then begin
+  if (sender.balance<totalamount) then
+  begin
     errors := Format('Insuficient founds %d < (%d + %d = %d)',[sender.balance,FData.amount,FData.fee,totalamount]);
-    Exit;
+    exit;
   end;
-  if (target.balance+FData.amount>CT_MaxWalletAmount) then begin
+  if (target.balance+FData.amount>CT_MaxWalletAmount) then
+  begin
     errors := Format('Target cannot accept this transaction due to max amount %d+%d=%d > %d',[target.balance,FData.amount,target.balance+FData.amount,CT_MaxWalletAmount]);
-    Exit;
+    exit;
   end;
   // Build 1.4
-  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,sender.accountkey)) then begin
+  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,sender.accountkey)) then
+  begin
     errors := Format('Invalid sender public key for account %d. Distinct from SafeBox public key! %s <> %s',[
       FData.sender,
       TCrypto.ToHexaString(TAccountComp.AccountKey2RawString(FData.public_key)),
@@ -225,10 +237,11 @@ begin
   end;
   // Check signature
   _h := GetTransactionHashToSign(FData);
-  if (not TCrypto.ECDSAVerify(sender.accountkey,_h,FData.sign)) then begin
+  if (not TCrypto.ECDSAVerify(sender.accountkey,_h,FData.sign)) then
+  begin
     errors := 'Invalid sign';
     FHasValidSignature := false;
-    Exit;
+    exit;
   end else FHasValidSignature := true;
   //
   FPrevious_Sender_updated_block := sender.updated_block;
@@ -238,10 +251,12 @@ begin
 end;
 
 class function TOpTransaction.DoSignOperation(key : TECPrivateKey; var trans : TOpTransactionData) : Boolean;
-var s : AnsiString;
+var
+  s : AnsiString;
   _sign : TECDSA_SIG;
 begin
-  if not Assigned(key.PrivateKey) then begin
+  if not Assigned(key.PrivateKey) then
+  begin
     Result := false;
     trans.sign.r:='';
     trans.sign.s:='';
@@ -360,7 +375,6 @@ begin
   Result := true;
 end;
 
-
 function TOpTransaction.SenderAccount: Cardinal;
 begin
   Result := FData.sender;
@@ -394,45 +408,56 @@ begin
   FData.payload := payload;
   FData.public_key := key.PublicKey;
   FData.new_accountkey := new_account_key;
-  if not DoSignOperation(key,FData) then begin
+  if not DoSignOperation(key,FData) then
+  begin
     TLog.NewLog(lterror,Classname,'Error signing a new Change key');
     FHasValidSignature := false;
-  end else FHasValidSignature := true;
+  end
+  else
+    FHasValidSignature := true;
 end;
 
 function TOpChangeKey.DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors: AnsiString): Boolean;
 var account : TAccount;
 begin
   Result := false;
-  if (FData.account>=AccountTransaction.FreezedSafeBox.AccountsCount) then begin
+  if (FData.account>=AccountTransaction.FreezedSafeBox.AccountsCount) then
+  begin
     errors := 'Invalid account number';
-    Exit;
+    exit;
   end;
-  if TAccountComp.IsAccountBlockedByProtocol(FData.account, AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if TAccountComp.IsAccountBlockedByProtocol(FData.account, AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := 'account is blocked for protocol';
-    Exit;
+    exit;
   end;
-  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<0) or (FData.fee>CT_MaxTransactionFee) then
+  begin
     errors := 'Invalid fee: '+Inttostr(FData.fee);
     exit;
   end;
   account := AccountTransaction.Account(FData.account);
-  if ((account.n_operation+1)<>FData.n_operation) then begin
+  if ((account.n_operation+1)<>FData.n_operation) then
+  begin
     errors := 'Invalid n_operation';
-    Exit;
+    exit;
   end;
-  if (account.balance<FData.fee) then begin
+  if (account.balance<FData.fee) then
+  begin
     errors := 'Insuficient founds';
     exit;
   end;
-  if (length(FData.payload)>CT_MaxPayloadSize) then begin
+  if (length(FData.payload)>CT_MaxPayloadSize) then
+  begin
     errors := 'Invalid Payload size:'+inttostr(length(FData.payload))+' (Max: '+inttostr(CT_MaxPayloadSize)+')';
   end;
-  if not TAccountComp.IsValidAccountKey( FData.new_accountkey, errors ) then begin
+  if not TAccountComp.IsValidAccountKey( FData.new_accountkey, errors ) then
+  begin
     exit;
   end;
   // Build 1.4
-  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,account.accountkey)) then begin
+  if (FData.public_key.EC_OpenSSL_NID<>CT_TECDSA_Public_Nul.EC_OpenSSL_NID) and (not TAccountComp.Equal(FData.public_key,account.accountkey)) then
+  begin
     errors := Format('Invalid public key for account %d. Distinct from SafeBox public key! %s <> %s',[
       FData.account,
       TCrypto.ToHexaString(TAccountComp.AccountKey2RawString(FData.public_key)),
@@ -440,11 +465,14 @@ begin
     exit;
   end;
 
-  if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHasthToSign(FData),FData.sign) then begin
+  if not TCrypto.ECDSAVerify(account.accountkey,GetOperationHasthToSign(FData),FData.sign) then
+  begin
     errors := 'Invalid sign';
     FHasValidSignature := false;
     exit;
-  end else FHasValidSignature := true;
+  end
+  else
+    FHasValidSignature := true;
   FPrevious_Sender_updated_block := account.updated_block;
   Result := AccountTransaction.UpdateAccountkey(FData.account,FData.n_operation,FData.new_accountkey,FData.fee,errors);
 end;
@@ -459,7 +487,8 @@ begin
     op.sign := _sign;
     Result := true;
   except
-    on E:Exception do begin
+    on E:Exception do
+    begin
       Result := false;
       TLog.NewLog(lterror,ClassName,'Error signing ChangeKey operation: '+E.Message);
     end;
@@ -519,18 +548,25 @@ function TOpChangeKey.LoadFromStream(Stream: TStream): Boolean;
 var s : AnsiString;
 begin
   Result := false;
-  if Stream.Size-Stream.Position < 16  then exit; // Invalid stream
+  if Stream.Size-Stream.Position < 16  then
+    exit; // Invalid stream
   Stream.Read(FData.account,Sizeof(FData.account));
   Stream.Read(FData.n_operation,Sizeof(FData.n_operation));
   Stream.Read(FData.fee,Sizeof(FData.fee));
-  if TStreamOp.ReadAnsiString(Stream,FData.payload)<0 then exit;
+  if TStreamOp.ReadAnsiString(Stream,FData.payload)<0 then
+    exit;
   if Stream.Read(FData.public_key.EC_OpenSSL_NID,Sizeof(FData.public_key.EC_OpenSSL_NID))<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.x)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.public_key.y)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,s)<0 then exit;
+  if TStreamOp.ReadAnsiString(Stream,FData.public_key.x)<0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream,FData.public_key.y)<0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream,s)<0 then
+    exit;
   FData.new_accountkey := TAccountComp.RawString2Accountkey(s);
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.r)<0 then exit;
-  if TStreamOp.ReadAnsiString(Stream,FData.sign.s)<0 then exit;
+  if TStreamOp.ReadAnsiString(Stream,FData.sign.r)<0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream,FData.sign.s)<0 then
+    exit;
   Result := true;
 end;
 
@@ -606,29 +642,35 @@ function TOpRecoverFounds.DoOperation(AccountTransaction : TPCSafeBoxTransaction
 var acc : TAccount;
 begin
   Result := false;
-  if TAccountComp.IsAccountBlockedByProtocol(FData.account,AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if TAccountComp.IsAccountBlockedByProtocol(FData.account,AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := 'account is blocked for protocol';
-    Exit;
+    exit;
   end;
   acc := AccountTransaction.Account(FData.account);
-  if (acc.updated_block + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if (acc.updated_block + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := Format('Account is active to recover founds! Account %d Updated %d + %d >= BlockCount : %d',[FData.account,acc.updated_block,CT_RecoverFoundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
-    Exit;
+    exit;
   end;
   // Build 1.0.8 ... there was a BUG. Need to prevent recent created accounts
-  if (TAccountComp.AccountBlock(FData.account) + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then begin
+  if (TAccountComp.AccountBlock(FData.account) + CT_RecoverFoundsWaitInactiveCount >= AccountTransaction.FreezedSafeBox.BlocksCount) then
+  begin
     errors := Format('AccountBlock is active to recover founds! AccountBlock %d + %d >= BlockCount : %d',[TAccountComp.AccountBlock(FData.account),CT_RecoverFoundsWaitInactiveCount,AccountTransaction.FreezedSafeBox.BlocksCount]);
-    Exit;
+    exit;
   end;
-  if ((acc.n_operation+1)<>FData.n_operation) then begin
+  if ((acc.n_operation+1)<>FData.n_operation) then
+  begin
     errors := 'Invalid n_operation';
-    Exit;
+    exit;
   end;
-  if (FData.fee<=0) or (FData.fee>CT_MaxTransactionFee) then begin
+  if (FData.fee<=0) or (FData.fee>CT_MaxTransactionFee) then
+  begin
     errors := 'Invalid fee '+Inttostr(FData.fee);
     exit;
   end;
-  if (acc.balance<FData.fee) then begin
+  if (acc.balance<FData.fee) then
+  begin
     errors := 'Insuficient founds';
     exit;
   end;
@@ -710,3 +752,4 @@ end;
 initialization
   RegisterOperationsClass;
 end.
+

@@ -111,7 +111,8 @@ begin
 end;
 
 procedure TPCThread.Execute;
-var l : TList;
+var
+  l : TList;
   i : Integer;
 begin
   FStartTickCount := GetTickCount;
@@ -127,7 +128,8 @@ begin
         Terminate;
       end;
     except
-      on E:Exception do begin
+      on E:Exception do
+      begin
         TLog.NewLog(lterror,Classname,'Exception inside a Thread at step: '+FDebugStep+' ('+E.ClassName+'): '+E.Message);
         raise;
       end;
@@ -149,7 +151,8 @@ begin
   Result := nil;
   l := _threads.LockList;
   try
-    if (index<0) or (index>=l.Count) then exit;
+    if (index<0) or (index>=l.Count) then
+      exit;
     Result := TPCThread(l[index]);
   finally
     _threads.UnlockList;
@@ -157,15 +160,19 @@ begin
 end;
 
 class function TPCThread.GetThreadByClass(tclass: TPCThreadClass; Exclude: TObject): TPCThread;
-var l : TList;
+var
+  l : TList;
   i : Integer;
 begin
   Result := nil;
-  if not Assigned(_threads) then exit;
+  if not Assigned(_threads) then
+    exit;
   l := _threads.LockList;
   try
-    for i := 0 to l.Count - 1 do begin
-      if (TPCThread(l[i]) is tclass) and ((l[i])<>Exclude) then begin
+    for i := 0 to l.Count - 1 do
+    begin
+      if (TPCThread(l[i]) is tclass) and ((l[i])<>Exclude) then
+      begin
         Result := TPCThread(l[i]);
         exit;
       end;
@@ -199,8 +206,10 @@ begin
   if not Assigned(_threads) then exit;
   l := _threads.LockList;
   try
-    for Result := 0 to l.Count - 1 do begin
-      if (TPCThread(l[Result]) is tclass) and ((l[Result])<>Exclude) then exit;
+    for Result := 0 to l.Count - 1 do
+    begin
+      if (TPCThread(l[Result]) is tclass) and ((l[Result])<>Exclude) then
+        exit;
     end;
     Result := -1;
   finally
@@ -227,7 +236,8 @@ begin
   try
     list.BeginUpdate;
     list.Clear;
-    for i := 0 to l.Count - 1 do begin
+    for i := 0 to l.Count - 1 do
+    begin
       list.Add(Format('%.2d/%.2d <%s> Time:%s sec - Step: %s',[i+1,l.Count,TPCThread(l[i]).ClassName,FormatFloat('0.000',(GetTickCount-TPCThread(l[i]).FStartTickCount) / 1000),TPCThread(l[i]).DebugStep] ));
     end;
     list.EndUpdate;
@@ -242,19 +252,25 @@ var tc,tc2,tc3,lockCurrThread,lockWatingForCounter,lockStartedTimestamp : Cardin
   s : String;
 begin
   tc := GetTickCount;
-  if MaxWaitMilliseconds>60000 then MaxWaitMilliseconds := 60000;
+  if MaxWaitMilliseconds>60000 then
+    MaxWaitMilliseconds := 60000;
   lockWatingForCounter := Lock.WaitingForCounter;
   lockStartedTimestamp := Lock.StartedTimestamp;
   lockCurrThread := Lock.CurrentThread;
-  Repeat
+  repeat
     Result := Lock.TryEnter;
-    if not Result then sleep(1);
-  Until (Result) or (GetTickCount > (tc + MaxWaitMilliseconds));
-  if not Result then begin
+    if not Result then
+      Sleep(1);
+  until (Result) or (GetTickCount > (tc + MaxWaitMilliseconds));
+  if not Result then
+  begin
     tc2 := GetTickCount;
-    if lockStartedTimestamp=0 then lockStartedTimestamp := Lock.StartedTimestamp;
-    if lockStartedTimestamp=0 then tc3 := 0
-    else tc3 := tc2-lockStartedTimestamp;
+    if lockStartedTimestamp=0 then
+      lockStartedTimestamp := Lock.StartedTimestamp;
+    if lockStartedTimestamp=0 then
+      tc3 := 0
+    else
+      tc3 := tc2-lockStartedTimestamp;
     s := Format('Cannot Protect a critical section %s %s class %s after %d milis locked by %s waiting %d-%d elapsed milis: %d',
       [IntToHex(PtrInt(Lock),8),Lock.Name,
       Sender.ClassName,tc2-tc,
@@ -348,20 +364,25 @@ begin
     FCounterLock.Release;
   end;
   logged := false;
-  Repeat
+  repeat
     continue := inherited TryEnter;
-    if (not continue) then begin
-      if (not logged) and ((FStartedTimestamp>0) and ((FStartedTimestamp+1000)<GetTickCount)) then begin
+    if (not continue) then
+    begin
+      if (not logged) and ((FStartedTimestamp>0) and ((FStartedTimestamp+1000)<GetTickCount)) then
+      begin
         logged := true;
         TLog.NewLog(ltdebug,ClassName,'ALERT Critical section '+IntToHex(PtrInt(Self),8)+' '+Name+
           ' locked by '+IntToHex(FCurrentThread,8)+' waiting '+
           IntToStr(FWaitingForCounter)+' elapsed milis: '+IntToStr(GetTickCount-FStartedTimestamp) );
         continue := true;
         inherited;
-      end else sleep(1);
+      end
+      else
+        Sleep(1);
     end;
-  Until continue;
-  if (logged) then begin
+  until continue;
+  if (logged) then
+  begin
     TLog.NewLog(ltdebug,Classname,'ENTER Critical section '+IntToHex(PtrInt(Self),8)+' '+Name+' elapsed milis: '+IntToStr(GetTickCount - startTC) );
   end;
   FCounterLock.Acquire;
@@ -407,11 +428,14 @@ begin
   finally
     FCounterLock.Release;
   end;
-  if inherited TryEnter then begin
+  if inherited TryEnter then
+  begin
     FCurrentThread := TThread.CurrentThread.ThreadID;
     FStartedTimestamp := GetTickCount;
     Result := true;
-  end else Result := false;
+  end
+  else
+    Result := false;
   FCounterLock.Acquire;
   try
     FWaitingForCounter := FWaitingForCounter - 1;
