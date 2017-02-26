@@ -960,11 +960,8 @@ begin
             exit;
           if Stream.Read(block.accounts[iacc].n_operation, 4) < 4 then
             exit;
-          if safeBoxBankVersion >= 1 then
-          begin
-            if Stream.Read(block.accounts[iacc].previous_updated_block, 4) < 4 then
-              exit;
-          end;
+          if Stream.Read(block.accounts[iacc].previous_updated_block, 4) < 4 then
+            exit;
           // check valid
           if not TAccountComp.IsValidAccountKey(block.accounts[iacc].accountkey, s) then
           begin
@@ -982,11 +979,8 @@ begin
         // Check is valid:
         if CalcBlockHash(block)<>block.block_hash then
           exit;
-        if safeBoxBankVersion >= 2 then
-        begin
-          if Stream.Read(block.target, 4) < 4 then
-            exit;
-        end;
+        if Stream.Read(block.target, 4) < 4 then
+          exit;
         Inc(FWorkSum,block.target);
         block.AccumulatedWork := FWorkSum;
         // Add
