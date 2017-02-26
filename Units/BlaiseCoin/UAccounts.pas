@@ -927,7 +927,7 @@ begin
       if w <> CT_BlockChain_Protocol_Version then
         exit;
       Stream.ReadBuffer(safeBoxBankVersion, 2);
-      if safeBoxBankVersion <> CT_SafeBoxBankVersion then
+      if safeBoxBankVersion < CT_SafeBoxBankMinVersion then
       begin
         errors := 'Invalid SafeBoxBank version: '+InttostR(safeBoxBankVersion);
         exit;
@@ -1024,7 +1024,7 @@ begin
   if w <> CT_BlockChain_Protocol_Version then
     exit;
   Stream.Read(safeBoxBankVersion, 2);
-  if safeBoxBankVersion <> CT_SafeBoxBankVersion then
+  if safeBoxBankVersion < CT_SafeBoxBankMinVersion then
     exit;
   Stream.Read(BlocksCount, 4);
   if BlocksCount > CT_NewLineSecondsAvg * 2000000 then

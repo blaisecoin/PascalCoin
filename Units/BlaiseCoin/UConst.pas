@@ -94,7 +94,8 @@ Const
   // NetProtocol_Available MUST BE always >= NetProtocol_version
   CT_NetProtocol_Available: Word = $0005;  // Remember, >= NetProtocol_version !!!
 
-  CT_SafeBoxBankVersion : Word = 2;
+  CT_SafeBoxBankVersion    : Word = $0002;
+  CT_SafeBoxBankMinVersion : Word = $0002;
 
   CT_MagicIdentificator: AnsiString = 'BlaiseCoin'; // Safebox magic
 
