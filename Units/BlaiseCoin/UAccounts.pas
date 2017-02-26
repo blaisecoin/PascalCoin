@@ -161,6 +161,7 @@ Type
     procedure Clear;
     function Account(account_number : Cardinal) : TAccount;
     function Block(block_number : Cardinal) : TBlockAccount;
+    function BlockPastMedianTime(block_number : Cardinal): Cardinal;
     function CalcSafeBoxHash : TRawBytes;
     function CalcBlockHashRateInKhs(block_number : Cardinal; Previous_blocks_average : Cardinal) : Int64;
     property TotalBalance : Int64 read FTotalBalance;
@@ -799,6 +800,62 @@ begin
   if (block_number<0) or (block_number>=FBlockAccountsList.Count) then
     raise Exception.Create('Invalid block number: '+inttostr(block_number));
   Result := PBlockAccount(FBlockAccountsList.Items[block_number])^;
+end;
+
+function TPCSafeBox.BlockPastMedianTime(block_number : Cardinal): Cardinal;
+var
+  TimeStamps : array[0..CT_BlockMedianTimeBlockCount - 1] of Cardinal;
+
+  procedure SortTimeStamps(L, R: Integer);
+  var I, J : Integer;
+      M    : Integer;
+      T    : Cardinal;
+  begin
+    repeat
+      I := L;
+      J := R;
+      M := (L + R) shr 1;
+      repeat
+        while TimeStamps[I] < TimeStamps[M] do
+          Inc(I);
+        while TimeStamps[J] > TimeStamps[M] do
+          Dec(J);
+        if I <= J then
+          begin
+            T := TimeStamps[I];
+            TimeStamps[I] := TimeStamps[J];
+            TimeStamps[J] := T;
+            if M = I then
+              M := J else
+              if M = J then
+                M := I;
+            Inc(I);
+            Dec(J);
+          end;
+      until I > J;
+      if L < J then
+        SortTimeStamps(L, J);
+      L := I;
+    until I >= R;
+  end;
+
+var
+  i : Integer;
+begin
+  // first CT_BlockMedianTimeBlockCount blocks, use current block timestamp
+  if block_number < CT_BlockMedianTimeBlockCount then
+  begin
+    Result := Block(block_number).timestamp;
+    exit;
+  end;
+  // collect timestamp from CT_BlockMedianTimeBlockCount blocks before incl
+  // block_number
+  for i := 0 to CT_BlockMedianTimeBlockCount - 1 do
+    TimeStamps[i] := Block(block_number - CT_BlockMedianTimeBlockCount + 1 + i).timestamp;
+  // sort timestamps
+  SortTimeStamps(0, CT_BlockMedianTimeBlockCount - 1);
+  // take median time (CT_BlockMedianTimeBlockCount div 2) blocks in past
+  Result := TimeStamps[CT_BlockMedianTimeBlockCount div 2];
 end;
 
 class function TPCSafeBox.BlockAccountToText(const block: TBlockAccount): AnsiString;

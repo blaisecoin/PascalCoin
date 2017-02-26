@@ -697,31 +697,26 @@ begin
 end;
 
 function TPCBank.GetActualTargetHash: AnsiString;
-  { Target is calculated in each block with avg obtained in previous
-    CT_CalcNewDifficulty blocks.
-    if Block is lower than CT_CalcNewDifficulty then is calculated
-    with all previous blocks.
+  { Target is calculated in each block with 'past median time' obtained
+    between last and (last - CT_CalcNewDifficulty) blocks.
   }
 var
+  Cnt : Cardinal;
   ts1, ts2, tsTeorical, tsReal: Int64;
-  CalcBack : Integer;
 begin
-  if (BlocksCount <= 1) then
+  Cnt := BlocksCount;
+  if Cnt <= CT_CalcNewTargetBlocksAverage + CT_BlockMedianTimeBlockCount * 2 then
   begin
-    // Important: CT_MinCompactTarget is applied for blocks 0 until ((CT_CalcNewDifficulty*2)-1)
     FActualTargetHash := TargetFromCompact(CT_MinCompactTarget);
   end else
   begin
-    if BlocksCount > CT_CalcNewTargetBlocksAverage then
-      CalcBack := CT_CalcNewTargetBlocksAverage
-    else
-      CalcBack := BlocksCount-1;
     // Calc new target!
-    ts1 := SafeBox.Block(BlocksCount-1).timestamp;
-    ts2 := SafeBox.Block(BlocksCount-CalcBack-1).timestamp;
-    tsTeorical := (CalcBack * CT_NewLineSecondsAvg);
-    tsReal := (ts1 - ts2);
-    FActualTargetHash := GetNewTarget(tsTeorical, tsReal,TargetFromCompact(FLastOperationBlock.compact_target));
+    ts1 := SafeBox.BlockPastMedianTime(Cnt - 1);
+    ts2 := SafeBox.BlockPastMedianTime(Cnt - CT_CalcNewTargetBlocksAverage - 1);
+    tsTeorical := CT_CalcNewTargetBlocksAverage * CT_NewLineSecondsAvg;
+    tsReal := ts1 - ts2;
+    FActualTargetHash := GetNewTarget(tsTeorical, tsReal,
+        TargetFromCompact(FLastOperationBlock.compact_target));
   end;
   Result := FActualTargetHash;
 end;

@@ -63,7 +63,9 @@ Const
     {$IFDEF PRODUCTION}$19000000{$ELSE}
     {$IFDEF TESTNET}   $19000000{$ENDIF}{$ENDIF};
 
-  CT_CalcNewTargetBlocksAverage: Cardinal = 100;
+  CT_CalcNewTargetBlocksAverage : Cardinal = 100;
+
+  CT_BlockMedianTimeBlockCount = 21;
 
   CT_MaxAccount : Cardinal = $FFFFFFFF;
   CT_MaxBlock : Cardinal = $FFFFFFFF;
