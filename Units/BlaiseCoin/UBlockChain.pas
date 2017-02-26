@@ -494,7 +494,8 @@ begin
       end;
       if (Operations.OperationBlock.block > 0) then
       begin
-        if Operations.OperationBlock.timestamp < FLastOperationBlock.timestamp - CT_MaxSecondsDifferenceOfNetworkNodes * 2 then
+        {
+        if Operations.OperationBlock.timestamp < FLastOperationBlock.timestamp - CT_MaxSecondsPastBlockTime then
         begin
           errors := 'Invalid timestamp (New timestamp:'+inttostr(Operations.OperationBlock.timestamp)+' last timestamp ('+Inttostr(SafeBox.BlocksCount-1)+'):'+Inttostr(FLastOperationBlock.timestamp)+')';
           exit;
@@ -507,6 +508,7 @@ begin
              inttostr(Operations.OperationBlock.timestamp-UnivDateTimeToUnix(DateTime2UnivDateTime(now)))+' > '+inttostr(CT_MaxSecondsDifferenceOfNetworkNodes)+')';
           exit;
         end;
+        }
       end
       else
       begin
@@ -1751,6 +1753,7 @@ end;
 procedure TPCOperationsComp.UpdateTimestamp;
 var ts : Cardinal;
 begin
+  {
   Lock;
   try
     ts := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
@@ -1763,6 +1766,7 @@ begin
   finally
     Unlock;
   end;
+  }
 end;
 
 function TPCOperationsComp.ValidateOperationBlock(var errors : AnsiString): Boolean;

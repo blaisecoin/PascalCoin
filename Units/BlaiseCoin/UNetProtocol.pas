@@ -2187,6 +2187,7 @@ begin
 end;
 
 procedure TNetConnection.DoProcess_Hello(HeaderData: TNetHeaderData; DataBuffer: TStream);
+(*
   function IsValidTime(connection_ts : Cardinal) : Boolean;
   var
     l : TList;
@@ -2237,6 +2238,7 @@ procedure TNetConnection.DoProcess_Hello(HeaderData: TNetHeaderData; DataBuffer:
       Result := true;
     end;
   end;
+*)
 var
   op : TPCOperationsComp;
   errors : AnsiString;
@@ -2275,10 +2277,12 @@ Begin
     end;
     FLastKnownTimestampDiff := Int64(connection_ts) - Int64(UnivDateTimeToUnix( DateTime2UnivDateTime(now)));
     // Check valid time
+    {
     if not IsValidTime(connection_ts) then
     begin
       DisconnectInvalidClient(false,'Invalid remote timestamp. Difference:'+inttostr(FLastKnownTimestampDiff)+' > '+inttostr(CT_MaxSecondsDifferenceOfNetworkNodes));
     end;
+    }
     if (connection_has_a_server>0) and (not SameText(Client.RemoteHost,'localhost')) and (not SameText(Client.RemoteHost,'127.0.0.1'))
       and (not SameText('192.168.',Copy(Client.RemoteHost,1,8)))
       and (not SameText('10.',Copy(Client.RemoteHost,1,3)))
