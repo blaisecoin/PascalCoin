@@ -1,6 +1,7 @@
 # BlaiseCoin: P2P Cryptocurrency without need of historical operations.
   
 Copyright (c) 2016 Albert Molina
+
 Copyright (c) 2017 BlaiseCoin developers
   
 THIS IS EXPERIMENTAL SOFTWARE. Use it for educational purposes only.  
