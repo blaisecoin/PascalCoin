@@ -461,6 +461,7 @@ end;
 function TPCBank.AddNewBlockChainBlock(Operations: TPCOperationsComp; var newBlock: TBlockAccount; var errors: AnsiString): Boolean;
 var
   i : Integer;
+  currtime, maxtime : Cardinal;
 begin
   TPCThread.ProtectEnterCriticalSection(Self,FBankLock);
   try
@@ -493,12 +494,14 @@ begin
       end;
       if (Operations.OperationBlock.block > 0) then
       begin
-        if ((Operations.OperationBlock.timestamp) < (FLastOperationBlock.timestamp)) then
+        if Operations.OperationBlock.timestamp < FLastOperationBlock.timestamp - CT_MaxSecondsDifferenceOfNetworkNodes * 2 then
         begin
           errors := 'Invalid timestamp (New timestamp:'+inttostr(Operations.OperationBlock.timestamp)+' last timestamp ('+Inttostr(SafeBox.BlocksCount-1)+'):'+Inttostr(FLastOperationBlock.timestamp)+')';
           exit;
         end;
-        if (Operations.OperationBlock.timestamp > (UnivDateTimeToUnix(DateTime2UnivDateTime(now))+CT_MaxSecondsDifferenceOfNetworkNodes)) then
+        currtime := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
+        maxtime := currtime + CT_MaxSecondsDifferenceOfNetworkNodes;
+        if Operations.OperationBlock.timestamp > maxtime then
         begin
           errors := 'Invalid timestamp (Future time '+Inttostr(Operations.OperationBlock.timestamp)+'-'+inttostr(UnivDateTimeToUnix(DateTime2UnivDateTime(now)))+'='+
              inttostr(Operations.OperationBlock.timestamp-UnivDateTimeToUnix(DateTime2UnivDateTime(now)))+' > '+inttostr(CT_MaxSecondsDifferenceOfNetworkNodes)+')';
@@ -1188,8 +1191,10 @@ begin
       FOperationBlock.reward := TPCBank.GetRewardForNewLine(bank.BlocksCount);
       FOperationBlock.compact_target := bank.GetActualCompactTargetHash;
       FOperationBlock.initial_safe_box_hash := bank.FInitialSafeBoxHash;
+      {
       if Bank.LastOperationBlock.timestamp>FOperationBlock.timestamp then
         FOperationBlock.timestamp := Bank.LastOperationBlock.timestamp;
+      }
     end else
     begin
       FOperationBlock.block := 0;
@@ -1561,8 +1566,10 @@ begin
       FOperationBlock.reward := TPCBank.GetRewardForNewLine(bank.BlocksCount);
       FOperationBlock.compact_target := bank.GetActualCompactTargetHash;
       FOperationBlock.initial_safe_box_hash := bank.FInitialSafeBoxHash;
+      {
       if Bank.LastOperationBlock.timestamp>FOperationBlock.timestamp then
         FOperationBlock.timestamp := Bank.LastOperationBlock.timestamp;
+      }
     end else
     begin
       FOperationBlock.block := 0;

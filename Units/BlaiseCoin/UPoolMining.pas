@@ -579,10 +579,12 @@ begin
     Op.Free;
   end;
   // Build 1.4.3 Prevent past time mining
+  {
   ts := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
   if (ts<FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.timestamp) then begin
     ts := FNodeNotifyEvents.Node.Bank.LastBlockFound.OperationBlock.timestamp;
   end;
+  }
   mine_values.GetAsVariant('timestamp').Value := ts;
 end;
 

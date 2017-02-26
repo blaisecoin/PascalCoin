@@ -532,7 +532,7 @@ begin
     exit;
   end;
   unixtimediff := UnivDateTimeToUnix(DateTime2UnivDateTime(Now)) - Bank.LastOperationBlock.timestamp;
-  if (unixtimediff<0) then
+  if (unixtimediff < -CT_MaxSecondsDifferenceOfNetworkNodes * 2) then
   begin
     WhyNot := 'Invalid Last Block Time';
     exit;
