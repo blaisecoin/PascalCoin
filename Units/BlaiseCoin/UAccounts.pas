@@ -165,7 +165,7 @@ Type
     function CalcBlockHashRateInKhs(block_number : Cardinal; Previous_blocks_average : Cardinal) : Int64;
     property TotalBalance : Int64 read FTotalBalance;
     procedure StartThreadSafe;
-    procedure EndThreadSave;
+    procedure EndThreadSafe;
     property SafeBoxHash : TRawBytes read FSafeBoxHash;
     property PreviousBlockSafeBoxHash : TRawBytes read FPreviousBlockSafeBoxHash;
     property WorkSum : UInt64 read FWorkSum; // New Build 1.5
@@ -630,7 +630,7 @@ begin
     FPreviousBlockSafeBoxHash := '';
     FWorkSum := 0;
   finally
-    EndThreadSave;
+    EndThreadSafe;
   end;
 end;
 
@@ -667,10 +667,10 @@ begin
       FPreviousBlockSafeBoxHash := accounts.FPreviousBlockSafeBoxHash;
       FWorkSum := accounts.FWorkSum;
     finally
-      accounts.EndThreadSave;
+      accounts.EndThreadSafe;
     end;
   finally
-    EndThreadSave;
+    EndThreadSafe;
   end;
 end;
 
@@ -679,7 +679,7 @@ begin
   TPCThread.ProtectEnterCriticalSection(Self,FLock);
 end;
 
-procedure TPCSafeBox.EndThreadSave;
+procedure TPCSafeBox.EndThreadSafe;
 begin
   FLock.Release;
 end;
@@ -1010,7 +1010,7 @@ begin
         Clear;
     end;
   finally
-    EndThreadSave;
+    EndThreadSafe;
   end;
 end;
 
@@ -1070,7 +1070,7 @@ begin
     // New Build 1.3.0
     TStreamOp.WriteAnsiString(Stream, FPreviousBlockSafeBoxHash);
   finally
-    EndThreadSave;
+    EndThreadSafe;
   end;
 end;
 
@@ -1157,7 +1157,7 @@ begin
     CleanTransaction;
     Result := True;
   finally
-    FFreezedAccounts.EndThreadSave;
+    FFreezedAccounts.EndThreadSafe;
   end;
 end;
 
