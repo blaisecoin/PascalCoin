@@ -110,7 +110,9 @@ Const
   CT_ClientAppVersion : AnsiString = 'Pre rel ' + {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.1';
 
   CT_Discover_IPs =
-    {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net'{$ELSE}
+    {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net;' +
+                       'server1.blaisecoin.org;server2.blaisecoin.org;server3.blaisecoin.org;' +
+                       'server4.blaisecoin.org;server5.blaisecoin.org;server6.blaisecoin.org'{$ELSE}
     {$IFDEF TESTNET}   '192.168.0.213;192.168.0.195'{$ENDIF}{$ENDIF};
 
   CT_TRUE_FALSE : array[Boolean] of AnsiString = ('FALSE','TRUE');
