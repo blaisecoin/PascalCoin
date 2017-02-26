@@ -438,12 +438,12 @@ object FRMWallet: TFRMWallet
     end
     object lblBuild: TLabel
       Left = 586
-      Height = 23
+      Height = 18
       Top = 3
-      Width = 49
+      Width = 38
       Caption = 'Build'
       Font.Color = clWindowText
-      Font.Height = -19
+      Font.Height = -15
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentColor = False
