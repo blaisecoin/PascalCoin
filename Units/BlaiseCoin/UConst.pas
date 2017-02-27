@@ -72,7 +72,7 @@ Const
 
   CT_MaxPayloadSize = 255; // Max payload size in bytes
 
-  // CT_MaxSecondsDifferenceOfNetworkNodes = 900;  // 15 minutes. if a Node has a +- value difference, will be blacklisted
+  CT_MaxSecondsDifferenceOfNetworkNodes = 60 * 60 * 2;  // 2 hours
 
   CT_MinServersConnected = {$IFDEF PRODUCTION}3{$ELSE}{$IFDEF TESTNET}1{$ENDIF}{$ENDIF};
   CT_MaxServersConnected = 5;

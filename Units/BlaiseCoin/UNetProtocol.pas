@@ -2246,7 +2246,7 @@ var
   connection_has_a_server : Word;
   i, c : Integer;
   nsa : TNodeServerAddress;
-  connection_ts : Cardinal;
+  connection_ts, currts, mints, maxts : Cardinal;
   Duplicate : TNetConnection;
   RawAccountKey : TRawBytes;
   other_version : AnsiString;
@@ -2278,6 +2278,11 @@ Begin
     end;
     FLastKnownTimestampDiff := Int64(connection_ts) - Int64(UnivDateTimeToUnix( DateTime2UnivDateTime(now)));
     // Check valid time
+    currts := UnivDateTimeToUnix(DateTime2UnivDateTime(now);
+    mints := currts - CT_MaxSecondsDifferenceOfNetworkNodes;
+    maxts := currts + CT_MaxSecondsDifferenceOfNetworkNodes;
+    if (connection_ts < mints) or (connection_ts > maxts) then
+      DisconnectInvalidClient(false, 'Invalid remote timestamp. Difference:' + inttostr(FLastKnownTimestampDiff) + ' > ' + inttostr(CT_MaxSecondsDifferenceOfNetworkNodes));
     {
     if not IsValidTime(connection_ts) then
     begin
