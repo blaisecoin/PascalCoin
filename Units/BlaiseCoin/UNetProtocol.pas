@@ -2278,7 +2278,7 @@ Begin
     end;
     FLastKnownTimestampDiff := Int64(connection_ts) - Int64(UnivDateTimeToUnix( DateTime2UnivDateTime(now)));
     // Check valid time
-    currts := UnivDateTimeToUnix(DateTime2UnivDateTime(now);
+    currts := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
     mints := currts - CT_MaxSecondsDifferenceOfNetworkNodes;
     maxts := currts + CT_MaxSecondsDifferenceOfNetworkNodes;
     if (connection_ts < mints) or (connection_ts > maxts) then
