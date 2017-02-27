@@ -152,7 +152,7 @@ begin
   try
 
     ECG := EC_GROUP_new_by_curve_name(ECDSAPubKey.EC_OpenSSL_NID);
-    if ECG=Nil then begin
+    if ECG = Nil then begin
       s := Format('An error occurred while trying to generate curve group {error = %s}',
          [ERR_error_string(ERR_get_error(),nil)]);
       TLog.NewLog(lterror,'ECIES',s);
@@ -160,7 +160,7 @@ begin
     end;
     pub_key := EC_POINT_new(ECG);
     ctx := BN_CTX_new;
-    if EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx)=1 then begin
+    if EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx) = 1 then begin
       Result := ECIESEncrypt(ECDSAPubKey.EC_OpenSSL_NID,pub_key^,MessageToEncrypt);
     end else begin
       s := Format('An error occurred while trying to convert public key to public point {error = %s}',
@@ -224,17 +224,17 @@ begin
     end;
     // Determine the envelope and block lengths so we can allocate a buffer for the result.
     block_length := EVP_CIPHER_block_size(EVP_aes_256_cbc);
-    if (block_length=0) or (block_length>EVP_MAX_BLOCK_LENGTH) then begin
+    if (block_length = 0) or (block_length>EVP_MAX_BLOCK_LENGTH) then begin
       TLog.NewLog(lterror,'ECIES',Format('Invalid block length {block = %zu}',[block_length]));
       exit;
     end;
     envelope_length := EC_POINT_point2oct(EC_KEY_get0_group(PEphemeral),EC_KEY_get0_public_key(PEphemeral),POINT_CONVERSION_COMPRESSED,nil,0,nil);
-    if (envelope_length=0) then begin
+    if (envelope_length = 0) then begin
       TLog.NewLog(lterror,'ECIES',Format('Invalid envelope length {envelope = %zu}',[envelope_length]));
       exit;
     end;
     // We use a conditional to pad the length if the input buffer is not evenly divisible by the block size.
-    if (Length(MessageToEncrypt) mod block_length)=0 then i := 0
+    if (Length(MessageToEncrypt) mod block_length) = 0 then i := 0
     else i := block_length - (Length(MessageToEncrypt) mod block_length);
     cryptex := secure_alloc(envelope_length,EVP_MD_size(ECIES_HASHER),Length(MessageToEncrypt), Length(MessageToEncrypt) + i);
     try
@@ -380,7 +380,7 @@ Begin
     Result := key;
   finally
     EC_GROUP_free(group);
-    if (Result=Nil) then EC_KEY_free(key);
+    if (Result = Nil) then EC_KEY_free(key);
   end;
 End;
 
@@ -416,7 +416,7 @@ Begin
   end;
   // Create the ephemeral key used specifically for this block of data.
   ephemeral := ecies_key_create_public_octets(EC_OpenSSL_NID,secure_key_data(cryptex),secure_key_length(cryptex));
-  if (ephemeral=Nil) then begin
+  if (ephemeral = Nil) then begin
     if logErrors then TLog.NewLog(lterror,'ECIES','An error occurred while trying to recreate the ephemeral key.');
     exit;
   end;

@@ -252,7 +252,7 @@ begin
         try
           ctx := BN_CTX_new;
           try
-            Result := EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx)=1;
+            Result := EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx) = 1;
           finally
             BN_CTX_free(ctx);
           end;
@@ -283,7 +283,7 @@ var bn : PBIGNUM;
 begin
   bn := BN_new;
   try
-    if BN_hex2bn(@bn,PAnsiChar(hexa))=0 then Raise ECryptoException.Create('Invalid Hexadecimal value:'+hexa);
+    if BN_hex2bn(@bn,PAnsiChar(hexa)) = 0 then Raise ECryptoException.Create('Invalid Hexadecimal value:' + hexa);
 
     if Assigned(FPrivateKey) then EC_KEY_free(FPrivateKey);
     FEC_OpenSSL_NID := EC_OpenSSL_NID;
@@ -410,7 +410,7 @@ begin
     BN_bin2bn(PAnsiChar(Signature.s),length(Signature.s),bns);}
     bnr := BN_bin2bn(PAnsiChar(Signature.r),length(Signature.r),nil);
     bns := BN_bin2bn(PAnsiChar(Signature.s),length(Signature.s),nil);
-    if ECDSA_SIG_set0(PECS,bnr,bns)<>1 then Raise Exception.Create('Dev error 20161019-1 '+ERR_error_string(ERR_get_error(),nil));
+    if ECDSA_SIG_set0(PECS,bnr,bns)<>1 then Raise Exception.Create('Dev error 20161019-1 ' + ERR_error_string(ERR_get_error(),nil));
     {$ENDIF}
 
     PK := EC_KEY_new_by_curve_name(EC_OpenSSL_NID);
@@ -439,7 +439,7 @@ begin
   ECG := EC_GROUP_new_by_curve_name(PubKey.EC_OpenSSL_NID);
   pub_key := EC_POINT_new(ECG);
   ctx := BN_CTX_new;
-  if EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx)=1 then begin
+  if EC_POINT_set_affine_coordinates_GFp(ECG,pub_key,BNx,BNy,ctx) = 1 then begin
     Result := ECDSAVerify(PubKey.EC_OpenSSL_NID, pub_key^,digest,signature);
   end else begin
     Result := false;
@@ -457,13 +457,13 @@ var P : PAnsiChar;
  i : Integer;
 begin
   Result := '';
-  if ((length(HexaString) mod 2)<>0) or (length(HexaString)=0) then exit;
+  if ((length(HexaString) mod 2)<>0) or (length(HexaString) = 0) then exit;
   SetLength(result,length(HexaString) div 2);
   P := @Result[1];
   lc := LowerCase(HexaString);
   i := HexToBin(PAnsiChar(@lc[1]),P,length(Result));
   if (i<>(length(HexaString) div 2)) then begin
-    TLog.NewLog(lterror,Classname,'Invalid HEXADECIMAL string result '+inttostr(i)+'<>'+inttostr(length(HexaString) div 2)+': '+HexaString);
+    TLog.NewLog(lterror,Classname,'Invalid HEXADECIMAL string result ' + inttostr(i) + '<>' + inttostr(length(HexaString) div 2) + ': ' + HexaString);
     Result := '';
   end;
 end;
@@ -501,10 +501,10 @@ var i : Integer;
 begin
   SetLength(Result,length(raw)*2);
   for i := 0 to length(raw)-1 do begin
-    b := Ord(raw[i+1]);
+    b := Ord(raw[i + 1]);
     s := IntToHex(b,2);
-    Result[(i*2)+1] := s[1];
-    Result[(i*2)+2] := s[2];
+    Result[(i*2) + 1] := s[1];
+    Result[(i*2) + 2] := s[2];
   end;
 end;
 
@@ -637,7 +637,7 @@ function TBigNum.IsZero: Boolean;
 var dv : AnsiString;
 begin
   dv := DecimalValue;
-  Result := dv='0';
+  Result := dv = '0';
 end;
 
 function TBigNum.LShift(nbits: Integer): TBigNum;
@@ -679,15 +679,15 @@ end;
 
 procedure TBigNum.SetDecimalValue(const Value: AnsiString);
 begin
-  if BN_dec2bn(@FBN,PAnsiChar(Value))=0 then raise ECryptoException.Create('Error on dec2bn');
+  if BN_dec2bn(@FBN,PAnsiChar(Value)) = 0 then raise ECryptoException.Create('Error on dec2bn');
 end;
 
 procedure TBigNum.SetHexaValue(const Value: AnsiString);
 var i : Integer;
 begin
   i := BN_hex2bn(@FBN,PAnsiChar(Value));
-  if i=0 then begin
-      raise ECryptoException.Create('Invalid Hexadecimal value:'+Value);
+  if i = 0 then begin
+      raise ECryptoException.Create('Invalid Hexadecimal value:' + Value);
   end;
 end;
 
@@ -695,7 +695,7 @@ procedure TBigNum.SetRawValue(const Value: TRawBytes);
 var p : PBIGNUM;
 begin
   p := BN_bin2bn(PAnsiChar(Value),length(Value),FBN);
-  if (p<>FBN) or (p=Nil) then Raise ECryptoException.Create('Error decoding Raw value to BigNum "'+TCrypto.ToHexaString(Value)+'" ('+inttostr(length(value))+')'+#10+
+  if (p<>FBN) or (p = Nil) then Raise ECryptoException.Create('Error decoding Raw value to BigNum "' + TCrypto.ToHexaString(Value) + '" (' + inttostr(length(value)) + ')' + #10+
     ERR_error_string(ERR_get_error(),nil));
 end;
 
