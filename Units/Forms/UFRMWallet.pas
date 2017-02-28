@@ -1020,8 +1020,8 @@ begin
   if FAppParams.FindParam(CT_PARAM_MinerName)=Nil then begin
     // New configuration... assigning a new random value
     fvi := TFolderHelper.GetTFileVersionInfo(Application.ExeName);
-    FAppParams.ParamByName[CT_PARAM_MinerName].SetAsString('New Node '+DateTimeToStr(Now)+' - '+
-      fvi.InternalName+' Build:'+fvi.FileVersion);
+    FAppParams.ParamByName[CT_PARAM_MinerName].SetAsString('New Node'{+DateTimeToStr(Now) + '- '+
+      fvi.InternalName+' Build:'+fvi.FileVersion});
   end;
   UpdateConfigChanged;
 end;
