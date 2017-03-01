@@ -51,7 +51,7 @@ Const
   CT_MinReward: UInt64 = 100000000; // 8 decimals... Min reward = 1.00000000
   CT_NewLineRewardDecrease: Cardinal = 420480; // Avg 4 year
 
-  CT_WaitNewBlocksBeforeTransaction = 100;
+  CT_WaitNewBlocksBeforeTransaction = {$IFDEF PRODUCTION}320{$ELSE}{$IFDEF TESTNET}30{$ELSE}{$ENDIF}{$ENDIF};
 
   CT_RecoverFundsWaitInactiveCount = 420480;  // After 4 years... if an account has no operations, money will be a reward for a miner!
 
