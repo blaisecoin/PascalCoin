@@ -27,11 +27,11 @@ See instructions at GitHub Wiki: https://github.com/blaisecoin/blaisecoin/wiki
 
 ## Donations
 
-Consider a donation at BlaiseCoin development account: "0-10"
+Consider a donation at BlaiseCoin development account: "1-22"
 
 ## History:
 
-### Build 1.0.0.0 - 2017/??/??
+### Build 1.0.1.0 - 2017/03/01
 
 - First release.
 
