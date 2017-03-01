@@ -466,6 +466,10 @@ object FRMWallet: TFRMWallet
     OnChange = PageControlChange
     object tsMyAccounts: TTabSheet
       Caption = 'Accounts Explorer'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 380
         Top = 66
@@ -1069,6 +1073,10 @@ object FRMWallet: TFRMWallet
     object tsNodeStats: TTabSheet
       Caption = 'Node Stats'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         841
         404)
@@ -1131,6 +1139,10 @@ object FRMWallet: TFRMWallet
     object tsMessages: TTabSheet
       Caption = 'Messages'
       ImageIndex = 6
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         841
         404)
@@ -1364,7 +1376,7 @@ object FRMWallet: TFRMWallet
     Left = 105
     Top = 180
     Bitmap = {
-      494C010102000800080210003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020008000C0210003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000001C0A18ED0000000000000000000000001D0B18A1160914740000

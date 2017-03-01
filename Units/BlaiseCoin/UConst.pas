@@ -58,6 +58,7 @@ Const
   CT_MaxTransactionAmount = 10000000000000000;
   CT_MaxTransactionFee = 1000000000000;
   CT_MaxWalletAmount = 100000000000000000;
+  CT_DefaultFee = 0;
 
   CT_MinCompactTarget: Cardinal = // First compact target of block 0
     {$IFDEF PRODUCTION}$19000000{$ELSE}

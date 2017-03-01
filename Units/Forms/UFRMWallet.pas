@@ -422,7 +422,7 @@ begin
     finally
       FSelectedAccountsGrid.UnlockAccountsList;
     end;
-    Fee := FAppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(0);
+    Fee := FAppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(CT_DefaultFee);
     WalletKeys := FWalletKeys;
     ShowModal;
   finally
@@ -1139,7 +1139,7 @@ begin
   with TFRMOperation.Create(Self) do
   try
     SenderAccounts.Add( FAccountsGrid.AccountNumber(dgAccounts.Row) );
-    Fee := FAppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(0);
+    Fee := FAppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(CT_DefaultFee);
     WalletKeys := FWalletKeys;
     ShowModal;
   finally

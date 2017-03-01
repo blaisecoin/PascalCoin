@@ -103,7 +103,7 @@ begin
   if TAccountComp.TxtToMoney(ebDefaultFee.Text,df) then begin
     AppParams.ParamByName[CT_PARAM_DefaultFee].SetAsInt64(df);
   end else begin
-    ebDefaultFee.Text := TAccountComp.FormatMoney(AppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInteger(0));
+    ebDefaultFee.Text := TAccountComp.FormatMoney(AppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(CT_DefaultFee));
     raise Exception.Create('Invalid Fee value');
   end;
   AppParams.ParamByName[CT_PARAM_InternetServerPort].SetAsInteger(udInternetServerPort.Position );
@@ -195,7 +195,7 @@ begin
   if not Assigned(Value) then exit;
   try
     udInternetServerPort.Position := AppParams.ParamByName[CT_PARAM_InternetServerPort].GetAsInteger(CT_NetServer_Port);
-    ebDefaultFee.Text := TAccountComp.FormatMoney(AppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(0));
+    ebDefaultFee.Text := TAccountComp.FormatMoney(AppParams.ParamByName[CT_PARAM_DefaultFee].GetAsInt64(CT_DefaultFee));
     cbJSONRPCMinerServerActive.Checked := AppParams.ParamByName[CT_PARAM_JSONRPCMinerServerActive].GetAsBoolean(true);
     case TMinerPrivateKey(AppParams.ParamByName[CT_PARAM_MinerPrivateKeyType].GetAsInteger(Integer(mpk_Random))) of
       mpk_NewEachTime : rbGenerateANewPrivateKeyEachBlock.Checked := true;
