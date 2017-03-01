@@ -49,7 +49,7 @@ Const
 
   CT_FirstReward: UInt64 = 10000000000; // 8 decimals... First reward = 100.00000000
   CT_MinReward: UInt64 = 100000000; // 8 decimals... Min reward = 1.00000000
-  CT_NewLineRewardDecrease: Cardinal = 420480; // Avg 4 year
+  CT_NewLineRewardDecrease: Cardinal = 105120; // Avg 1 year
 
   CT_WaitNewBlocksBeforeTransaction = {$IFDEF PRODUCTION}320{$ELSE}{$IFDEF TESTNET}30{$ELSE}{$ENDIF}{$ENDIF};
 
