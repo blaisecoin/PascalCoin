@@ -1163,8 +1163,7 @@ begin
     l := Length(FOperationsHashTree.HashTree);
     if l > 0 then
       ms.WriteBuffer(FOperationsHashTree.HashTree[1], l);
-    // Note about fee: Fee is stored in 8 bytes, but only digest first 4 low bytes
-    ms.WriteBuffer(FOperationBlock.fee, 4);
+    ms.WriteBuffer(FOperationBlock.fee, SizeOf(FOperationBlock.fee));
     SetLength(FDigest_Part3, ms.Size);
     ms.Position := 0;
     ms.ReadBuffer(FDigest_Part3[1], ms.Size);
