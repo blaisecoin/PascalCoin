@@ -330,7 +330,8 @@ begin
   PC := PS;
   Result := '';
   for I := 1 to 20 do begin
-    Result := Result + IntToHex(PtrInt(PC^),2);
+    // Result := Result + IntToHex(PtrInt(PC^),2);
+    Result := Result + PC^;
     inc(PC);
   end;
   FreeMem(PS,33);
