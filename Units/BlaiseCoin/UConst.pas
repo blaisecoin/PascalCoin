@@ -75,10 +75,10 @@ Const
 
   CT_MaxSecondsDifferenceOfNetworkNodes = 60 * 60 * 2;  // 2 hours
 
-  CT_MinServersConnected = {$IFDEF PRODUCTION}3{$ELSE}{$IFDEF TESTNET}1{$ENDIF}{$ENDIF};
-  CT_MaxServersConnected = 5;
+  CT_MinServersConnected = {$IFDEF PRODUCTION}2{$ELSE}{$IFDEF TESTNET}1{$ENDIF}{$ENDIF};
+  CT_MaxServersConnected = 4;
 
-  CT_MaxClientsConnected = 500;
+  CT_MaxClientsConnected = 100;
 
   CT_BankToDiskEveryNBlocks = 100; // Build 1.5 changed from 500 to 100; // Build 1.3.0 Changed from 1000 to 500
 
