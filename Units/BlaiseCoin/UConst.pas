@@ -102,6 +102,10 @@ Const
 
   CT_MagicIdentificator: AnsiString = 'BlaiseCoin'; // Safebox magic
 
+  CT_OpTransactionVersion  : Word = $0001;
+  CT_OpChangeKeyVersion    : Word = $0001;
+  CT_OpRecoverFundsVersion : Word = $0001;
+
   // Value of Operations type in Protocol 1
   CT_Op_Transaction = $01;
   CT_Op_Changekey = $02;

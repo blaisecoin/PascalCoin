@@ -177,6 +177,7 @@ type
     procedure AffectedAccounts(list : TList); virtual; abstract;
     class function OpType: Byte; virtual; abstract;
     class function OperationToOperationResume(Block : Cardinal; Operation : TPCOperation; Affected_account_number : Cardinal; var OperationResume : TOperationResume) : Boolean;
+    function OperationVersion : Word; virtual; abstract;
     function OperationAmount : Int64; virtual; abstract;
     function OperationFee: UInt64; virtual; abstract;
     function OperationPayload : TRawBytes; virtual; abstract;

@@ -21,6 +21,7 @@ uses UCrypto, UBlockChain, Classes, UAccounts;
 Type
   // Operations Type
   TOpTransactionData = record
+    version : Word;
     sender: Cardinal;
     n_operation : Cardinal;
     target: Cardinal;
@@ -32,6 +33,7 @@ Type
   end;
 
   TOpChangeKeyData = record
+    version : Word;
     account: Cardinal;
     n_operation : Cardinal;
     fee: UInt64;
@@ -42,6 +44,7 @@ Type
   end;
 
   TOpRecoverFundsData = record
+    version : Word;
     account: Cardinal;
     n_operation : Cardinal;
     fee: UInt64;
@@ -62,6 +65,7 @@ Type
     class function GetTransactionHashToSign(const trans : TOpTransactionData) : TRawBytes;
     class function DoSignOperation(key : TECPrivateKey; var trans : TOpTransactionData) : Boolean;
     class function OpType : Byte; override;
+    function OperationVersion : Word; override;
     function OperationAmount : Int64; override;
     function OperationFee : UInt64; override;
     function OperationPayload : TRawBytes; override;
@@ -87,6 +91,7 @@ Type
     function DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors : AnsiString) : Boolean; override;
     function SaveToStream(Stream : TStream) : Boolean; override;
     function LoadFromStream(Stream : TStream) : Boolean; override;
+    function OperationVersion : Word; override;
     function OperationAmount : Int64; override;
     function OperationFee : UInt64; override;
     function OperationPayload : TRawBytes; override;
@@ -111,6 +116,7 @@ Type
     function DoOperation(AccountTransaction : TPCSafeBoxTransaction; var errors : AnsiString) : Boolean; override;
     function SaveToStream(Stream : TStream) : Boolean; override;
     function LoadFromStream(Stream : TStream) : Boolean; override;
+    function OperationVersion : Word; override;
     function OperationAmount : Int64; override;
     function OperationFee : UInt64; override;
     function OperationPayload : TRawBytes; override;
@@ -148,6 +154,7 @@ end;
 constructor TOpTransaction.Create(sender, n_operation, target: Cardinal;
   key: TECPrivateKey; amount, fee: UInt64; payload: AnsiString);
 begin
+  FData.version := CT_OpTransactionVersion;
   FData.sender := sender;
   FData.n_operation := n_operation;
   FData.target := target;
@@ -170,6 +177,11 @@ begin
   Result := False;
   errors := '';
   //
+  if FData.version <> CT_OpTransactionVersion then
+  begin
+    errors := Format('Unrecognised transaction version %d', [FData.version]);
+    exit;
+  end;
   if (FData.sender >= AccountTransaction.FreezedSafeBox.AccountsCount) then
   begin
     errors := Format('Invalid sender %d', [FData.sender]);
@@ -282,6 +294,7 @@ var
 begin
   ms := TMemoryStream.Create;
   try
+    ms.WriteBuffer(FData.version, SizeOf(FData.version));
     ms.WriteBuffer(FData.sender, SizeOf(FData.sender));
     ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
     ms.WriteBuffer(FData.target, SizeOf(FData.target));
@@ -306,6 +319,7 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
+    ms.WriteBuffer(trans.version, SizeOf(trans.version));
     ms.WriteBuffer(trans.sender, SizeOf(trans.sender));
     ms.WriteBuffer(trans.n_operation, SizeOf(trans.n_operation));
     ms.WriteBuffer(trans.target, SizeOf(trans.target));
@@ -323,29 +337,9 @@ begin
   end;
 end;
 
-function TOpTransaction.LoadFromStream(Stream: TStream): Boolean;
+function TOpTransaction.OperationVersion: Word;
 begin
-  Result := False;
-  if Stream.Size - Stream.Position < 28 then
-    exit; // Invalid stream
-  Stream.ReadBuffer(FData.sender, SizeOf(FData.sender));
-  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
-  Stream.ReadBuffer(FData.target, SizeOf(FData.target));
-  Stream.ReadBuffer(FData.amount, SizeOf(FData.amount));
-  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
-  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
-    exit;
-  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
-    exit;
-  Result := True;
+  Result := FData.version;
 end;
 
 function TOpTransaction.OperationAmount: Int64;
@@ -370,6 +364,7 @@ end;
 
 function TOpTransaction.SaveToStream(Stream: TStream): Boolean;
 begin
+  Stream.WriteBuffer(CT_OpTransactionVersion, SizeOf(CT_OpTransactionVersion));
   Stream.WriteBuffer(FData.sender, SizeOf(FData.sender));
   Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
   Stream.WriteBuffer(FData.target, SizeOf(FData.target));
@@ -381,6 +376,32 @@ begin
   TStreamOp.WriteAnsiString(Stream, FData.public_key.y);
   TStreamOp.WriteAnsiString(Stream, FData.sign.r);
   TStreamOp.WriteAnsiString(Stream, FData.sign.s);
+  Result := True;
+end;
+
+function TOpTransaction.LoadFromStream(Stream: TStream): Boolean;
+begin
+  Result := False;
+  if Stream.Size - Stream.Position < 30 then
+    exit; // Invalid stream
+  Stream.ReadBuffer(FData.version, SizeOf(FData.version));
+  Stream.ReadBuffer(FData.sender, SizeOf(FData.sender));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.target, SizeOf(FData.target));
+  Stream.ReadBuffer(FData.amount, SizeOf(FData.amount));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
+  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
+    exit;
+  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
+    exit;
   Result := True;
 end;
 
@@ -411,6 +432,7 @@ end;
 
 constructor TOpChangeKey.Create(account_number, n_operation: Cardinal; key:TECPrivateKey; new_account_key : TAccountKey; fee: UInt64; payload: AnsiString);
 begin
+  FData.version := CT_OpChangeKeyVersion;
   FData.account := account_number;
   FData.n_operation := n_operation;
   FData.fee := fee;
@@ -430,6 +452,11 @@ function TOpChangeKey.DoOperation(AccountTransaction : TPCSafeBoxTransaction; va
 var account : TAccount;
 begin
   Result := False;
+  if FData.version <> CT_OpChangeKeyVersion then
+  begin
+    errors := Format('Unrecognised transaction version %d', [FData.version]);
+    exit;
+  end;
   if (FData.account >= AccountTransaction.FreezedSafeBox.AccountsCount) then
   begin
     errors := 'Invalid account number';
@@ -510,6 +537,7 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
+    ms.WriteBuffer(FData.version, SizeOf(FData.version));
     ms.WriteBuffer(FData.account, SizeOf(FData.account));
     ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
     ms.WriteBuffer(FData.fee, SizeOf(FData.fee));
@@ -535,6 +563,7 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
+    ms.WriteBuffer(op.version, SizeOf(op.version));
     ms.WriteBuffer(op.account, SizeOf(op.account));
     ms.WriteBuffer(op.n_operation, SizeOf(op.n_operation));
     ms.WriteBuffer(op.fee, SizeOf(op.fee));
@@ -552,31 +581,9 @@ begin
   end;
 end;
 
-function TOpChangeKey.LoadFromStream(Stream: TStream): Boolean;
-var s : AnsiString;
+function TOpChangeKey.OperationVersion: Word;
 begin
-  Result := False;
-  if Stream.Size - Stream.Position < 16  then
-    exit; // Invalid stream
-  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
-  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
-  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
-  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
-    exit;
-  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, s) < 0 then
-    exit;
-  FData.new_accountkey := TAccountComp.RawString2Accountkey(s);
-  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
-    exit;
-  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
-    exit;
-  Result := True;
+  Result := FData.version;
 end;
 
 function TOpChangeKey.OperationAmount: Int64;
@@ -601,6 +608,7 @@ end;
 
 function TOpChangeKey.SaveToStream(Stream: TStream): Boolean;
 begin
+  Stream.WriteBuffer(CT_OpChangeKeyVersion, SizeOf(CT_OpChangeKeyVersion));
   Stream.WriteBuffer(FData.account, SizeOf(FData.account));
   Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
   Stream.WriteBuffer(FData.fee, SizeOf(FData.fee));
@@ -611,6 +619,34 @@ begin
   TStreamOp.WriteAnsiString(Stream, TAccountComp.AccountKey2RawString(FData.new_accountkey));
   TStreamOp.WriteAnsiString(Stream, FData.sign.r);
   TStreamOp.WriteAnsiString(Stream, FData.sign.s);
+  Result := True;
+end;
+
+function TOpChangeKey.LoadFromStream(Stream: TStream): Boolean;
+var s : AnsiString;
+begin
+  Result := False;
+  if Stream.Size - Stream.Position < 18  then
+    exit; // Invalid stream
+  Stream.ReadBuffer(FData.version, SizeOf(FData.version));
+  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
+  if TStreamOp.ReadAnsiString(Stream, FData.payload) < 0 then
+    exit;
+  if Stream.Read(FData.public_key.EC_OpenSSL_NID, SizeOf(FData.public_key.EC_OpenSSL_NID)) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.x) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.public_key.y) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, s) < 0 then
+    exit;
+  FData.new_accountkey := TAccountComp.RawString2Accountkey(s);
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.r) < 0 then
+    exit;
+  if TStreamOp.ReadAnsiString(Stream, FData.sign.s) < 0 then
+    exit;
   Result := True;
 end;
 
@@ -636,6 +672,7 @@ end;
 
 constructor TOpRecoverFunds.Create(account_number, n_operation : Cardinal; fee: UInt64);
 begin
+  FData.version := CT_OpRecoverFundsVersion;
   FData.account := account_number;
   FData.n_operation := n_operation;
   FData.fee := fee;
@@ -651,6 +688,11 @@ function TOpRecoverFunds.DoOperation(AccountTransaction : TPCSafeBoxTransaction;
 var acc : TAccount;
 begin
   Result := False;
+  if FData.version <> CT_OpRecoverFundsVersion then
+  begin
+    errors := Format('Unrecognised transaction version %d', [FData.version]);
+    exit;
+  end;
   if TAccountComp.IsAccountBlockedByProtocol(FData.account, AccountTransaction.FreezedSafeBox.BlocksCount) then
   begin
     errors := 'Account is blocked by protocol: account not mature';
@@ -692,6 +734,7 @@ var ms : TMemoryStream;
 begin
   ms := TMemoryStream.Create;
   try
+    ms.WriteBuffer(FData.version, SizeOf(FData.version));
     ms.WriteBuffer(FData.account, SizeOf(FData.account));
     ms.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
     ms.WriteBuffer(FData.fee, SizeOf(FData.fee));
@@ -703,15 +746,9 @@ begin
   end;
 end;
 
-function TOpRecoverFunds.LoadFromStream(Stream: TStream): Boolean;
+function TOpRecoverFunds.OperationVersion: Word;
 begin
-  Result := False;
-  if Stream.Size - Stream.Position < 16 then
-    exit;
-  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
-  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
-  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
-  Result := True;
+  Result := FData.version;
 end;
 
 function TOpRecoverFunds.OperationAmount: Int64;
@@ -736,9 +773,22 @@ end;
 
 function TOpRecoverFunds.SaveToStream(Stream: TStream): Boolean;
 begin
+  Stream.WriteBuffer(CT_OpRecoverFundsVersion, SizeOf(CT_OpRecoverFundsVersion));
   Stream.WriteBuffer(FData.account, SizeOf(FData.account));
   Stream.WriteBuffer(FData.n_operation, SizeOf(FData.n_operation));
   Stream.WriteBuffer(FData.fee, SizeOf(FData.fee));
+  Result := True;
+end;
+
+function TOpRecoverFunds.LoadFromStream(Stream: TStream): Boolean;
+begin
+  Result := False;
+  if Stream.Size - Stream.Position < 18 then
+    exit;
+  Stream.ReadBuffer(FData.version, SizeOf(FData.version));
+  Stream.ReadBuffer(FData.account, SizeOf(FData.account));
+  Stream.ReadBuffer(FData.n_operation, SizeOf(FData.n_operation));
+  Stream.ReadBuffer(FData.fee, SizeOf(FData.fee));
   Result := True;
 end;
 
