@@ -482,7 +482,7 @@ end;
 
 class function TAccountComp.FormatMoney(Money: Int64): AnsiString;
 begin
-  Result := FormatFloat('#,###0.0000', (Money/10000));
+  Result := FormatFloat('#,###0.00000000', (Money/100000000));
 end;
 
 class function TAccountComp.GetECInfoTxt(const EC_OpenSSL_NID: Word): AnsiString;
@@ -568,7 +568,7 @@ begin
   end;
   try
     s := StringReplace(moneytxt, ThousandSeparator, '', [rfReplaceAll]);
-    money := Round( StrToFloat(s)*10000 );
+    money := Round( StrToFloat(s)*100000000 );
     Result := True;
   except
     result := False;

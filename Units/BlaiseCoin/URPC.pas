@@ -450,14 +450,14 @@ function TRPCProcess.ProcessMethod(const method: String; params: TPCJSONObject;
     Result := _ra;
   end;
 
-  function ToJSONCurrency(pascalCoins : Int64) : Real;
+  function ToJSONCurrency(pascalCoins : Int64) : Double;
   begin
-    Result := pascalCoins / 10000;
+    Result := pascalCoins / 100000000;
   end;
 
-  function ToPascalCoins(jsonCurr : Real) : Int64;
+  function ToPascalCoins(jsonCurr : Double) : Int64;
   begin
-    Result := Round(jsonCurr * 10000);
+    Result := Round(jsonCurr * 100000000);
   end;
 
   function HexaStringToOperationsHashTree(Const HexaStringOperationsHashTree : AnsiString; out OperationsHashTree : TOperationsHashTree; var errors : AnsiString) : Boolean;

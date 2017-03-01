@@ -34,7 +34,7 @@ Const
 
   CT_Zero_Block_Proof_of_work_in_Hexa : AnsiString =
     {$IFDEF PRODUCTION}'00000003A29C32E84A539ADE24397D41D30116A6FAFEC17B7D9CED68A4238C92'{$ELSE}
-    {$IFDEF TESTNET}'00000066BB84B0051BD6F750ED6A68BA8D5625AA98559146D263127FDE71CC7F'{$ENDIF}{$ENDIF};
+    {$IFDEF TESTNET}''{$ENDIF}{$ENDIF};
 
   CT_NetServer_Port = {$IFDEF PRODUCTION}9004{$ELSE}{$IFDEF TESTNET}9104{$ELSE}{$ENDIF}{$ENDIF};
   CT_JSONRPCMinerServer_Port = {$IFDEF PRODUCTION}9009{$ELSE}{$IFDEF TESTNET}9109{$ELSE}{$ENDIF}{$ENDIF};
@@ -47,17 +47,17 @@ Const
     //   Each year = 105120 new blocks (aprox)
     //   -> *5 accounts per block = 525600 new accounts each year (aprox)
 
-  CT_FirstReward: UInt64 = 1000000; // 4 decimals... First reward = 100,0000
-  CT_MinReward: UInt64 = 10000; // 4 decimals... Min reward = 1,0000
+  CT_FirstReward: UInt64 = 10000000000; // 8 decimals... First reward = 100.00000000
+  CT_MinReward: UInt64 = 100000000; // 8 decimals... Min reward = 1.00000000
   CT_NewLineRewardDecrease: Cardinal = 420480; // Avg 4 year
 
   CT_WaitNewBlocksBeforeTransaction = 100;
 
   CT_RecoverFundsWaitInactiveCount = 420480;  // After 4 years... if an account has no operations, money will be a reward for a miner!
 
-  CT_MaxTransactionAmount = 1000000000000;
-  CT_MaxTransactionFee = 100000000;
-  CT_MaxWalletAmount = 10000000000000;
+  CT_MaxTransactionAmount = 10000000000000000;
+  CT_MaxTransactionFee = 1000000000000;
+  CT_MaxWalletAmount = 100000000000000000;
 
   CT_MinCompactTarget: Cardinal = // First compact target of block 0
     {$IFDEF PRODUCTION}$19000000{$ELSE}
