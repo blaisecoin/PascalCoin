@@ -29,7 +29,7 @@ type
 
 Const
   CT_Genesis_Magic_String_For_Old_Block_Hash : AnsiString =
-    {$IFDEF PRODUCTION}'Pre release';{$ELSE}
+    {$IFDEF PRODUCTION}'1 March 2017 - Reuters - Fed trumps Trump as dollar, U.S. Treasury yields jump'{$ELSE}
     {$IFDEF TESTNET}'Test'{$ENDIF}{$ENDIF};
 
   CT_Zero_Block_Proof_of_work_in_Hexa : AnsiString =
@@ -112,7 +112,7 @@ Const
   CT_Op_Changekey = $02;
   CT_Op_Recover = $03;
 
-  CT_ClientAppVersion : AnsiString = 'Pre rel ' + {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.1';
+  CT_ClientAppVersion : AnsiString = {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.1';
 
   CT_Discover_IPs =
     {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net;' +

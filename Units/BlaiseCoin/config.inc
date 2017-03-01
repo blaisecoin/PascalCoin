@@ -26,8 +26,8 @@
   {.$DEFINE Synapse_OpenSSLv10}
   {.$DEFINE Synapse_OpenSSLv11}
 
-  {.$DEFINE PRODUCTION}
-  {$DEFINE TESTNET}
+  {$DEFINE PRODUCTION}
+  {DEFINE TESTNET}
 
 { ********************************************************************
   Don't touch more code, it will addapt based on your preferences
