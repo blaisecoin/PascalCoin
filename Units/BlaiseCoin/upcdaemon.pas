@@ -194,7 +194,7 @@ var
       s := Trim(FIniFile.ReadString(CT_INI_SECTION_GLOBAL, CT_INI_IDENT_MINER_NAME, ''));
       if SameText(s, 'TIME') then
       begin
-        s := FormatDateTime('yyyy-mm-dd hh:nn', Now);
+        s := FormatDateTime('yyyy-mm-dd', Now);
         TLog.NewLog(ltInfo, ClassName, 'Generated new miner name: ' + s);
       end;
       maxconnections := FIniFile.ReadInteger(CT_INI_SECTION_GLOBAL, CT_INI_IDENT_MINER_MAX_CONNECTIONS, 1000);
