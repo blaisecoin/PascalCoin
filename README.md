@@ -31,7 +31,7 @@ Consider a donation at BlaiseCoin development account: "1-22"
 
 ## History:  
 
-### Build 1.0.1.0 - 2017/03/01
+### Build 1.0.1.1 - 2017/03/01
 
 - First release.
 
