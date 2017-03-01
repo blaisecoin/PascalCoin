@@ -76,7 +76,7 @@ Const
   CT_MaxSecondsDifferenceOfNetworkNodes = 60 * 60 * 2;  // 2 hours
 
   CT_MinServersConnected = {$IFDEF PRODUCTION}2{$ELSE}{$IFDEF TESTNET}1{$ENDIF}{$ENDIF};
-  CT_MaxServersConnected = 4;
+  CT_MaxServersConnected = 8;
 
   CT_MaxClientsConnected = 100;
 
