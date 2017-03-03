@@ -3278,6 +3278,25 @@ begin
     end;
     if Terminated then
       exit;
+    // try standard port
+    if FNodeServerAddress.port <> CT_NetServer_Port then
+    begin
+      DebugStep := 'Connecting standard port';
+      if NC.ConnectTo(FNodeServerAddress.ip, CT_NetServer_Port) then
+      begin
+        if Terminated then
+          exit;
+        Sleep(500);
+        DebugStep := 'Is connected now2?';
+        if Terminated then
+          exit;
+        ok :=NC.Connected;
+        if ok then
+          FNodeServerAddress.port := CT_NetServer_Port;
+      end;
+      if Terminated then
+        exit;
+    end;
   finally
     if not ok then
     begin
