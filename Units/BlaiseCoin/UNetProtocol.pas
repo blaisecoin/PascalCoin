@@ -1844,7 +1844,7 @@ begin
       P^.last_connection := UnivDateTimeToUnix(DateTime2UnivDateTime(now));
       P^.its_myself := ItsMyself;
       P^.BlackListText := Why;
-      P^.is_blacklisted := true;
+      // P^.is_blacklisted := true;
     finally
       TNetData.NetData.NodeServersAddresses.UnlockList;
     end;
