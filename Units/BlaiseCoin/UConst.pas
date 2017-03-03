@@ -92,7 +92,6 @@ Const
     {$IFDEF TESTNET}   $799A0F95;{$ENDIF}{$ENDIF}
 
 
-  // Build 1.0.4 - introducing NetProtocol versioning:
   CT_NetProtocol_Version: Word = $0004;
   // IMPORTANT NOTE!!!
   // NetProtocol_Available MUST BE always >= NetProtocol_version
@@ -101,7 +100,7 @@ Const
   CT_SafeBoxBankVersion    : Word = $0002;
   CT_SafeBoxBankMinVersion : Word = $0002;
 
-  CT_MagicIdentificator: AnsiString = 'BlaiseCoin'; // Safebox magic
+  CT_MagicIdentificator: AnsiString = {$IFDEF PRODUCTION}'BlaiseCoin'{$ELSE}'BlaiseCoinTESTNET'{$ENDIF}; // Safebox magic
 
   CT_OpTransactionVersion  : Word = $0001;
   CT_OpChangeKeyVersion    : Word = $0001;
