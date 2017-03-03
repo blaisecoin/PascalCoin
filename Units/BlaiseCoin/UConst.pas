@@ -111,7 +111,7 @@ Const
   CT_Op_Changekey = $02;
   CT_Op_Recover = $03;
 
-  CT_ClientAppVersion : AnsiString = {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.1';
+  CT_ClientAppVersion : AnsiString = {$IFDEF TESTNET}'TESTNET ' + {$ENDIF}'1.0.2';
 
   CT_Discover_IPs =
     {$IFDEF PRODUCTION}'blaise1.ignorelist.com;blaise1.mooo.com;blaise1.qc.to;blaise1.strangled.net;' +
