@@ -285,7 +285,8 @@ begin
     begin
       if (TNetData.NetData.GetConnection(i, nc)) then
       begin
-        if (nc <> SenderConnection) then TThreadNodeNotifyNewBlock.Create(nc);
+        if (nc <> SenderConnection) and nc.Connected then
+          TThreadNodeNotifyNewBlock.Create(nc);
       end;
     end;
     // Notify it!
@@ -397,7 +398,7 @@ begin
     begin
       if TNetData.NetData.GetConnection(i, nc) then
       begin
-        if (nc <> SenderConnection) then
+        if (nc <> SenderConnection) and nc.Connected then
           TThreadNodeNotifyOperations.Create(nc, valids_operations);
       end;
     end;
@@ -975,6 +976,8 @@ begin
   if TNetData.NetData.ConnectionLock(Self, FNetConnection, 500) then
   begin
     try
+      if not FNetConnection.Connected then
+        exit;
       TLog.NewLog(ltdebug, ClassName, 'Sending new block found to ' + FNetConnection.Client.ClientRemoteAddr);
       FNetConnection.Send_NewBlockFound;
       if TNode.Node.Operations.OperationsHashTree.OperationsCount > 0 then
@@ -1012,6 +1015,8 @@ begin
   begin
     try
       if FOperationsHashTree.OperationsCount <= 0 then
+        exit;
+      if not FNetconnection.Connected then
         exit;
       TLog.NewLog(ltdebug, ClassName, 'Sending ' + inttostr(FOperationsHashTree.OperationsCount) + ' Operations to ' + FNetConnection.ClientRemoteAddr);
       FNetConnection.Send_AddOperations(FOperationsHashTree);
